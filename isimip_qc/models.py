@@ -23,6 +23,7 @@ class File(object):
     def close(self):
         self.dataset.close()
         self.handler.close()
+        self.logger.removeHandler(self.handler)
         self.info('Close %s.', self.abs_path)
 
     def info(self, *args, **kwargs):
