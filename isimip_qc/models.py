@@ -1,7 +1,7 @@
 import logging
-from datetime import date
 
 from .config import settings
+from .utils.netcdf import open_dataset
 
 
 class File(object):
@@ -11,24 +11,34 @@ class File(object):
         self.abs_path = file_path
         self.identifiers = {}
         self.clean = True
-        self.logger_name = str(self.path)
-        self.setup_logger()
+        self.logger = None
+        self.dataset = None
 
-        self.info('File %s found.', self.abs_path)
+    def open(self):
+        self.dataset = open_dataset(self.abs_path)
+        self.logger = self.get_logger()
+        self.info('Open %s.', self.abs_path)
+
+    def close(self):
+        self.dataset.close()
+        for handler in self.logger.handlers:
+            handler.close()
+        self.info('Close %s.', self.abs_path)
 
     def info(self, *args, **kwargs):
-        logging.getLogger(self.logger_name).info(*args, **kwargs)
+        self.logger.info(*args, **kwargs)
 
     def warn(self, *args, **kwargs):
-        logging.getLogger(self.logger_name).warn(*args, **kwargs)
+        self.logger.warn(*args, **kwargs)
 
     def error(self, *args, **kwargs):
-        logging.getLogger(self.logger_name).error(*args, **kwargs)
+        self.logger.error(*args, **kwargs)
         self.clean = False  # this file should not be moved!
 
-    def setup_logger(self):
+    def get_logger(self):
         # setup a log handler for the command line and one for the file
-        logger = logging.getLogger(self.logger_name)
+        logger_name = str(self.path)
+        logger = logging.getLogger(logger_name)
 
         # do not propagate messages to the root logger,
         # which is configured in settings.setup()
@@ -42,6 +52,8 @@ class File(object):
         if settings.LOG_PATH:
             logger.addHandler(self.get_file_handler())
 
+        return logger
+
     def get_stream_handler(self):
         formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(name)s: %(message)s')
 
@@ -52,7 +64,7 @@ class File(object):
         return handler
 
     def get_file_handler(self):
-        log_path = settings.LOG_PATH / date.today().strftime("%Y%m%d") / self.path.with_suffix('.log')
+        log_path = settings.LOG_PATH / self.path.with_suffix('.log')
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
         formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')

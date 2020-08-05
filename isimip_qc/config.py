@@ -77,11 +77,11 @@ class Settings(object):
                             format='[%(asctime)s] %(levelname)s %(name)s: %(message)s')
 
         # set the path
-        self.ISIMIP_PATH = Path(args.simulation_round) / 'OutputData' / args.sector
+        self.SCHEMA_PATH = Path(args.schema_path)
 
         # fetch pattern and schema
-        self.PATTERN = fetch_pattern(self.PATTERN_LOCATIONS, self.ISIMIP_PATH)
-        self.SCHEMA = fetch_schema(self.SCHEMA_LOCATIONS, self.ISIMIP_PATH)
+        self.PATTERN = fetch_pattern(self.PATTERN_LOCATIONS, self.SCHEMA_PATH)
+        self.SCHEMA = fetch_schema(self.SCHEMA_LOCATIONS, self.SCHEMA_PATH)
 
         # log settings
         logger.debug(self)

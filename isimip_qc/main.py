@@ -4,7 +4,7 @@ import logging
 from .checks import checks
 from .config import settings
 from .models import File
-from .utils.files import copy_file, move_file, open_file, walk_files
+from .utils.files import copy_file, move_file, walk_files
 
 logger = logging.getLogger(__name__)
 
@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 def main():
     parser = argparse.ArgumentParser()
     # mandatory
-    parser.add_argument('simulation_round', help='ISIMIP simulation_round, e.g. ISIMIP3a')
-    parser.add_argument('sector', help='ISIMIP sector, e.g. water_global')
+    parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
     parser.add_argument('--copy', dest='move', action='store_true', default=None,
                         help='Copy checked files to the CHECKED_PATH')
@@ -47,11 +46,11 @@ def main():
     for file_path in walk_files(settings.UNCHECKED_PATH):
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
+            file.open()
             file.match_identifiers()
-
-            with open_file(file_path) as dataset:
-                for check in checks:
-                    check(file, dataset)
+            for check in checks:
+                check(file)
+            file.close()
 
             if settings.MOVE and settings.CHECKED_PATH and file.clean:
                 if settings.MOVE:

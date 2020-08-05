@@ -1,19 +1,19 @@
 import numpy as np
 
 
-def check_data_model(file, dataset):
+def check_data_model(file):
     '''
     File must use the NetCDF4 classic data model
     '''
-    if dataset.data_model != 'NETCDF4_CLASSIC':
-        file.warn('Data model is %s (not NETCDF4_CLASSIC).', dataset.data_model)
+    if file.dataset.data_model != 'NETCDF4_CLASSIC':
+        file.warn('Data model is %s (not NETCDF4_CLASSIC).', file.dataset.data_model)
 
 
-def check_zip(file, dataset):
+def check_zip(file):
     '''
     Variables must be compressed with at least compression level 4
     '''
-    for variable_name, variable in dataset.variables.items():
+    for variable_name, variable in file.dataset.variables.items():
         zlib = variable.filters().get('zlib')
         if zlib:
             complevel = variable.filters().get('complevel')
@@ -23,29 +23,29 @@ def check_zip(file, dataset):
             file.warn('Variable %s is not compressed.', variable_name)
 
 
-def check_dimensions(file, dataset):
+def check_dimensions(file):
     '''
     The order of dimensions should be (lon, lat, time)
     '''
     dimensions = ('lon', 'lat', 'time')
-    if tuple(dataset.dimensions) != dimensions:
-        file.warn('Dimensions should be %s, but are %s.', dimensions, tuple(dataset.dimensions))
+    if tuple(file.dataset.dimensions) != dimensions:
+        file.warn('Dimensions should be %s, but are %s.', dimensions, tuple(file.dataset.dimensions))
 
 
-def check_dimension_variables(file, dataset):
+def check_dimension_variables(file):
     '''
     The first variables should be dimensions.
     '''
-    for dimension_name, variable_name in zip(dataset.dimensions, dataset.variables):
+    for dimension_name, variable_name in zip(file.dataset.dimensions, file.dataset.variables):
         if dimension_name != variable_name:
             file.warn('Variable %s should be %s.', variable_name, dimension_name)
 
 
-def check_lon(file, dataset):
+def check_lon(file):
     '''
     The global grid ranges 89.75 to -89.75° latitude, and ‐179.75 to 179.75° longitude, i.e. 0.5° grid spacing, 360 rows and 720 columns, or 259200 grid cells total.
     '''
-    lon = dataset.variables.get('lon')
+    lon = file.dataset.variables.get('lon')
     if lon is None:
         file.error('lon is missing.')
     else:
@@ -86,11 +86,11 @@ def check_lon(file, dataset):
             file.warn('lon precision should be float64 but is %s.', lon.dtype)
 
 
-def check_lat(file, dataset):
+def check_lat(file):
     '''
     The global grid ranges 89.75 to -89.75° latitude, and ‐179.75 to 179.75° longitude, i.e. 0.5° grid spacing, 360 rows and 720 columns, or 259200 grid cells total.
     '''
-    lat = dataset.variables.get('lat')
+    lat = file.dataset.variables.get('lat')
     if lat is None:
         file.error('Lat is missing.')
     else:
@@ -131,8 +131,8 @@ def check_lat(file, dataset):
             file.warn('lat precision should be float64 but is %s.', lat.dtype)
 
 
-def check_time(file, dataset):
-    time = dataset.variables.get('time')
+def check_time(file):
+    time = file.dataset.variables.get('time')
     if time is None:
         file.error('time is missing.')
     else:
@@ -164,9 +164,9 @@ def check_time(file, dataset):
             file.warn('time precision should be float64 but is %s.', time.dtype)
 
 
-def check_variable(file, dataset):
-    variable_name = list(dataset.variables)[-1]
-    variable = dataset.variables.get(variable_name)
+def check_variable(file):
+    variable_name = list(file.dataset.variables)[-1]
+    variable = file.dataset.variables.get(variable_name)
 
     if variable.dtype != 'float32':
         file.warn('Variable %s precision should be float32 but is %s.', variable_name, variable.dtype)

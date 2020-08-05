@@ -37,11 +37,11 @@ usage: isimip-qc [-h] [--copy] [--move] [--config-file CONFIG_FILE]
                  [--pattern-location PATTERN_LOCATION]
                  [--schema-location SCHEMA_LOCATION] [--log-level LOG_LEVEL]
                  [--log-path LOG_PATH]
-                 simulation_round sector
+                 schema_path
 
 positional arguments:
-  simulation_round      ISIMIP simulation_round, e.g. ISIMIP3a
-  sector                ISIMIP sector, e.g. water_global
+  schema_path           ISIMIP schema_path, e.g.
+                        ISIMIP3a/OutputData/water_global
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -62,7 +62,9 @@ optional arguments:
   --log-path LOG_PATH   base path for the log files for individual files
 ```
 
-The only mandatory options are the simulation_round and the sector to be considered. Default values for the optional arguments are set in the code, but can also be provided via:
+The only mandatory option is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
+
+Default values for the optional arguments are set in the code, but can also be provided via:
 
 * a config file given by `--config-file`, or located at `isimip-qc.conf`, `~/.isimip-qc.conf`, or `/etc/isimip-qc.conf`. The config file needs to have a section `isimip-qc` and uses lower case variables and underscores, e.g.:
     ```

@@ -3,7 +3,7 @@ import jsonschema
 from ..config import settings
 
 
-def check_schema(file, dataset):
+def check_schema(file):
     if file.identifiers:
         try:
             jsonschema.validate(schema=settings.SCHEMA, instance=file.identifiers)
