@@ -18,13 +18,13 @@ class File(object):
     def open(self):
         self.dataset = open_dataset(self.abs_path)
         self.logger = self.get_logger()
-        self.info('Open %s.', self.abs_path)
+        self.info('File opened.')
 
     def close(self):
+        self.info('File closed.')
         self.dataset.close()
-        self.handler.close()
-        self.logger.removeHandler(self.handler)
-        self.info('Close %s.', self.abs_path)
+        if self.handler:
+            self.handler.close()
 
     def info(self, *args, **kwargs):
         self.logger.info(*args, **kwargs)
