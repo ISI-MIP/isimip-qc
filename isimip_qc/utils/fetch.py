@@ -40,7 +40,7 @@ def fetch_json(bases, path):
                 return response.json()
 
         else:
-            location = Path(base).joinpath(path).with_suffix('.json')
+            location = Path(base).expanduser().joinpath(path).with_suffix('.json')
             logger.debug('json_path=%s', location)
 
             if location.exists():
