@@ -12,6 +12,7 @@ class File(object):
         self.identifiers = {}
         self.clean = True
         self.logger = None
+        self.handler = None
         self.dataset = None
 
     def open(self):
@@ -21,8 +22,7 @@ class File(object):
 
     def close(self):
         self.dataset.close()
-        for handler in self.logger.handlers:
-            handler.close()
+        self.handler.close()
         self.info('Close %s.', self.abs_path)
 
     def info(self, *args, **kwargs):
@@ -69,11 +69,11 @@ class File(object):
 
         formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
 
-        handler = logging.FileHandler(log_path)
-        handler.setFormatter(formatter)
-        handler.setLevel(logging.INFO)
+        self.handler = logging.FileHandler(log_path)
+        self.handler.setFormatter(formatter)
+        self.handler.setLevel(logging.INFO)
 
-        return handler
+        return self.handler
 
     def match_identifiers(self):
         match = settings.PATTERN['file'].match(self.path.name)
