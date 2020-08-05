@@ -38,6 +38,11 @@ def main():
     args = parser.parse_args()
     settings.setup(args)
 
+    if settings.PATTERN is None:
+        parser.error('no pattern could be found.')
+    if settings.SCHEMA is None:
+        parser.error('no schema could be found.')
+
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
         if file_path.suffix in settings.PATTERN['suffix']:
