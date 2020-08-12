@@ -149,8 +149,8 @@ def check_time(file):
             file.warn('time.standard_name is missing.')
 
         try:
-            if time.long_name != 'time' and time.long_name != 'Time':
-                file.warn('time.long_name must be "time" or "Time", but is "%s".', time.long_name)
+            if time.long_name != 'time' and time.long_name != 'Time' and time.long_name != 'Time axis':
+                file.warn('time.long_name should be "time", "Time" or "Time axis", but is "%s".', time.long_name)
         except AttributeError:
             file.warn('time.long_name is missing.')
 
