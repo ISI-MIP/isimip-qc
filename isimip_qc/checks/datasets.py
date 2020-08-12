@@ -65,14 +65,14 @@ def check_lon(file):
             file.warn('lon.axis is missing.')
 
         try:
-            if lon.standard_name != 'lon':
-                file.warn('lon.standard_name must be "lon", but is "%s".', lon.standard_name)
+            if lon.standard_name != 'longitude':
+                file.warn('lon.standard_name must be "longitude", but is "%s".', lon.standard_name)
         except AttributeError:
             file.warn('lon.standard_name is missing.')
 
         try:
-            if lon.long_name != 'longitude':
-                file.warn('lon.long_name must be "longitude", but is "%s".', lon.long_name)
+            if lon.long_name != 'longitude' and lon.long_name != 'Longitude':
+                file.warn('lon.long_name must be "longitude" or "Longitude", but is "%s".', lon.long_name)
         except AttributeError:
             file.warn('lon.long_name is missing.')
 
@@ -110,14 +110,14 @@ def check_lat(file):
             file.warn('lat.axis is missing.')
 
         try:
-            if lat.standard_name != 'lat':
-                file.warn('lat.standard_name must be "lat", but is "%s".', lat.standard_name)
+            if lat.standard_name != 'latitude':
+                file.warn('lat.standard_name must be "latitude", but is "%s".', lat.standard_name)
         except AttributeError:
             file.warn('lat.standard_name is missing.')
 
         try:
-            if lat.long_name != 'latitude':
-                file.warn('lat.long_name must be "latitude", but is "%s".', lat.long_name)
+            if lat.long_name != 'latitude' and lat.long_name != 'Latitude':
+                file.warn('lat.long_name must be "latitude" or "Latitude", but is "%s".', lat.long_name)
         except AttributeError:
             file.warn('lat.long_name is missing.')
 
@@ -137,8 +137,8 @@ def check_time(file):
         file.error('time is missing.')
     else:
         try:
-            if time.axis != 'Time':
-                file.warn('lon.axis must be "Time", but is "%s".', time.axis)
+            if time.axis != 'T':
+                file.warn('lon.axis must be "T", but is "%s".', time.axis)
         except AttributeError:
             file.warn('time.axis is missing.')
 
@@ -149,9 +149,10 @@ def check_time(file):
             file.warn('time.standard_name is missing.')
 
         try:
-            file.warn('time.long_name is "%s", but should not be set.', time.long_name)
+            if time.long_name != 'time' and time.long_name != 'Time':
+                file.warn('time.long_name must be "time" or "Time", but is "%s".', time.long_name)
         except AttributeError:
-            pass
+            file.warn('time.long_name is missing.')
 
         units = 'days since 1661-01-01 00:00:00'
         try:
