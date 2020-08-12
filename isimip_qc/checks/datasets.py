@@ -25,13 +25,13 @@ def check_zip(file):
             file.warn('Variable %s is not compressed.', variable_name)
 
 
-def check_dimensions(file):
-    '''
-    The order of dimensions should be (lon, lat, time)
-    '''
-    dimensions = ('lon', 'lat', 'time')
-    if tuple(file.dataset.dimensions) != dimensions:
-        file.warn('Dimensions should be %s, but are %s.', dimensions, tuple(file.dataset.dimensions))
+# def check_dimensions(file):
+#     '''
+#     The order of dimensions should be (lon, lat, time)
+#     '''
+#     dimensions = ('lon', 'lat', 'time')
+#     if tuple(file.dataset.dimensions) != dimensions:
+#         file.warn('Dimensions should be %s, but are %s.', dimensions, tuple(file.dataset.dimensions))
 
 
 def check_dimension_variables(file):
