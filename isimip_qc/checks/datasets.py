@@ -123,7 +123,7 @@ def check_lat(file):
 
         try:
             if lat.units != 'degrees_north':
-                file.warn('lat.units must be "degrees_east", but is "%s".', lat.units)
+                file.warn('lat.units must be "degrees_north", but is "%s".', lat.units)
         except AttributeError:
             file.warn('lat.units is missing.')
 
