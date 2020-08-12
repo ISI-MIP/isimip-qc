@@ -11,14 +11,16 @@ def check_data_model(file):
 
 def check_zip(file):
     '''
-    Variables must be compressed with at least compression level 4
+    Data variables must be compressed with at least compression level 4. Skip check for dimension variables.
     '''
     for variable_name, variable in file.dataset.variables.items():
+        if variable_name in ['time', 'lat', 'lon']:
+            continue
         zlib = variable.filters().get('zlib')
         if zlib:
             complevel = variable.filters().get('complevel')
             if complevel < 4:
-                file.warn('Variable %s _DeflateLevel=%s (< 4).', variable_name, complevel)
+                file.info('Variable %s _DeflateLevel=%s (< 4).', variable_name, complevel)
         else:
             file.warn('Variable %s is not compressed.', variable_name)
 
