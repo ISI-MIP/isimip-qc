@@ -24,9 +24,9 @@ def main():
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path', default=None,
                         help='base path for the checked files')
-    parser.add_argument('--pattern-location', dest='pattern_location', default=None,
+    parser.add_argument('--pattern-location', dest='pattern_locations', default=None,
                         help='URL or file path to the pattern json')
-    parser.add_argument('--schema-location', dest='schema_location', default=None,
+    parser.add_argument('--schema-location', dest='schema_locations', default=None,
                         help='URL or file path to the json schema')
     parser.add_argument('--log-level', dest='log_level', default=None,
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')

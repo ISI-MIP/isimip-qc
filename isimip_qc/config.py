@@ -96,7 +96,6 @@ class Settings(object):
             for config_file in self.CONFIG_FILES:
                 config_path = Path(config_file).expanduser()
                 if config_path.is_file():
-                    print(config_path)
                     config = configparser.ConfigParser()
                     config.read(config_path)
                     if 'isimip-qc' in config:
