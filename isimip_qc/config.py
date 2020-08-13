@@ -16,9 +16,9 @@ class Settings(object):
     _shared_state = {}
 
     CONFIG_FILES = [
-        'isimip-qc.conf',
-        '~/.isimip-qc.conf',
-        '/etc/isimip-qc.conf'
+        'isimip.conf',
+        '~/.isimip.conf',
+        '/etc/isimip.conf'
     ]
 
     ATTRS = [
