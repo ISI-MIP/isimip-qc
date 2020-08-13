@@ -174,7 +174,7 @@ def check_variable(file):
         file.warn('variable._FillValue is missing.')
 
     try:
-        if not math.isclose(variable._FillValue, 1e+20, rel_tol=1e-6):
+        if not math.isclose(variable.missing_value, 1e+20, rel_tol=1e-6):
             file.warn('variable.missing_value="%s" should be 1e+20.', variable.missing_value)
     except AttributeError:
         file.warn('variable.missing_value is missing.')
