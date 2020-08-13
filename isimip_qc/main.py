@@ -47,9 +47,10 @@ def main():
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
-            file.match_identifiers()
+            file.match()
             for check in checks:
                 check(file)
+            file.validate()
             file.close()
 
             if settings.MOVE and settings.CHECKED_PATH and file.clean:
