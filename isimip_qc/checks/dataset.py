@@ -38,7 +38,3 @@ def check_lower_case(file):
             if attr not in ['_FillValue']:
                 if not attr.islower():
                     file.warn('Attribute "%s.%s" is not lower case.', variable_name, attr)
-
-    for attr in file.dataset.__dict__:
-        if not attr.islower():
-            file.warn('Attribute "%s" is not lower case.', attr)
