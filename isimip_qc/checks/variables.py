@@ -149,6 +149,12 @@ def check_time(file):
         except AttributeError:
             file.warn('time.units is missing.')
 
+        try:
+            if time.calendar not in ['proleptic_gregorian']:
+                file.warn('time.calendar="%s" should be "proleptic_gregorian" preferably', time.calendar)
+        except AttributeError:
+            file.warn('time.calendar is missing.')
+
         if time.dtype != 'float64':
             file.warn('time.dtype="%s" should be "float64".', time.dtype)
 
