@@ -38,3 +38,5 @@ def check_lower_case(file):
             if attr not in ['_FillValue']:
                 if not attr.islower():
                     file.warn('Attribute "%s.%s" is not lower case.', variable_name, attr)
+                if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value', 'units']:
+                    file.warn('Attribute "%s.%s" is not needed. Consider removing it.', variable_name, attr)
