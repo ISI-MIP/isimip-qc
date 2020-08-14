@@ -60,5 +60,8 @@ def main():
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
                 elif settings.COPY:
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
+        else:
+            logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
+
         if settings.FIRST_FILE:
             break
