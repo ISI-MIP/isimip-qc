@@ -32,6 +32,8 @@ def main():
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path', default=None,
                         help='base path for the log files for individual files')
+    parser.add_argument('--first-file', dest='first_file', action='store_true', default=False,
+                        help='only process first file found in UNCHECKED_PATH')
 
     # setup
     args = parser.parse_args()
@@ -58,3 +60,5 @@ def main():
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
                 elif settings.COPY:
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
+        if settings.FIRST_FILE:
+            break

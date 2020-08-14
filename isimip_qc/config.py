@@ -29,7 +29,8 @@ class Settings(object):
         'PATTERN_LOCATIONS',
         'SCHEMA_LOCATIONS',
         'LOG_LEVEL',
-        'LOG_PATH'
+        'LOG_PATH',
+        'FIRST_FILE'
     ]
 
     def __init__(self):
