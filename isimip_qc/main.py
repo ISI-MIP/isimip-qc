@@ -46,6 +46,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
+        print('Checking :', file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
@@ -62,6 +63,8 @@ def main():
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
         else:
             logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
+
+        print()
 
         if settings.FIRST_FILE:
             break
