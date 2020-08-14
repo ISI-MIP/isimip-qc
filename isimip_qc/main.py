@@ -46,7 +46,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print('Checking :', file_path)
+        print(f"\033[92mChecking : %s\033[0m" % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
