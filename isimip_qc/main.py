@@ -46,7 +46,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print(f"\033[92mChecking : %s\033[0m" % file_path)
+        print(f"\033[93mChecking : %s\033[0m" % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
@@ -56,10 +56,20 @@ def main():
             file.validate()
             file.close()
 
+            if file.has_warnings or file.has_errors:
+                file.clean = False
+
+            if file.clean:
+                print(f"\033[92mFile has passed all checks\033[0m")
+            else:
+                print(f"\033[91mFile did not pass all checks\033[0m")
+
             if settings.MOVE and settings.CHECKED_PATH and file.clean:
                 if settings.MOVE:
+                    print('Moving file to CHECKED_PATH')
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
                 elif settings.COPY:
+                    print('Copying file to CHECKED_PATH')
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
         else:
             logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])

@@ -14,6 +14,8 @@ class File(object):
         self.abs_path = file_path
 
         self.clean = True
+        self.has_warnings = False
+        self.has_errors = False
         self.logger = None
         self.handler = None
         self.dataset = None
