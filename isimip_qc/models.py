@@ -76,7 +76,7 @@ class File(object):
         return logger
 
     def get_stream_handler(self):
-        formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
+        formatter = logging.Formatter(' %(levelname)s: %(message)s')
 
         handler = logging.StreamHandler()
         handler.setLevel(settings.LOG_LEVEL)
