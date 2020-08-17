@@ -62,11 +62,9 @@ def main():
 
             if file.has_warnings or file.has_errors:
                 file.clean = False
-
-            if file.clean:
-                print(f"\033[92mFile has passed all checks\033[0m")
-            else:
                 print(f"\033[91mFile did not pass all checks\033[0m")
+            else:
+                print(f"\033[92mFile has passed all checks\033[0m")
 
             if file.has_warnings and settings.STOP_WARN:
                 break
