@@ -117,6 +117,7 @@ def check_time(file):
                 file.warn('lon.axis="%s" should be "T".', time.axis)
         except AttributeError:
             file.warn('time.axis is missing.')
+            file.has_warnings = True
 
         try:
             if time.standard_name != 'time':
@@ -124,9 +125,10 @@ def check_time(file):
         except AttributeError:
             file.warn('time.standard_name is missing.')
 
+        time_longname_valid = ['time', 'time axis', 'Time', 'Time axis']
         try:
-            if time.long_name not in ['time', 'time axis', 'Time', 'Time axis']:
-                file.warn('time.long_name="%s" should be "Time" or "Time axis".', time.long_name)
+            if time.long_name not in time_longname_valid:
+                file.warn('time.long_name="%s" should one of %s', time.long_name, time_longname_valid)
         except AttributeError:
             file.warn('time.long_name is missing.')
 
@@ -149,9 +151,10 @@ def check_time(file):
         except AttributeError:
             file.warn('time.units is missing.')
 
+        calendars_valid = ['proleptic_gregorian', '365_day']
         try:
-            if time.calendar not in ['proleptic_gregorian']:
-                file.warn('time.calendar="%s" should be "proleptic_gregorian" preferably', time.calendar)
+            if time.calendar not in calendars_valid:
+                file.warn('time.calendar="%s" should be one of %s', time.calendar, calendars_valid)
         except AttributeError:
             file.warn('time.calendar is missing.')
 
