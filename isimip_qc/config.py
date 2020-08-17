@@ -30,7 +30,9 @@ class Settings(object):
         'SCHEMA_LOCATIONS',
         'LOG_LEVEL',
         'LOG_PATH',
-        'FIRST_FILE'
+        'FIRST_FILE',
+        'STOP_WARN',
+        'STOP_ERR',
     ]
 
     def __init__(self):

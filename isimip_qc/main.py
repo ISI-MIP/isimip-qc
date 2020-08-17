@@ -34,6 +34,10 @@ def main():
                         help='base path for the log files for individual files')
     parser.add_argument('--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
+    parser.add_argument('--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
+                        help='stop execution on warnings')
+    parser.add_argument('--stop-on-errors', dest='stop_err', action='store_true', default=False,
+                        help='stop execution on errors')
 
     # setup
     args = parser.parse_args()
@@ -63,6 +67,11 @@ def main():
                 print(f"\033[92mFile has passed all checks\033[0m")
             else:
                 print(f"\033[91mFile did not pass all checks\033[0m")
+
+            if file.has_warnings and settings.STOP_WARN:
+                break
+            if file.has_errors and settings.STOP_ERR:
+                break
 
             if settings.MOVE and settings.CHECKED_PATH and file.clean:
                 if settings.MOVE:
