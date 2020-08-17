@@ -14,9 +14,9 @@ def main():
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
-    parser.add_argument('--copy', dest='move', action='store_true', default=None,
+    parser.add_argument('-c', '--copy', dest='move', action='store_true', default=None,
                         help='Copy checked files to the CHECKED_PATH')
-    parser.add_argument('--move', dest='move', action='store_true', default=None,
+    parser.add_argument('-m', '--move', dest='move', action='store_true', default=None,
                         help='Move checked files to the CHECKED_PATH')
     parser.add_argument('--config-file', dest='config_file', default=None,
                         help='File path to the config file')
@@ -32,11 +32,11 @@ def main():
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path', default=None,
                         help='base path for the log files for individual files')
-    parser.add_argument('--first-file', dest='first_file', action='store_true', default=False,
+    parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
-    parser.add_argument('--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
+    parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
                         help='stop execution on warnings')
-    parser.add_argument('--stop-on-errors', dest='stop_err', action='store_true', default=False,
+    parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
 
     # setup
