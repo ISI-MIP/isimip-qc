@@ -31,13 +31,15 @@ Usage
 The tool has several options which can be inspected using the help option `-h, --help`:
 
 ```plain
-usage: isimip-qc [-h] [--copy] [--move] [--config-file CONFIG_FILE]
+usage: isimip-qc [-h] [-c] [-m] [--config-file CONFIG_FILE]
                  [--unchecked-path UNCHECKED_PATH]
                  [--checked-path CHECKED_PATH]
-                 [--pattern-location PATTERN_LOCATION]
-                 [--schema-location SCHEMA_LOCATION] [--log-level LOG_LEVEL]
-                 [--log-path LOG_PATH]
+                 [--pattern-location PATTERN_LOCATIONS]
+                 [--schema-location SCHEMA_LOCATIONS] [--log-level LOG_LEVEL]
+                 [--log-path LOG_PATH] [-f] [-w] [-e]
                  schema_path
+
+Check ISIMIP files for matching protocol definitions
 
 positional arguments:
   schema_path           ISIMIP schema_path, e.g.
@@ -45,21 +47,25 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --copy                Copy checked files to the CHECKED_PATH
-  --move                Move checked files to the CHECKED_PATH
+  -c, --copy            Copy checked files to the CHECKED_PATH
+  -m, --move            Move checked files to the CHECKED_PATH
   --config-file CONFIG_FILE
                         File path to the config file
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
   --checked-path CHECKED_PATH
                         base path for the checked files
-  --pattern-location PATTERN_LOCATION
+  --pattern-location PATTERN_LOCATIONS
                         URL or file path to the pattern json
-  --schema-location SCHEMA_LOCATION
+  --schema-location SCHEMA_LOCATIONS
                         URL or file path to the json schema
   --log-level LOG_LEVEL
                         Log level (ERROR, WARN, INFO, or DEBUG)
   --log-path LOG_PATH   base path for the log files for individual files
+  -f, --first-file      only process first file found in UNCHECKED_PATH
+  -w, --stop-on-warnings
+                        stop execution on warnings
+  -e, --stop-on-errors  stop execution on errors
 ```
 
 The only mandatory option is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
