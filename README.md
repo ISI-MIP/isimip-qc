@@ -47,8 +47,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -c, --copy            Copy checked files to the CHECKED_PATH
-  -m, --move            Move checked files to the CHECKED_PATH
+  -c, --copy            Copy checked files to CHECKED_PATH
+  -m, --move            Move checked files to CHECKED_PATH
   --config-file CONFIG_FILE
                         File path to the config file
   --unchecked-path UNCHECKED_PATH
