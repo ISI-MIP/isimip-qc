@@ -1,12 +1,12 @@
 import json
-import logging
+import colorlog
 import re
 from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = colorlog.getLogger(__name__)
 
 
 def fetch_pattern(pattern_bases, pattern_path):

@@ -1,5 +1,5 @@
 import json
-import logging
+import colorlog
 import os
 import re
 import shutil
@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import requests
 from netCDF4 import Dataset
 
-logger = logging.getLogger(__name__)
+logger = colorlog.getLogger(__name__)
 
 
 def fetch_pattern(pattern_bases, pattern_path):

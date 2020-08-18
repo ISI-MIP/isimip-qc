@@ -1,5 +1,5 @@
 import configparser
-import logging
+import colorlog
 import os
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from .utils.fetch import fetch_pattern, fetch_schema
 DEFAULT_PATTERN_LOCATIONS = ['https://protocol.isimip.org/pattern/']
 DEFAULT_SCHEMA_LOCATIONS = ['https://protocol.isimip.org/schema/']
 
-logger = logging.getLogger(__name__)
+logger = colorlog.getLogger(__name__)
 
 
 class Settings(object):
@@ -76,8 +76,8 @@ class Settings(object):
             self.LOG_PATH = Path(self.LOG_PATH).expanduser()
 
         # setup logs
-        logging.basicConfig(level=self.LOG_LEVEL,
-                            format='[%(asctime)s] %(levelname)s %(name)s: %(message)s')
+        colorlog.basicConfig(level=self.LOG_LEVEL,
+                            format=' %(log_color)s%(levelname)-8s : %(message)s%(reset)s')
 
         # set the path
         self.SCHEMA_PATH = Path(args.schema_path)
@@ -87,7 +87,7 @@ class Settings(object):
         self.SCHEMA = fetch_schema(self.SCHEMA_LOCATIONS, self.SCHEMA_PATH)
 
         # log settings
-        logger.debug(self)
+        colorlog.debug(self)
 
     def read_config(self, config_file_arg):
         if config_file_arg:

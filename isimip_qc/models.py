@@ -1,11 +1,10 @@
-import logging
+import colorlog, logging
 
 import jsonschema
 
 from .config import settings
 from .utils.netcdf import (get_dimensions, get_global_attributes,
                            get_variables, open_dataset)
-
 
 class File(object):
 
@@ -61,14 +60,11 @@ class File(object):
     def get_logger(self):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
-        logger = logging.getLogger(logger_name)
+        logger = colorlog.getLogger(logger_name)
 
         # do not propagate messages to the root logger,
         # which is configured in settings.setup()
         logger.propagate = False
-
-        # set the log level to INFO, so that it is not influeced by settings.LOG_LEVEL
-        logger.setLevel(logging.INFO)
 
         # add handlers
         logger.addHandler(self.get_stream_handler())
@@ -78,9 +74,9 @@ class File(object):
         return logger
 
     def get_stream_handler(self):
-        formatter = logging.Formatter(' %(levelname)s: %(message)s')
+        formatter = colorlog.ColoredFormatter(' %(log_color)s%(levelname)-9s: %(message)s%(reset)s')
 
-        handler = logging.StreamHandler()
+        handler = colorlog.StreamHandler()
         handler.setLevel(settings.LOG_LEVEL)
         handler.setFormatter(formatter)
 
@@ -90,11 +86,11 @@ class File(object):
         log_path = settings.LOG_PATH / self.path.with_suffix('.log')
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
-        formatter = logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s')
+        formatter = logging.Formatter(' %(levelname)-9s: %(message)s')
 
-        self.handler = logging.FileHandler(log_path)
-        self.handler.setFormatter(formatter)
+        self.handler = logging.FileHandler(log_path, 'w+')
         self.handler.setLevel(logging.INFO)
+        self.handler.setFormatter(formatter)
 
         return self.handler
 

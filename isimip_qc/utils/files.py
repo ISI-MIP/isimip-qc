@@ -1,9 +1,9 @@
-import logging
+import colorlog
 import os
 import shutil
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = colorlog.getLogger(__name__)
 
 
 def walk_files(path):
