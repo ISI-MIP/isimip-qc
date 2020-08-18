@@ -1,15 +1,15 @@
 import argparse
-import logging
+import colorlog
 
 from .checks import checks
 from .config import settings
 from .models import File
 from .utils.files import copy_file, move_file, walk_files
 
-logger = logging.getLogger(__name__)
-
+logger = colorlog.getLogger(__name__)
 
 def main():
+
     parser = argparse.ArgumentParser(description='Check ISIMIP files for matching protocol definitions')
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
@@ -50,7 +50,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print(f"\033[93mChecking : %s\033[0m" % file_path)
+        print('Checking : %s' % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
@@ -62,9 +62,9 @@ def main():
 
             if file.has_warnings or file.has_errors:
                 file.clean = False
-                print(f"\033[91mFile did not pass all checks\033[0m")
+                logger.critical('File did not pass all checks')
             else:
-                print(f"\033[92mFile has passed all checks\033[0m")
+                logger.info('File has successfully passed all checks')
 
             if file.has_warnings and settings.STOP_WARN:
                 break
@@ -73,10 +73,12 @@ def main():
 
             if settings.MOVE and settings.CHECKED_PATH and file.clean:
                 if settings.MOVE:
-                    print('Moving file to CHECKED_PATH')
+#                    print('Moving file to CHECKED_PATH')
+                    logger.info('Moving file to CHECKED_PATH')
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
                 elif settings.COPY:
-                    print('Copying file to CHECKED_PATH')
+#                    print('Moving file to CHECKED_PATH')
+                    logger.info('Copying file to CHECKED_PATH')
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
         else:
             logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
