@@ -22,7 +22,7 @@ def check_lon(file):
     '''
     lon = file.dataset.variables.get('lon')
     if lon is None:
-        file.error('lon is missing.')
+        file.error('variable lon is missing.')
         file.has_errors = True
     else:
         if lon.shape != (720, ):
@@ -81,7 +81,7 @@ def check_lat(file):
     '''
     lat = file.dataset.variables.get('lat')
     if lat is None:
-        file.error('Lat is missing.')
+        file.error('variable lat is missing.')
         file.has_errors = True
     else:
         if lat.shape != (360, ):
@@ -137,7 +137,7 @@ def check_time(file):
     time = file.dataset.variables.get('time')
 
     if time is None:
-        file.error('time is missing.')
+        file.error('variable time is missing.')
         file.has_errors = True
     else:
         try:
@@ -202,34 +202,37 @@ def check_time(file):
 
 
 def check_variable(file):
-    variable_name = list(file.dataset.variables)[-1]
+    variable_name = file.specifiers.get('variable')
     variable = file.dataset.variables.get(variable_name)
 
-    if variable.dtype != 'float32':
-        file.warn('%s.dtype="%s" should be "float32".', variable_name, variable.dtype)
-        file.has_warnings = True
-
-    if variable.chunking() != [1, 360, 720]:
-        file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, variable.chunking())
-        file.has_warnings = True
-
-    dimensions = ('time', 'lat', 'lon')
-    if variable.dimensions != dimensions:
-        file.error('%s dimensions %s must be %s.', variable_name, variable.dimensions, dimensions)
-        file.has_errors = True
-
-    try:
-        if not math.isclose(variable._FillValue, 1e+20, rel_tol=1e-6):
-            file.warn('variable._FillValue="%s" should be 1e+20.', variable._FillValue)
+    if not variable:
+        file.error('variable %s is missing.', variable_name)
+    else:
+        if variable.dtype != 'float32':
+            file.warn('%s.dtype="%s" should be "float32".', variable_name, variable.dtype)
             file.has_warnings = True
-    except AttributeError:
-        file.warn('variable._FillValue is missing.')
-        file.has_warnings = True
 
-    try:
-        if not math.isclose(variable.missing_value, 1e+20, rel_tol=1e-6):
-            file.warn('variable.missing_value="%s" should be 1e+20.', variable.missing_value)
+        if variable.chunking() != [1, 360, 720]:
+            file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, variable.chunking())
             file.has_warnings = True
-    except AttributeError:
-        file.warn('variable.missing_value is missing.')
-        file.has_warnings = True
+
+        dimensions = ('time', 'lat', 'lon')
+        if variable.dimensions != dimensions:
+            file.error('%s dimensions %s must be %s.', variable_name, variable.dimensions, dimensions)
+            file.has_errors = True
+
+        try:
+            if not math.isclose(variable._FillValue, 1e+20, rel_tol=1e-6):
+                file.warn('variable._FillValue="%s" should be 1e+20.', variable._FillValue)
+                file.has_warnings = True
+        except AttributeError:
+            file.warn('variable._FillValue is missing.')
+            file.has_warnings = True
+
+        try:
+            if not math.isclose(variable.missing_value, 1e+20, rel_tol=1e-6):
+                file.warn('variable.missing_value="%s" should be 1e+20.', variable.missing_value)
+                file.has_warnings = True
+        except AttributeError:
+            file.warn('variable.missing_value is missing.')
+            file.has_warnings = True
