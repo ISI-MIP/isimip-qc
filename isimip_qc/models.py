@@ -1,10 +1,12 @@
-import colorlog, logging
+import logging
 
+import colorlog
 import jsonschema
 
 from .config import settings
 from .utils.netcdf import (get_dimensions, get_global_attributes,
                            get_variables, open_dataset)
+
 
 class File(object):
 
@@ -12,7 +14,6 @@ class File(object):
         self.path = file_path.relative_to(settings.UNCHECKED_PATH)
         self.abs_path = file_path
 
-        self.clean = True
         self.has_warnings = False
         self.has_errors = False
         self.logger = None
@@ -48,14 +49,17 @@ class File(object):
 
     def warn(self, *args, **kwargs):
         self.logger.warn(*args, **kwargs)
+        self.has_warnings = True
 
     def error(self, *args, **kwargs):
         self.logger.error(*args, **kwargs)
-        self.clean = False  # this file should not be moved!
+        self.has_errors = True
 
     def critical(self, *args, **kwargs):
         self.logger.critical(*args, **kwargs)
-        self.clean = False  # this file should not be moved!
+
+    def is_clean(self):
+        return not (self.has_warnings or self.has_errors)
 
     def get_logger(self):
         # setup a log handler for the command line and one for the file

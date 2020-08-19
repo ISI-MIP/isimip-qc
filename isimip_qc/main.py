@@ -1,4 +1,5 @@
 import argparse
+
 import colorlog
 
 from .checks import checks
@@ -7,6 +8,7 @@ from .models import File
 from .utils.files import copy_file, move_file, walk_files
 
 logger = colorlog.getLogger(__name__)
+
 
 def main():
 
@@ -50,7 +52,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print('Checking : %s' % file_path)
+        logger.info('Checking : %s', file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open()
@@ -60,30 +62,25 @@ def main():
             file.validate()
             file.close()
 
-            if file.has_warnings or file.has_errors:
-                file.clean = False
-                logger.critical('File did not pass all checks')
-            else:
+            if file.is_clean():
                 logger.info('File has successfully passed all checks')
+            else:
+                logger.critical('File did not pass all checks')
 
             if file.has_warnings and settings.STOP_WARN:
                 break
             if file.has_errors and settings.STOP_ERR:
                 break
 
-            if settings.MOVE and settings.CHECKED_PATH and file.clean:
+            if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
                 if settings.MOVE:
-#                    print('Moving file to CHECKED_PATH')
                     logger.info('Moving file to CHECKED_PATH')
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
                 elif settings.COPY:
-#                    print('Moving file to CHECKED_PATH')
                     logger.info('Copying file to CHECKED_PATH')
                     copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
         else:
             logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
-
-        print()
 
         if settings.FIRST_FILE:
             break
