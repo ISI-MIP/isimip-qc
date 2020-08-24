@@ -14,7 +14,7 @@ def check_dimension_variables(file):
             file.warn('%s should be %s.', variable_name, dimension_name)
 
 
-def check_lon(file):
+def check_lon_variable(file):
     '''
     The global grid ranges 89.75 to -89.75° latitude, and ‐179.75 to 179.75° longitude, i.e. 0.5° grid spacing,
     360 rows and 720 columns, or 259200 grid cells total.
@@ -60,7 +60,7 @@ def check_lon(file):
             file.warn('lon.dtype="%s" should be "float64".', lon.dtype)
 
 
-def check_lat(file):
+def check_lat_variable(file):
     '''
     The global grid ranges 89.75 to -89.75° latitude, and ‐179.75 to 179.75° longitude, i.e. 0.5° grid spacing,
     360 rows and 720 columns, or 259200 grid cells total.
@@ -106,7 +106,7 @@ def check_lat(file):
             file.warn('lat.dtype="%s" should be "float64".', lat.dtype)
 
 
-def check_time(file):
+def check_time_variable(file):
     time = file.dataset.variables.get('time')
 
     if time is None:
