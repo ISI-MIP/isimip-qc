@@ -16,25 +16,25 @@ def main():
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
-    parser.add_argument('--config-file', dest='config_file', default=None,
+    parser.add_argument('--config-file', dest='config_file',
                         help='File path of the config file')
 
-    parser.add_argument('-c', '--copy', dest='move', action='store_true', default=None,
+    parser.add_argument('-c', '--copy', dest='move', action='store_true',
                         help='Copy checked files to CHECKED_PATH')
-    parser.add_argument('-m', '--move', dest='move', action='store_true', default=None,
+    parser.add_argument('-m', '--move', dest='move', action='store_true',
                         help='Move checked files to CHECKED_PATH')
 
-    parser.add_argument('--unchecked-path', dest='unchecked_path', default=None,
+    parser.add_argument('--unchecked-path', dest='unchecked_path',
                         help='base path of the unchecked files')
-    parser.add_argument('--checked-path', dest='checked_path', default=None,
+    parser.add_argument('--checked-path', dest='checked_path',
                         help='base path for the checked files')
-    parser.add_argument('--pattern-location', dest='pattern_locations', default=None,
+    parser.add_argument('--pattern-location', dest='pattern_locations',
                         help='URL or file path to the pattern json')
-    parser.add_argument('--schema-location', dest='schema_locations', default=None,
+    parser.add_argument('--schema-location', dest='schema_locations',
                         help='URL or file path to the json schema')
-    parser.add_argument('--log-level', dest='log_level', default=None,
+    parser.add_argument('--log-level', dest='log_level',
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')
-    parser.add_argument('--log-path', dest='log_path', default=None,
+    parser.add_argument('--log-path', dest='log_path',
                         help='base path for the log files for individual files')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
