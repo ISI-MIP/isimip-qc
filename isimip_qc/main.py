@@ -16,12 +16,14 @@ def main():
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
+    parser.add_argument('--config-file', dest='config_file', default=None,
+                        help='File path of the config file')
+
     parser.add_argument('-c', '--copy', dest='move', action='store_true', default=None,
                         help='Copy checked files to CHECKED_PATH')
     parser.add_argument('-m', '--move', dest='move', action='store_true', default=None,
                         help='Move checked files to CHECKED_PATH')
-    parser.add_argument('--config-file', dest='config_file', default=None,
-                        help='File path to the config file')
+
     parser.add_argument('--unchecked-path', dest='unchecked_path', default=None,
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path', default=None,
