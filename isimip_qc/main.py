@@ -42,11 +42,13 @@ def main():
             if file.has_errors and settings.STOP_ERR:
                 break
 
-            if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
+            if file.has_warnings and not file.has_errors and settings.FIX_WARN:
+                print(' Fixing attributes...')
                 file.open_write()
                 file.add_uuid()
                 file.close()
 
+            if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
                 if settings.MOVE:
                     logger.info('Moving file to CHECKED_PATH')
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
@@ -89,5 +91,7 @@ def get_parser():
                         help='stop execution on warnings')
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
+    parser.add_argument('--fix-warnings', dest='fix_warn', action='store_true', default=False,
+                        help='try to fix warnings detected')
 
     return parser
