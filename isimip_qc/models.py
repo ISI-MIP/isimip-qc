@@ -41,6 +41,11 @@ class File(object):
         if self.handler:
             self.handler.close()
 
+    def add_uuid(self):
+        import uuid
+        self.debug('Adding Tracking ID')
+        self.dataset.tracking_id = str(uuid.uuid4())
+
     def debug(self, *args, **kwargs):
         self.logger.debug(*args, **kwargs)
 

@@ -43,6 +43,10 @@ def main():
                 break
 
             if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
+                file.open()
+                file.add_uuid()
+                file.close()
+
                 if settings.MOVE:
                     logger.info('Moving file to CHECKED_PATH')
                     move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
