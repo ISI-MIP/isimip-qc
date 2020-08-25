@@ -25,7 +25,7 @@ def main():
         print('Checking: %s' % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
-            file.open()
+            file.open_read()
             file.match()
             for check in checks:
                 check(file)
@@ -43,7 +43,7 @@ def main():
                 break
 
             if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
-                file.open()
+                file.open_write()
                 file.add_uuid()
                 file.close()
 
