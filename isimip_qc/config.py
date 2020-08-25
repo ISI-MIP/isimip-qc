@@ -2,9 +2,8 @@ import configparser
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
-
 import colorlog
+from dotenv import load_dotenv
 
 from .utils.fetch import fetch_pattern, fetch_schema
 
@@ -65,7 +64,7 @@ class Settings(object):
 
         # fetch pattern and schema
         self.PATTERN = fetch_pattern(self.PATTERN_LOCATIONS.split(), self.SCHEMA_PATH)
-        self.SCHEMA = fetch_schema(self.PATTERN_LOCATIONS.split(), self.SCHEMA_PATH)
+        self.SCHEMA = fetch_schema(self.SCHEMA_LOCATIONS.split(), self.SCHEMA_PATH)
 
         # log settings
         colorlog.debug(self)
