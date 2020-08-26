@@ -10,17 +10,15 @@ logger = colorlog.getLogger(__name__)
 
 
 def fetch_definitions(bases, path):
-    index_path = Path('definitions') / path / 'index.json'
-    index_json = fetch_json(bases, index_path)
-
-    definitions = {}
-    for file_name in index_json:
-        definition_name = Path(file_name).stem
-        definition_path = Path('definitions') / path / file_name
-        definition_json = fetch_json(bases, definition_path)
-        definitions[definition_name] = {definition['specifier']: definition for definition in definition_json}
-
-    return definitions
+    definition_path = Path('definitions').joinpath(path).with_suffix('.json')
+    definition_json = fetch_json(bases, definition_path)
+    if definition_json:
+        definitions = {}
+        for definition_name, definition in definition_json.items():
+            definitions[definition_name] = {
+                row['specifier']: row for row in definition
+            }
+        return definitions
 
 
 def fetch_pattern(bases, path):
@@ -49,7 +47,7 @@ def fetch_schema(bases, path):
 def fetch_json(bases, path):
     for base in bases:
         if urlparse(base).scheme:
-            location = base.rstrip('/') + path.as_posix() + '.json'
+            location = base.rstrip('/') + '/' + path.as_posix()
             logger.debug('json_url=%s', location)
             response = requests.get(location)
 
@@ -57,8 +55,7 @@ def fetch_json(bases, path):
                 return response.json()
 
         else:
-            location = Path(base).expanduser().joinpath(path).with_suffix('.json')
+            location = Path(base).expanduser().joinpath(path)
             logger.debug('json_path=%s', location)
-
             if location.exists():
                 return json.loads(open(location).read())

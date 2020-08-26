@@ -22,7 +22,7 @@ class Settings(object):
 
     DEFAULTS = {
         'LOG_LEVEL': 'WARN',
-        'PROTOCOL_LOCATIONS': 'https://protocol.isimip.org'
+        'PROTOCOL_LOCATIONS': 'https://protocol.isimip.org https://protocol2.isimip.org'
     }
 
     def __init__(self):

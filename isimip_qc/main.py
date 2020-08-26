@@ -15,6 +15,8 @@ def main():
     args = parser.parse_args()
     settings.setup(args)
 
+    if settings.DEFINITIONS is None:
+        parser.error('no definitions could be found.')
     if settings.PATTERN is None:
         parser.error('no pattern could be found.')
     if settings.SCHEMA is None:
