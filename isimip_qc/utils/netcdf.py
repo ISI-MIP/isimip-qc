@@ -21,10 +21,7 @@ def get_variables(dataset):
     variables = {}
     for variable_name, variable in dataset.variables.items():
         variables[variable_name] = variable.__dict__
-        variables[variable_name]['dimensions'] = variable.dimensions
-        variables[variable_name]['shape'] = variable.shape
-        variables[variable_name]['dtype'] = variable.dtype
-        variables[variable_name]['filters'] = variable.filters()
+        variables[variable_name]['dimensions'] = list(variable.dimensions)
 
     return variables
 

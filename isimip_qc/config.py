@@ -5,7 +5,7 @@ from pathlib import Path
 import colorlog
 from dotenv import load_dotenv
 
-from .utils.fetch import fetch_pattern, fetch_schema
+from .utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
 
 logger = colorlog.getLogger(__name__)
 
@@ -61,10 +61,12 @@ class Settings(object):
 
         # set the path
         self.SCHEMA_PATH = Path(args.schema_path)
+        self.SIMULATION_ROUND, self.PRODUCT, self.SECTOR = self.SCHEMA_PATH.parts[0:3]
 
-        # fetch pattern and schema
-        self.PATTERN = fetch_pattern(self.PATTERN_LOCATIONS.split(), self.SCHEMA_PATH)
-        self.SCHEMA = fetch_schema(self.SCHEMA_LOCATIONS.split(), self.SCHEMA_PATH)
+        # fetch definitions pattern and schema
+        self.DEFINITIONS = fetch_definitions(self.PROTOCOL_LOCATION)
+        self.PATTERN = fetch_pattern(self.PROTOCOL_LOCATION, self.SCHEMA_PATH)
+        self.SCHEMA = fetch_schema(self.PROTOCOL_LOCATION, self.SCHEMA_PATH)
 
         # log settings
         colorlog.debug(self)
