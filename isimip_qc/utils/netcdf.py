@@ -1,8 +1,12 @@
 from netCDF4 import Dataset
 
 
-def open_dataset(file_path):
+def open_dataset_read(file_path):
     return Dataset(file_path, 'r')
+
+
+def open_dataset_write(file_path):
+    return Dataset(file_path, 'r+')
 
 
 def get_data_model(dataset):

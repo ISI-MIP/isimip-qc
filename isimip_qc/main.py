@@ -25,7 +25,7 @@ def main():
         print('Checking: %s' % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
-            file.open()
+            file.open_read()
             file.match()
             for check in checks:
                 check(file)
@@ -41,6 +41,12 @@ def main():
                 break
             if file.has_errors and settings.STOP_ERR:
                 break
+
+            if file.has_warnings and not file.has_errors and settings.FIX_WARN:
+                print(' Fixing attributes...')
+                file.open_write()
+                file.add_uuid()
+                file.close()
 
             if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
                 if settings.MOVE:
@@ -85,5 +91,7 @@ def get_parser():
                         help='stop execution on warnings')
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
+    parser.add_argument('--fix-warnings', dest='fix_warn', action='store_true', default=False,
+                        help='try to fix warnings detected')
 
     return parser

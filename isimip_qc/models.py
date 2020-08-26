@@ -5,7 +5,7 @@ import jsonschema
 
 from .config import settings
 from .utils.netcdf import (get_dimensions, get_global_attributes,
-                           get_variables, open_dataset)
+                           get_variables, open_dataset_read, open_dataset_write)
 
 
 class File(object):
@@ -30,16 +30,26 @@ class File(object):
             'specifiers': self.specifiers
         }
 
-    def open(self):
-        self.dataset = open_dataset(self.abs_path)
+    def open_read(self):
+        self.dataset = open_dataset_read(self.abs_path)
         self.logger = self.get_logger()
-        self.debug('File opened.')
+        self.debug('File opened for reading.')
+
+    def open_write(self):
+        self.dataset = open_dataset_write(self.abs_path)
+        self.logger = self.get_logger()
+        self.debug('File opened for writing.')
 
     def close(self):
         self.debug('File closed.')
         self.dataset.close()
         if self.handler:
             self.handler.close()
+
+    def add_uuid(self):
+        import uuid
+        self.debug('Adding Tracking ID')
+        self.dataset.tracking_id = str(uuid.uuid4())
 
     def debug(self, *args, **kwargs):
         self.logger.debug(*args, **kwargs)
