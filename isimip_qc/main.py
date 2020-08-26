@@ -79,7 +79,7 @@ def get_parser():
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path',
                         help='base path for the checked files')
-    parser.add_argument('--protocol-location', dest='protocol_location',
+    parser.add_argument('--protocol-location', dest='protocol_locations',
                         help='URL or file path to the protocol')
     parser.add_argument('--log-level', dest='log_level',
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')

@@ -3,7 +3,6 @@ import math
 import numpy as np
 
 from ..config import settings
-from ..utils.definitions import filter_definitions
 
 
 def check_lon_variable(file):
@@ -166,10 +165,6 @@ def check_time_variable(file):
             file.warn('time.long_name is missing.')
 
         # check units
-        time_step_definitions = filter_definitions(settings.DEFINITIONS['time_step'],
-                                                   settings.SIMULATION_ROUND,
-                                                   settings.PRODUCT,
-                                                   settings.SECTOR)
         minimum = settings.DEFINITIONS['time_span']['minimum']['value'][settings.SIMULATION_ROUND]
         units_templates = [
             "%s since %i-01-01",
@@ -178,8 +173,8 @@ def check_time_variable(file):
             "%s since %i-1-1 00:00:00"
         ]
         units = []
-        for time_step_definition in time_step_definitions:
-            units += [template % (time_step_definition['increment'], minimum) for template in units_templates]
+        for specifier, definition in settings.DEFINITIONS['time_step'].items():
+            units += [template % (definition['increment'], minimum) for template in units_templates]
 
         try:
             if time.units not in units:

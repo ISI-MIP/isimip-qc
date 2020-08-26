@@ -22,8 +22,7 @@ class Settings(object):
 
     DEFAULTS = {
         'LOG_LEVEL': 'WARN',
-        'PATTERN_LOCATIONS': 'https://protocol.isimip.org/pattern/',
-        'SCHEMA_LOCATIONS': 'https://protocol.isimip.org/pattern/'
+        'PROTOCOL_LOCATIONS': 'https://protocol.isimip.org'
     }
 
     def __init__(self):
@@ -64,9 +63,9 @@ class Settings(object):
         self.SIMULATION_ROUND, self.PRODUCT, self.SECTOR = self.SCHEMA_PATH.parts[0:3]
 
         # fetch definitions pattern and schema
-        self.DEFINITIONS = fetch_definitions(self.PROTOCOL_LOCATION)
-        self.PATTERN = fetch_pattern(self.PROTOCOL_LOCATION, self.SCHEMA_PATH)
-        self.SCHEMA = fetch_schema(self.PROTOCOL_LOCATION, self.SCHEMA_PATH)
+        self.DEFINITIONS = fetch_definitions(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
+        self.PATTERN = fetch_pattern(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
+        self.SCHEMA = fetch_schema(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
 
         # log settings
         colorlog.debug(self)
