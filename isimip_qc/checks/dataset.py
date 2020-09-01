@@ -55,7 +55,7 @@ def check_period(file):
     time_units = time_var.units
     time_resolution = file.specifiers.get('time_step')
 
-    if time_resolution == 'daily':
+    if time_resolution in ['daily','annual']:
         time_calendar = time_var.calendar
     elif time_resolution == 'monthly':
         # for monthly resolution cftime only allows for 360_day calendar
@@ -97,11 +97,11 @@ def check_period(file):
             time_days = nyears_file * 360
 
         if time_days != time_steps:
-            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s)', time_steps, time_days)
+            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_days, time_calendar)
     elif time_resolution == 'monthly':
         time_months = nyears_file * 12
         if time_months != time_steps:
-            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers', time_steps, time_months)
+            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_months, time_calendar)
     elif time_resolution == 'annual':
         if nyears_file != time_steps:
-            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers', time_steps, nyears_file)
+            file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, nyears_file, time_calendar)
