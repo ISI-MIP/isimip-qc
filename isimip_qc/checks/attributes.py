@@ -13,7 +13,7 @@ def check_isimip_id(file):
 
 def add_uuid(file):
     import uuid
-    file.info('Add isimip_id')
+    file.info('Adding isimip_id')
     file.dataset.isimip_id = str(uuid.uuid4())
 
 
