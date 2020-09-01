@@ -3,7 +3,7 @@ from email.utils import parseaddr
 
 def check_isimip_id(file):
     try:
-        file.dataset.getncattr('isimip_id1')
+        file.dataset.getncattr('isimip_id')
     except AttributeError:
         file.warn('isimip_id is missing.', fix={
             'func': add_uuid,

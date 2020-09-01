@@ -39,6 +39,8 @@ def get_parser():
                         help='stop execution on warnings')
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
+    parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
+                        help='test values for valid range (slow)')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected')
     parser.add_argument('--check', dest='check',
