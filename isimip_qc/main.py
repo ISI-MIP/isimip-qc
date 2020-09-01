@@ -86,7 +86,6 @@ def main():
                 print('Fix warnings: %s' % file_path)
                 file.open_dataset(write=True)
                 file.fix_warnings()
-                file.fix_errors()
                 file.close_dataset()
 
             if file.is_clean:
