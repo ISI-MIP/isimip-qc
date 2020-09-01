@@ -3,17 +3,17 @@ from ..config import settings
 
 def check_lon_dimension(file):
     if file.dataset.dimensions.get('lon') is None:
-        file.error('dimension lon is missing.')
+        file.error('Dimension \'lon\' is missing.')
 
 
 def check_lat_dimension(file):
     if file.dataset.dimensions.get('lat') is None:
-        file.error('dimension lat is missing.')
+        file.error('Dimension \'lat\' is missing.')
 
 
 def check_time_dimension(file):
     if file.dataset.dimensions.get('time') is None:
-        file.error('dimension time is missing.')
+        file.error('Dimension \'time\' is missing.')
 
 
 def check_dimensions(file):
@@ -25,4 +25,4 @@ def check_dimensions(file):
             if size and dimension.size != size:
                 file.error('%s.size=%s must be %s.', dimension_name, dimension.size, size)
         else:
-            file.warn('no definition for dimension %s.', dimension_name)
+            file.warn('No definition for dimension %s.', dimension_name)

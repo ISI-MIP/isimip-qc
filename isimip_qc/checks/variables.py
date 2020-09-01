@@ -10,9 +10,9 @@ def check_lon_variable(file):
     lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
 
     if lon is None:
-        file.error('variable lon is missing.')
+        file.error('Variable lon is missing.')
     elif not lon_definition:
-        file.error('definition for variable lon is missing.')
+        file.error('Definition for variable lon is missing.')
     else:
         # check dtype
         if lon.dtype != 'float64':
@@ -37,33 +37,33 @@ def check_lon_variable(file):
         try:
             axis = lon_definition.get('axis')
             if lon.axis != axis:
-                file.warn('lon.axis="%s" should be "%s".', lon.axis, axis)
+                file.warn('Attribute lon.axis="%s" should be "%s".', lon.axis, axis)
         except AttributeError:
-            file.warn('lon.axis is missing.')
+            file.warn('Attribute lon.axis is missing.')
 
         # check standard_name
         try:
             standard_name = lon_definition.get('standard_name')
             if lon.standard_name != standard_name:
-                file.warn('lon.standard_name="%s" should be "%s".', lon.standard_name, standard_name)
+                file.warn('Attribute lon.standard_name="%s" should be "%s".', lon.standard_name, standard_name)
         except AttributeError:
-            file.warn('lon.standard_name is missing.')
+            file.warn('Attribute lon.standard_name is missing.')
 
         # check long_name
         try:
             long_names = lon_definition.get('long_names', [])
             if lon.long_name not in long_names:
-                file.warn('lon.long_name="%s" should be in %s.', lon.long_name, long_names)
+                file.warn('Attribute lon.long_name="%s" should be in %s.', lon.long_name, long_names)
         except AttributeError:
-            file.warn('lon.long_name is missing.')
+            file.warn('Attribute lon.long_name is missing.')
 
         # check units
         try:
             units = lon_definition.get('units')
             if lon.units != units:
-                file.warn('lon.units="%s" should be "%s".', lon.units, units)
+                file.warn('Attribute lon.units="%s" should be "%s".', lon.units, units)
         except AttributeError:
-            file.warn('lon.units is missing.')
+            file.warn('Attribute lon.units is missing.')
 
 
 def check_lat_variable(file):
@@ -71,9 +71,9 @@ def check_lat_variable(file):
     lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
 
     if lat is None:
-        file.error('variable lat is missing.')
+        file.error('Variable lat is missing.')
     elif not lat_definition:
-        file.error('definition for variable lat is missing.')
+        file.error('Definition for variable lat is missing.')
     else:
         # check dtype
         if lat.dtype != 'float64':
@@ -98,33 +98,33 @@ def check_lat_variable(file):
         try:
             axis = lat_definition.get('axis')
             if lat.axis != axis:
-                file.warn('lat.axis="%s" should be "%s".', lat.axis, axis)
+                file.warn('Attribute lat.axis="%s" should be "%s".', lat.axis, axis)
         except AttributeError:
-            file.warn('lat.axis is missing.')
+            file.warn('Attribute lat.axis is missing.')
 
         # check standard_name
         try:
             standard_name = lat_definition.get('standard_name')
             if lat.standard_name != standard_name:
-                file.warn('lat.standard_name="%s" should be "%s".', lat.standard_name, standard_name)
+                file.warn('Attribute lat.standard_name="%s" should be "%s".', lat.standard_name, standard_name)
         except AttributeError:
-            file.warn('lat.standard_name is missing.')
+            file.warn('Attribute lat.standard_name is missing.')
 
         # check long_name
         try:
             long_names = lat_definition.get('long_names', [])
             if lat.long_name not in long_names:
-                file.warn('lat.long_name="%s" should be in %s.', lat.long_name, long_names)
+                file.warn('Attribute lat.long_name="%s" should be in %s.', lat.long_name, long_names)
         except AttributeError:
-            file.warn('lat.long_name is missing.')
+            file.warn('Attribute lat.long_name is missing.')
 
         # check units
         try:
             units = lat_definition.get('units')
             if lat.units != units:
-                file.warn('lat.units="%s" should be "%s".', lat.units, units)
+                file.warn('Attribute lat.units="%s" should be "%s".', lat.units, units)
         except AttributeError:
-            file.warn('lat.units is missing.')
+            file.warn('Attribute lat.units is missing.')
 
         lat_first = file.dataset.variables.get('lat')[0]
         lat_last  = file.dataset.variables.get('lat')[-1]
@@ -140,9 +140,9 @@ def check_time_variable(file):
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
 
     if time is None:
-        file.error('variable time is missing.')
+        file.error('Variable time is missing.')
     elif not time_definition:
-        file.error('definition for variable time is missing.')
+        file.error('Definition for variable time is missing.')
     else:
         # check dtype
         if time.dtype != 'float64':
@@ -152,25 +152,25 @@ def check_time_variable(file):
         try:
             axis = time_definition.get('axis')
             if time.axis != axis:
-                file.warn('time.axis="%s" should be "%s".', time.axis, axis)
+                file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis)
         except AttributeError:
-            file.warn('time.axis is missing.')
+            file.warn('Attribute time.axis is missing.')
 
         # check standard_name
         try:
             standard_name = time_definition.get('standard_name')
             if time.standard_name != standard_name:
-                file.warn('time.standard_name="%s" should be "%s".', time.standard_name, standard_name)
+                file.warn('Attribute time.standard_name="%s" should be "%s".', time.standard_name, standard_name)
         except AttributeError:
-            file.warn('time.standard_name is missing.')
+            file.warn('Attribute time.standard_name is missing.')
 
         # check long_name
         try:
             long_names = time_definition.get('long_names', [])
             if time.long_name not in long_names:
-                file.warn('time.long_name="%s" should be in %s.', time.long_name, long_names)
+                file.warn('Attribute time.long_name="%s" should be in %s.', time.long_name, long_names)
         except AttributeError:
-            file.warn('time.long_name is missing.')
+            file.warn('Attribute time.long_name is missing.')
 
         # check units
         minimum = settings.DEFINITIONS['time_span']['minimum']['value'][settings.SIMULATION_ROUND]
@@ -186,17 +186,17 @@ def check_time_variable(file):
 
         try:
             if time.units not in units:
-                file.warn('time.units="%s" should be one of %s.', time.units, units)
+                file.warn('Attribute time.units="%s" should be one of %s.', time.units, units)
         except AttributeError:
-            file.warn('time.units is missing.')
+            file.warn('Attribute time.units is missing.')
 
         # check calenders
         try:
             calenders = time_definition.get('calenders', [])
             if time.calendar not in calenders:
-                file.warn('time.calendar="%s" should be one of %s', time.calendar, calenders)
+                file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders)
         except AttributeError:
-            file.warn('time.calendar is missing.')
+            file.warn('Attribute time.calendar is missing.')
 
 
         # first and last year from file name specifiers must match those from internal time axis
@@ -253,14 +253,14 @@ def check_time_variable(file):
                 time_days = nyears_file * 360
 
             if time_days != time_steps:
-                file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_days, time_calendar)
+                file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_days, time_calendar)
         elif time_resolution == 'monthly':
             time_months = nyears_file * 12
             if time_months != time_steps:
-                file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, time_months)
+                file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, time_months)
         elif time_resolution == 'annual':
             if nyears_file != time_steps:
-                file.error('number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, nyears_file)
+                file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, nyears_file)
 
 
 def check_variable(file):
@@ -269,9 +269,9 @@ def check_variable(file):
     definition = settings.DEFINITIONS.get('variable', {}).get(variable_name)
 
     if not variable:
-        file.error('variable %s is missing.', variable_name)
+        file.error('Variable %s is missing.', variable_name)
     elif not definition:
-        file.error('definition for variable %s is missing.', variable_name)
+        file.error('Definition for variable %s is missing.', variable_name)
     else:
         # check dtype
         if variable.dtype != 'float32':

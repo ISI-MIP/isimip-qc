@@ -5,7 +5,7 @@ def check_isimip_id(file):
     try:
         file.dataset.getncattr('isimip_id')
     except AttributeError:
-        file.warn('isimip_id is missing.', fix={
+        file.warn('Global attribute \'isimip_id\' is missing.', fix={
             'func': add_uuid,
             'args': (file, )
         })
@@ -21,7 +21,7 @@ def check_institution(file):
     try:
         file.dataset.getncattr('institution')
     except AttributeError:
-        file.error('institution is missing.')
+        file.error('Global attribute \'institution\' is missing.')
 
 
 def check_contact(file):
@@ -29,6 +29,6 @@ def check_contact(file):
         contact = file.dataset.getncattr('contact')
         name, address = parseaddr(contact)
         if not address:
-            file.error('contact="%s" is not a proper address.', contact)
+            file.error('Global attribute \'contact="%s"\' is not a proper address.', contact)
     except AttributeError:
-        file.error('contact is missing.')
+        file.error('Global attribute \'contact\' is missing.')
