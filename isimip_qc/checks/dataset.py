@@ -53,8 +53,17 @@ def check_period(file):
     time_var = file.dataset.variables.get('time')
     time_steps = len(time_var[:])
     time_units = time_var.units
-    time_calendar = time_var.calendar
     time_resolution = file.specifiers.get('time_step')
+
+    if time_resolution == 'daily':
+        time_calendar = time_var.calendar
+    elif time_resolution == 'monthly':
+        # for monthly resolution cftime only allows for 360_day calendar
+        time_calendar = '360_day'
+    elif time_resolution == 'annual':
+        # yearly resolution not implemented at all in cftime by now
+        # time_calendar = ''
+        return
 
     firstdate_nc = netCDF4.num2date(time_var[0],time_units,time_calendar)
     lastdate_nc  = netCDF4.num2date(time_var[time_steps-1],time_units,time_calendar)
