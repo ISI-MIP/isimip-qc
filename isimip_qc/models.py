@@ -1,11 +1,14 @@
 import logging
 
-import colorlog
 import jsonschema
 
+import colorlog
+
 from .config import settings
+from .utils.files import copy_file, move_file
 from .utils.netcdf import (get_dimensions, get_global_attributes,
-                           get_variables, open_dataset_read, open_dataset_write)
+                           get_variables, open_dataset_read,
+                           open_dataset_write)
 
 
 class File(object):
@@ -14,10 +17,13 @@ class File(object):
         self.path = file_path.relative_to(settings.UNCHECKED_PATH)
         self.abs_path = file_path
 
-        self.has_warnings = False
-        self.has_errors = False
+        self.warnings = []
+        self.errors = []
+
         self.logger = None
         self.handler = None
+        self.file_handler = None
+
         self.dataset = None
         self.specifiers = {}
 
@@ -30,44 +36,62 @@ class File(object):
             'specifiers': self.specifiers
         }
 
-    def open_read(self):
-        self.dataset = open_dataset_read(self.abs_path)
+    def open_log(self):
         self.logger = self.get_logger()
-        self.debug('File opened for reading.')
 
-    def open_write(self):
-        self.dataset = open_dataset_write(self.abs_path)
-        self.logger = self.get_logger()
-        self.debug('File opened for writing.')
-
-    def close(self):
-        self.debug('File closed.')
-        self.dataset.close()
+    def close_log(self):
         if self.handler:
             self.handler.close()
 
-    def add_uuid(self):
-        import uuid
-        self.debug('Adding Tracking ID')
-        self.dataset.tracking_id = str(uuid.uuid4())
+    def open_dataset(self, write=False):
+        if write:
+            self.dataset = open_dataset_write(self.abs_path)
+        else:
+            self.dataset = open_dataset_read(self.abs_path)
 
-    def debug(self, *args, **kwargs):
-        self.logger.debug(*args, **kwargs)
+    def close_dataset(self):
+        self.dataset.close()
 
-    def info(self, *args, **kwargs):
-        self.logger.info(*args, **kwargs)
+    def debug(self, message, *args):
+        self.logger.debug(message, *args)
 
-    def warn(self, *args, **kwargs):
-        self.logger.warn(*args, **kwargs)
-        self.has_warnings = True
+    def info(self, message, *args):
+        self.logger.info(message, *args)
 
-    def error(self, *args, **kwargs):
-        self.logger.error(*args, **kwargs)
-        self.has_errors = True
+    def warn(self, message, *args, fix=None):
+        self.logger.warn(message, *args)
+        self.warnings.append((message % args, fix))
 
-    def critical(self, *args, **kwargs):
-        self.logger.critical(*args, **kwargs)
+    def error(self, message, *args, fix=None):
+        self.logger.error(message, *args)
+        self.errors.append((message % args, fix))
 
+    def critical(self, message, *args):
+        self.logger.critical(message, *args)
+
+    def fix_warnings(self):
+        for warning in self.warnings[:]:
+            message, fix = warning
+            if fix:
+                fix['func'](*fix['args'])
+                self.warnings.remove(warning)
+
+    def fix_errors(self):
+        for error in self.errors[:]:
+            message, fix = error
+            if fix:
+                fix['func'](*fix['args'])
+                self.errors.remove(error)
+
+    @property
+    def has_warnings(self):
+        return bool(self.warnings)
+
+    @property
+    def has_errors(self):
+        return bool(self.errors)
+
+    @property
     def is_clean(self):
         return not (self.has_warnings or self.has_errors)
 
@@ -83,7 +107,8 @@ class File(object):
         # add handlers
         logger.addHandler(self.get_stream_handler())
         if settings.LOG_PATH:
-            logger.addHandler(self.get_file_handler())
+            self.file_handler = self.get_file_handler()
+            logger.addHandler(self.file_handler)
 
         return logger
 
@@ -102,11 +127,11 @@ class File(object):
 
         formatter = logging.Formatter(' %(levelname)-9s: %(message)s')
 
-        self.handler = logging.FileHandler(log_path, 'w+')
-        self.handler.setLevel(logging.INFO)
-        self.handler.setFormatter(formatter)
+        handler = logging.FileHandler(log_path, 'a')
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(formatter)
 
-        return self.handler
+        return handler
 
     def match(self):
         match = settings.PATTERN['file'].match(self.path.name)
@@ -127,3 +152,9 @@ class File(object):
             jsonschema.validate(schema=settings.SCHEMA, instance=self.json)
         except jsonschema.exceptions.ValidationError as e:
             self.error('Failed to validate with JSON schema: %s\n%s', self.json, e)
+
+    def copy(self):
+        copy_file(self.abs_path, settings.CHECKED_PATH / self.path)
+
+    def move(self):
+        move_file(self.abs_path, settings.CHECKED_PATH / self.path)

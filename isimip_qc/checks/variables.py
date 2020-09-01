@@ -227,9 +227,12 @@ def check_variable(file):
 
         # check variable units
         units = definition.get('units')
-        if units:
-            if variable.units != units:
-                file.error('%s.units=%s should be %s.', variable_name, variable.units, units)
+        if units is not None:
+            try:
+                if variable.units != units:
+                    file.error('%s.units=%s should be %s.', variable_name, variable.units, units)
+            except AttributeError:
+                file.error('%s.units is missing.', variable_name)
         else:
             file.warn('No units information on %s in definition.', variable_name)
 

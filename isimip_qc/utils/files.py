@@ -1,7 +1,8 @@
-import colorlog
 import os
 import shutil
 from pathlib import Path
+
+import colorlog
 
 logger = colorlog.getLogger(__name__)
 

@@ -5,63 +5,9 @@ import colorlog
 from .checks import checks
 from .config import settings
 from .models import File
-from .utils.files import copy_file, move_file, walk_files
+from .utils.files import walk_files
 
 logger = colorlog.getLogger(__name__)
-
-
-def main():
-    parser = get_parser()
-    args = parser.parse_args()
-    settings.setup(args)
-
-    if settings.DEFINITIONS is None:
-        parser.error('no definitions could be found.')
-    if settings.PATTERN is None:
-        parser.error('no pattern could be found.')
-    if settings.SCHEMA is None:
-        parser.error('no schema could be found.')
-
-    # walk over unchecked files
-    for file_path in walk_files(settings.UNCHECKED_PATH):
-        print('Checking: %s' % file_path)
-        if file_path.suffix in settings.PATTERN['suffix']:
-            file = File(file_path)
-            file.open_read()
-            file.match()
-            for check in checks:
-                check(file)
-            file.validate()
-            file.close()
-
-            if file.is_clean():
-                logger.info('File has successfully passed all checks')
-            else:
-                logger.critical('File did not pass all checks')
-
-            if file.has_warnings and settings.STOP_WARN:
-                break
-            if file.has_errors and settings.STOP_ERR:
-                break
-
-            if file.has_warnings and not file.has_errors and settings.FIX_WARN:
-                print(' Fixing attributes...')
-                file.open_write()
-                file.add_uuid()
-                file.close()
-
-            if settings.MOVE and settings.CHECKED_PATH and file.is_clean():
-                if settings.MOVE:
-                    logger.info('Moving file to CHECKED_PATH')
-                    move_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
-                elif settings.COPY:
-                    logger.info('Copying file to CHECKED_PATH')
-                    copy_file(settings.UNCHECKED_PATH / file.path, settings.CHECKED_PATH / file.path)
-        else:
-            logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
-
-        if settings.FIRST_FILE:
-            break
 
 
 def get_parser():
@@ -72,7 +18,7 @@ def get_parser():
     parser.add_argument('--config-file', dest='config_file',
                         help='File path of the config file')
 
-    parser.add_argument('-c', '--copy', dest='move', action='store_true',
+    parser.add_argument('-c', '--copy', dest='copy', action='store_true',
                         help='Copy checked files to CHECKED_PATH')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
                         help='Move checked files to CHECKED_PATH')
@@ -93,9 +39,64 @@ def get_parser():
                         help='stop execution on warnings')
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
-    parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
-                        help='test values for valid range (slow)')
-    parser.add_argument('--fix-warnings', dest='fix_warn', action='store_true', default=False,
+    parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected')
-
+    parser.add_argument('--check', dest='check',
+                        help='perform only one particular check')
     return parser
+
+
+def main():
+    parser = get_parser()
+    args = parser.parse_args()
+    settings.setup(args)
+
+    if settings.DEFINITIONS is None:
+        parser.error('no definitions could be found.')
+    if settings.PATTERN is None:
+        parser.error('no pattern could be found.')
+    if settings.SCHEMA is None:
+        parser.error('no schema could be found.')
+
+    # walk over unchecked files
+    for file_path in walk_files(settings.UNCHECKED_PATH):
+        print('Checking: %s' % file_path)
+        if file_path.suffix in settings.PATTERN['suffix']:
+            file = File(file_path)
+            file.open_log()
+            file.open_dataset()
+            file.match()
+            for check in checks:
+                if not settings.CHECK or check.__name__ == settings.CHECK:
+                    check(file)
+            file.validate()
+            file.close_dataset()
+
+            if file.is_clean:
+                logger.info('File has successfully passed all checks')
+            else:
+                logger.critical('File did not pass all checks')
+
+            if file.has_warnings and settings.STOP_WARN:
+                break
+            if file.has_errors and settings.STOP_ERR:
+                break
+
+            if file.has_warnings and settings.FIX:
+                print('Fix warnings: %s' % file_path)
+                file.open_dataset(write=True)
+                file.fix_warnings()
+                file.fix_errors()
+                file.close_dataset()
+
+            if file.is_clean:
+                if settings.MOVE:
+                    file.move()
+                elif settings.COPY:
+                    file.copy()
+
+        else:
+            logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
+
+        if settings.FIRST_FILE:
+            break
