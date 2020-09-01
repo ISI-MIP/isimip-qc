@@ -83,11 +83,12 @@ def check_period(file):
 
     if time_resolution == 'daily':
         if time_calendar in ['proleptic_gregorian','standard']:
-            for year in range(startyear_file,endyear_file):
+            time_days = 0
+            for year in range(startyear_file,endyear_file+1):
                 if calendar.isleap(year):
-                    time_days = time_days + 366
+                    time_days += 366
                 else:
-                    time_days = time_days + 365
+                    time_days += 365
         elif time_calendar == '366_day':
             time_days = nyears_file * 366
         elif time_calendar == '365_day':
