@@ -65,11 +65,6 @@ def check_lon_variable(file):
         except AttributeError:
             file.warn('lon.units is missing.')
 
-        lat_first = file.dataset.variables.get('lat')[0]
-        lat_last  = file.dataset.variables.get('lat')[-1]
-        if lat_first < lat_last:
-            # fix with 'cdo invertlat IFILE OFILE'
-            file.warn('latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
 
 def check_lat_variable(file):
     lat = file.dataset.variables.get('lat')
@@ -131,6 +126,11 @@ def check_lat_variable(file):
         except AttributeError:
             file.warn('lat.units is missing.')
 
+        lat_first = file.dataset.variables.get('lat')[0]
+        lat_last  = file.dataset.variables.get('lat')[-1]
+        if lat_first < lat_last:
+            # fix with 'cdo invertlat IFILE OFILE'
+            file.warn('latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
 
 def check_time_variable(file):
     time = file.dataset.variables.get('time')
