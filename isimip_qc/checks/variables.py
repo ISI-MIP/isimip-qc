@@ -245,3 +245,15 @@ def check_variable(file):
                     file.warn('variable.%s="%s" should be 1e+20.', name, attr)
             except AttributeError:
                 file.warn('variable.%s is missing.', name)
+
+        # check valid range
+        if settings.MINMAX:
+            valid_min = definition.get('valid_min')
+            valid_max = definition.get('valid_max')
+            if (valid_min is not None) and (valid_min is not None):
+                var_min = variable[:].min()
+                var_max = variable[:].max()
+                if (var_min < float(valid_min)) or (var_max > float(valid_max)):
+                    file.error('Min/Max values (%.2E/%.2E) of %s are outside the valid range (%.2E to %.2E).', var_min, var_max, variable_name, valid_min, valid_max)
+                else:
+                    file.info('No min and/or max information on %s in definition.', variable_name)
