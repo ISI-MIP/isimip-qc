@@ -60,15 +60,16 @@ def check_period(file):
     elif time_resolution == 'monthly':
         # for monthly resolution cftime only allows for 360_day calendar
         time_calendar = '360_day'
-    elif time_resolution == 'annual':
-        # yearly resolution not implemented at all in cftime by now
-        # time_calendar = ''
-        return
 
-    firstdate_nc = netCDF4.num2date(time_var[0],time_units,time_calendar)
-    lastdate_nc  = netCDF4.num2date(time_var[time_steps-1],time_units,time_calendar)
-    startyear_nc = firstdate_nc.year
-    endyear_nc   = lastdate_nc.year
+    if time_resolution in ['daily','monthly']:
+        firstdate_nc = netCDF4.num2date(time_var[0],time_units,time_calendar)
+        lastdate_nc  = netCDF4.num2date(time_var[time_steps-1],time_units,time_calendar)
+        startyear_nc = firstdate_nc.year
+        endyear_nc   = lastdate_nc.year
+    elif time_resolution == 'annual':
+        ref_year = int(time_var.units.split()[2].split("-")[0])
+        startyear_nc = ref_year + int(time_var[0])
+        endyear_nc   = ref_year + int(time_var[-1])
 
     startyear_file = int(file.specifiers.get('start_year'))
     endyear_file   = int(file.specifiers.get('end_year'))
