@@ -127,7 +127,7 @@ class File(object):
 
         formatter = logging.Formatter(' %(levelname)-9s: %(message)s')
 
-        handler = logging.FileHandler(log_path, 'a')
+        handler = logging.FileHandler(log_path, 'w')
         handler.setLevel(logging.INFO)
         handler.setFormatter(formatter)
 

@@ -85,7 +85,7 @@ def main():
                 break
 
             if file.has_warnings and settings.FIX:
-                print('Fix warnings: %s' % file_path)
+                print(' Fix warnings:')
                 file.open_dataset(write=True)
                 file.fix_warnings()
                 file.close_dataset()
