@@ -28,11 +28,11 @@ def get_parser():
     parser.add_argument('--checked-path', dest='checked_path',
                         help='base path for the checked files')
     parser.add_argument('--protocol-location', dest='protocol_locations',
-                        help='URL or file path to the protocol')
+                        help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level',
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
-                        help='base path for the log files for individual files')
+                        help='base path for the individual log files')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
     parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
@@ -42,7 +42,7 @@ def get_parser():
     parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
                         help='test values for valid range (slow)')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
-                        help='try to fix warnings detected')
+                        help='try to fix warnings detected on the original files')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     return parser
