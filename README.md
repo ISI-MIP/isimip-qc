@@ -72,7 +72,8 @@ optional arguments:
   -e, --stop-on-errors  stop execution on errors
   -r, --minmax          test values for valid range (slow)
   --fix                 try to fix warnings detected on the original files
-  --check CHECK         perform only one particular check```
+  --check CHECK         perform only one particular check
+```
 
 The only mandatory option is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
 
