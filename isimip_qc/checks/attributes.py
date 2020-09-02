@@ -6,12 +6,12 @@ def check_isimip_id(file):
         file.dataset.getncattr('isimip_id')
     except AttributeError:
         file.warn('Global attribute \'isimip_id\' is missing.', fix={
-            'func': add_uuid,
+            'func': fix_add_uuid,
             'args': (file, )
         })
 
 
-def add_uuid(file):
+def fix_add_uuid(file):
     import uuid
     file.info('Adding isimip_id')
     file.dataset.isimip_id = str(uuid.uuid4())

@@ -44,7 +44,7 @@ def check_lower_case(file):
             if attr not in ['_FillValue']:
                 if not attr.islower():
                     file.warn('Attribute "%s.%s" is not lower case.', variable_name, attr, fix={
-                        'func': fix_variable_attr,
+                        'func': fix_rename_attr,
                         'args': (file, variable_name, attr)
                     })
                 if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value', 'units']:
@@ -62,7 +62,7 @@ def fix_rename_var(file, variable_name):
     file.info('Renaming variable "%s" -> "%s".', variable_name, variable_name.lower())
     file.dataset.variables[variable_name].renameVariable(variable_name, variable_name.lower())
 
-def fix_variable_attr(file, variable_name, attr_name):
+def fix_rename_attr(file, variable_name, attr_name):
     file.info('Renaming "%s.%s" -> "%s.%s".', variable_name, attr_name, variable_name, attr_name.lower())
     file.dataset.variables[variable_name].renameAttribute(attr_name, attr_name.lower())
 
