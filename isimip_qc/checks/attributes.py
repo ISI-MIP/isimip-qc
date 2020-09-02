@@ -4,8 +4,9 @@ from email.utils import parseaddr
 def check_isimip_id(file):
     try:
         file.dataset.getncattr('isimip_id')
+        file.info('Global attribute "isimip_id" found')
     except AttributeError:
-        file.warn('Global attribute \'isimip_id\' is missing.', fix={
+        file.warn('Global attribute "isimip_id" is missing.', fix={
             'func': fix_add_uuid,
             'args': (file, )
         })
@@ -21,7 +22,7 @@ def check_institution(file):
     try:
         file.dataset.getncattr('institution')
     except AttributeError:
-        file.error('Global attribute \'institution\' is missing.')
+        file.error('Global attribute "institution" is missing.')
 
 
 def check_contact(file):
@@ -29,6 +30,8 @@ def check_contact(file):
         contact = file.dataset.getncattr('contact')
         name, address = parseaddr(contact)
         if not address:
-            file.error('Global attribute \'contact="%s"\' is not a proper address.', contact)
+            file.error('Global attribute "contact (%s)" is not a proper address.', contact)
+        else:
+            file.info('Global attribute "contact" looks good.')
     except AttributeError:
-        file.error('Global attribute \'contact\' is missing.')
+        file.error('Global attribute "contact" is missing.')

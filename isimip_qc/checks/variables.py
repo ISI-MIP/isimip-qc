@@ -186,6 +186,8 @@ def check_time_variable(file):
         try:
             if time.units not in units:
                 file.warn('Attribute time.units="%s" should be one of %s.', time.units, units)
+            else:
+                file.info('Valid time unit found (%s)', time.units)
         except AttributeError:
             file.warn('Attribute time.units is missing.')
 
@@ -194,6 +196,8 @@ def check_time_variable(file):
             calenders = time_definition.get('calenders', [])
             if time.calendar not in calenders:
                 file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders)
+            else:
+                file.info('Valid calendar found (%s)', time.calendar)
         except AttributeError:
             file.warn('Attribute time.calendar is missing.')
 
@@ -230,11 +234,10 @@ def check_time_variable(file):
         endyear_file   = int(file.specifiers.get('end_year'))
         nyears_file    = endyear_file - startyear_file + 1
 
-        if startyear_nc != startyear_file:
-            file.error('Start year of time axis (%s) doesn\'t match start year in file name (%s)', startyear_nc, startyear_file)
-
-        if endyear_nc != endyear_file:
-            file.error('End year of time axis (%s) does not match end year in file name (%s)', endyear_nc, endyear_file)
+        if startyear_nc != startyear_file or endyear_nc != endyear_file:
+            file.error('Start and/or end year of NetCDF time axis (%s-%s) doesn\'t match period defined in file name (%s-%s)', startyear_nc, endyear_nc, startyear_file, endyear_file)
+        else:
+            file.info('Time period covered by this file matches the internal time axis (%s-%s)', startyear_nc, endyear_nc)
 
         if time_resolution == 'daily':
             if time_calendar in ['proleptic_gregorian','standard']:
@@ -253,13 +256,19 @@ def check_time_variable(file):
 
             if time_days != time_steps:
                 file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_days, time_calendar)
+            else:
+                file.info('Correct number of time steps (%s) given the defined calendar (%s)', time_steps, time_calendar)
         elif time_resolution == 'monthly':
             time_months = nyears_file * 12
             if time_months != time_steps:
                 file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, time_months)
+            else:
+                file.info('Correct number of time steps (%s).', time_steps)
         elif time_resolution == 'annual':
             if nyears_file != time_steps:
                 file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s).', time_steps, nyears_file)
+            else:
+                file.info('Correct number of time steps (%s).', time_steps)
 
 
 def check_variable(file):
@@ -280,6 +289,8 @@ def check_variable(file):
         chunking = variable.chunking()
         if chunking[0] != 1 or chunking[-2] != 360 or chunking[-1] != 720:
             file.warn('%s.chunking=%s should be [1, ... , 360, 720].', variable_name, chunking)
+        else:
+            file.info('Variable chunking looks good (%s)', chunking)
 
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
@@ -297,14 +308,27 @@ def check_variable(file):
             try:
                 if variable.units != units:
                     file.error('%s.units=%s should be %s.', variable_name, variable.units, units)
+                else:
+                    file.info('Variable unit matches definition (%s)', variable.units)
             except AttributeError:
                 file.error('%s.units is missing.', variable_name)
         else:
             file.warn('No units information on %s in definition.', variable_name)
 
         # check dimension order
-        if variable.dimensions[0] != 'time' or variable.dimensions[-2] != 'lat' or variable.dimensions[-1] != 'lon':
-            file.warn('%s dimension order %s should be ["time", ... , "lat", "lon"].', variable_name, variable.dimensions)
+        dim_len = len(variable.dimensions)
+        if dim_len == 3:
+            if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
+                file.warn('%s dimension order %s should be ["time", "lat", "lon"].', variable_name, variable.dimensions)
+            else:
+                file.info('Dimensions for variable "%s" look good: %s', variable_name, variable.dimensions)
+        elif dim_len == 4:
+            if variable.dimensions[0] != 'time' or variable.dimensions[1] not in ['depth'] or variable.dimensions[2] != 'lat' or variable.dimensions[2] != 'lon':
+                file.warn('%s dimension order %s should be ["time", "depth" , "lat", "lon"].', variable_name, variable.dimensions)
+            else:
+                file.info('Dimensions for variable "%s" look good', variable_name)
+        else:
+            file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', dim_len)
 
         # check _FillValue and missing_value
         for name in ['_FillValue', 'missing_value']:
@@ -312,6 +336,8 @@ def check_variable(file):
                 attr = variable.getncattr(name)
                 if not math.isclose(attr, 1e+20, rel_tol=1e-6):
                     file.warn('variable.%s="%s" should be 1e+20.', name, attr)
+                else:
+                    file.info('%s is properly set.', name)
             except AttributeError:
                 file.warn('variable.%s is missing.', name)
 
@@ -325,4 +351,6 @@ def check_variable(file):
                 if (var_min < float(valid_min)) or (var_max > float(valid_max)):
                     file.error('Min/Max values (%.2E/%.2E) of %s are outside the valid range (%.2E to %.2E).', var_min, var_max, variable_name, valid_min, valid_max)
                 else:
-                    file.info('No min and/or max information on %s in definition.', variable_name)
+                    file.info('Min/Max values within valid range.')
+            else:
+                file.info('No min and/or max definition found for variable "%s".', variable_name)
