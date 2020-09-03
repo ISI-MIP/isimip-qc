@@ -15,8 +15,9 @@ def check_lon_variable(file):
         file.error('Definition for variable lon is missing.')
     else:
         # check dtype
-        if lon.dtype != 'float64':
-            file.warn('lon.dtype="%s" should be "float64".', lon.dtype)
+        dtypes = ['float32', 'float64']
+        if lon.dtype not in dtypes:
+            file.warn('lon.dtype="%s" should be in %s.', lon.dtype, dtypes)
 
         # check shape
         size = lon_definition.get('size')
@@ -76,8 +77,9 @@ def check_lat_variable(file):
         file.error('Definition for variable lat is missing.')
     else:
         # check dtype
-        if lat.dtype != 'float64':
-            file.warn('lat.dtype="%s" should be "float64".', lat.dtype)
+        dtypes = ['float32', 'float64']
+        if lat.dtype not in dtypes:
+            file.warn('lat.dtype="%s" should be in %s.', lat.dtype, dtypes)
 
         # check shape
         size = lat_definition.get('size')
@@ -146,8 +148,9 @@ def check_time_variable(file):
         file.error('Definition for variable time is missing.')
     else:
         # check dtype
-        if time.dtype != 'float64':
-            file.warn('time.dtype="%s" should be "float64".', time.dtype)
+        dtypes = ['float32', 'float64']
+        if time.dtype not in dtypes:
+            file.warn('time.dtype="%s" should be in %s.', time.dtype, dtypes)
 
         # check axis
         axis = time_definition.get('axis')
