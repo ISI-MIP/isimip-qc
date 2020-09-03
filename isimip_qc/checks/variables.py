@@ -34,36 +34,36 @@ def check_lon_variable(file):
             file.error('max(lon)=%s must be %s.', np.max(lon), maximum)
 
         # check axis
+        axis = lon_definition.get('axis')
         try:
-            axis = lon_definition.get('axis')
             if lon.axis != axis:
                 file.warn('Attribute lon.axis="%s" should be "%s".', lon.axis, axis)
         except AttributeError:
-            file.warn('Attribute lon.axis is missing.')
+            file.warn('Attribute lon.axis is missing. Should be "%s".', axis)
 
         # check standard_name
+        standard_name = lon_definition.get('standard_name')
         try:
-            standard_name = lon_definition.get('standard_name')
             if lon.standard_name != standard_name:
                 file.warn('Attribute lon.standard_name="%s" should be "%s".', lon.standard_name, standard_name)
         except AttributeError:
-            file.warn('Attribute lon.standard_name is missing.')
+            file.warn('Attribute lon.standard_name is missing. Should be "%s".', standard_name)
 
         # check long_name
+        long_names = lon_definition.get('long_names', [])
         try:
-            long_names = lon_definition.get('long_names', [])
             if lon.long_name not in long_names:
                 file.warn('Attribute lon.long_name="%s" should be in %s.', lon.long_name, long_names)
         except AttributeError:
-            file.warn('Attribute lon.long_name is missing.')
+            file.warn('Attribute lon.long_name is missing. Should be "%s".', long_names[0])
 
         # check units
+        units = lon_definition.get('units')
         try:
-            units = lon_definition.get('units')
             if lon.units != units:
                 file.warn('Attribute lon.units="%s" should be "%s".', lon.units, units)
         except AttributeError:
-            file.warn('Attribute lon.units is missing.')
+            file.warn('Attribute lon.units is missing. Should be "%s".', units)
 
 
 def check_lat_variable(file):
@@ -95,41 +95,43 @@ def check_lat_variable(file):
             file.error('max(lat)=%s must be %s.', np.max(lat), maximum)
 
         # check axis
+        axis = lat_definition.get('axis')
         try:
-            axis = lat_definition.get('axis')
             if lat.axis != axis:
                 file.warn('Attribute lat.axis="%s" should be "%s".', lat.axis, axis)
         except AttributeError:
-            file.warn('Attribute lat.axis is missing.')
+            file.warn('Attribute lat.axis is missing. Should be "%s".', axis)
 
         # check standard_name
+        standard_name = lat_definition.get('standard_name')
         try:
-            standard_name = lat_definition.get('standard_name')
             if lat.standard_name != standard_name:
                 file.warn('Attribute lat.standard_name="%s" should be "%s".', lat.standard_name, standard_name)
         except AttributeError:
-            file.warn('Attribute lat.standard_name is missing.')
+            file.warn('Attribute lat.standard_name is missing. Should be "%s".', standard_name)
 
         # check long_name
+        long_names = lat_definition.get('long_names', [])
         try:
-            long_names = lat_definition.get('long_names', [])
             if lat.long_name not in long_names:
                 file.warn('Attribute lat.long_name="%s" should be in %s.', lat.long_name, long_names)
         except AttributeError:
-            file.warn('Attribute lat.long_name is missing.')
+            file.warn('Attribute lat.long_name is missing. Should be "%s".', long_names[0])
 
         # check units
+        units = lat_definition.get('units')
         try:
-            units = lat_definition.get('units')
             if lat.units != units:
                 file.warn('Attribute lat.units="%s" should be "%s".', lat.units, units)
         except AttributeError:
-            file.warn('Attribute lat.units is missing.')
+            file.warn('Attribute lat.units is missing. Should be "%s".', units)
 
         lat_first = file.dataset.variables.get('lat')[0]
         lat_last  = file.dataset.variables.get('lat')[-1]
         if lat_first < lat_last:
             file.warn('latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
+        else:
+            file.info('Latidute index order looks good (N to S).')
 
 def check_time_variable(file):
     import netCDF4
@@ -148,28 +150,28 @@ def check_time_variable(file):
             file.warn('time.dtype="%s" should be "float64".', time.dtype)
 
         # check axis
+        axis = time_definition.get('axis')
         try:
-            axis = time_definition.get('axis')
             if time.axis != axis:
                 file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis)
         except AttributeError:
-            file.warn('Attribute time.axis is missing.')
+            file.warn('Attribute time.axis is missing. Should be "%s".', axis)
 
         # check standard_name
+        standard_name = time_definition.get('standard_name')
         try:
-            standard_name = time_definition.get('standard_name')
             if time.standard_name != standard_name:
                 file.warn('Attribute time.standard_name="%s" should be "%s".', time.standard_name, standard_name)
         except AttributeError:
-            file.warn('Attribute time.standard_name is missing.')
+            file.warn('Attribute time.standard_name is missing. Should be "%s".', standard_name)
 
         # check long_name
+        long_names = time_definition.get('long_names', [])
         try:
-            long_names = time_definition.get('long_names', [])
             if time.long_name not in long_names:
                 file.warn('Attribute time.long_name="%s" should be in %s.', time.long_name, long_names)
         except AttributeError:
-            file.warn('Attribute time.long_name is missing.')
+            file.warn('Attribute time.long_name is missing. Should be "%s".', long_names[2])
 
         # check units
         minimum = settings.DEFINITIONS['time_span']['minimum']['value'][settings.SIMULATION_ROUND]
@@ -189,17 +191,17 @@ def check_time_variable(file):
             else:
                 file.info('Valid time unit found (%s)', time.units)
         except AttributeError:
-            file.warn('Attribute time.units is missing.')
+            file.warn('Attribute time.units is missing. Should be "%s".', units)
 
         # check calenders
+        calenders = time_definition.get('calenders', [])
         try:
-            calenders = time_definition.get('calenders', [])
             if time.calendar not in calenders:
                 file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders)
             else:
                 file.info('Valid calendar found (%s)', time.calendar)
         except AttributeError:
-            file.warn('Attribute time.calendar is missing.')
+            file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders)
 
 
         # first and last year from file name specifiers must match those from internal time axis
@@ -309,9 +311,9 @@ def check_variable(file):
                 if variable.units != units:
                     file.error('%s.units=%s should be %s.', variable_name, variable.units, units)
                 else:
-                    file.info('Variable unit matches definition (%s)', variable.units)
+                    file.info('Variable unit matches protocol definition (%s)', variable.units)
             except AttributeError:
-                file.error('%s.units is missing.', variable_name)
+                file.error('%s.units is missing. Should be "%s".', variable_name, units)
         else:
             file.warn('No units information on %s in definition.', variable_name)
 
@@ -339,7 +341,7 @@ def check_variable(file):
                 else:
                     file.info('%s is properly set.', name)
             except AttributeError:
-                file.warn('variable.%s is missing.', name)
+                file.warn('variable.%s is missing. Should be 1e+20.', name)
 
         # check valid range
         if settings.MINMAX:
@@ -351,6 +353,6 @@ def check_variable(file):
                 if (var_min < float(valid_min)) or (var_max > float(valid_max)):
                     file.error('Min/Max values (%.2E/%.2E) of %s are outside the valid range (%.2E to %.2E).', var_min, var_max, variable_name, valid_min, valid_max)
                 else:
-                    file.info('Min/Max values within valid range.')
+                    file.info('Min/Max values within valid range (%.2E to %.2E).', valid_min, valid_max)
             else:
                 file.info('No min and/or max definition found for variable "%s".', variable_name)
