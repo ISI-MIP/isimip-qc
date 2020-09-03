@@ -286,6 +286,10 @@ def check_variable(file):
     elif not definition:
         file.error('Definition for variable %s is missing.', variable_name)
     else:
+        # check file name and NetCDF variable to match each other
+        if variable.name != variable_name:
+            file.error('File name variable (%s) does not match internal variable name (%s).', variable_name, variable.name)
+
         # check dtype
         if variable.dtype != 'float32':
             file.warn('%s.dtype="%s" should be "float32".', variable_name, variable.dtype)
