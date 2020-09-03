@@ -38,9 +38,15 @@ def check_lon_variable(file):
         axis = lon_definition.get('axis')
         try:
             if lon.axis != axis:
-                file.warn('Attribute lon.axis="%s" should be "%s".', lon.axis, axis)
+                file.warn('Attribute lon.axis="%s" should be "%s".', lon.axis, axis, fix={
+                    'func': fix_set_attr,
+                    'args': (file, 'lon', 'axis', axis)
+                })
         except AttributeError:
-            file.warn('Attribute lon.axis is missing. Should be "%s".', axis)
+            file.warn('Attribute lon.axis is missing. Should be "%s".', axis, fix={
+                    'func': fix_set_attr,
+                    'args': (file, 'lon', 'axis', axis)
+                })
 
         # check standard_name
         standard_name = lon_definition.get('standard_name')
@@ -100,9 +106,15 @@ def check_lat_variable(file):
         axis = lat_definition.get('axis')
         try:
             if lat.axis != axis:
-                file.warn('Attribute lat.axis="%s" should be "%s".', lat.axis, axis)
+                file.warn('Attribute lat.axis="%s" should be "%s".', lat.axis, axis, fix={
+                    'func': fix_set_attr,
+                    'args': (file, 'lat', 'axis', axis)
+                })
         except AttributeError:
-            file.warn('Attribute lat.axis is missing. Should be "%s".', axis)
+            file.warn('Attribute lat.axis is missing. Should be "%s".', axis, fix={
+                    'func': fix_set_attr,
+                    'args': (file, 'lat', 'axis', axis)
+                })
 
         # check standard_name
         standard_name = lat_definition.get('standard_name')
@@ -156,9 +168,15 @@ def check_time_variable(file):
         axis = time_definition.get('axis')
         try:
             if time.axis != axis:
-                file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis)
+                file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis, fix={
+                    'func': fix_set_attr,
+                    'args': (file, 'time', 'axis', axis)
+                })
         except AttributeError:
-            file.warn('Attribute time.axis is missing. Should be "%s".', axis)
+            file.warn('Attribute time.axis is missing. Should be "%s".', axis, fix={
+                'func': fix_set_attr,
+                'args': (file, 'time', 'axis', axis)
+            })
 
         # check standard_name
         standard_name = time_definition.get('standard_name')
@@ -363,3 +381,7 @@ def check_variable(file):
                     file.info('Min/Max values within valid range (%.2E to %.2E).', valid_min, valid_max)
             else:
                 file.info('No min and/or max definition found for variable "%s".', variable_name)
+
+def fix_set_attr(file, variable_name, attr, value):
+    file.info('Adding attribute "%s=%s" to variable "%s".', attr, value, variable_name)
+    file.dataset.variables[variable_name].setncattr(attr, value)
