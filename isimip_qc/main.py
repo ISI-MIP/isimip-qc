@@ -76,8 +76,10 @@ def main():
 
             if file.is_clean:
                 logger.info('File has successfully passed all checks')
-            else:
-                logger.critical('File did not pass all checks')
+            elif file.has_warnings and not file.has_errors:
+                logger.info('File passed all checks without unfixable issues.')
+            elif file.has_errors:
+                logger.critical('File did not pass all checks. Unfixable issues detected.')
 
             if file.has_warnings and settings.STOP_WARN:
                 break
