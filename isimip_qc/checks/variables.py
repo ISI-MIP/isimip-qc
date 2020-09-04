@@ -362,11 +362,11 @@ def check_variable(file):
             try:
                 attr = variable.getncattr(name)
                 if not math.isclose(attr, 1e+20, rel_tol=1e-6):
-                    file.warn('variable.%s="%s" should be 1e+20.', name, attr)
+                    file.error('Missing values for variable "%s": %s=%s but should be 1e+20.', variable_name, name, attr)
                 else:
-                    file.info('%s is properly set.', name)
+                    file.info('Missing value attribute "%s" is properly set.', name)
             except AttributeError:
-                file.warn('variable.%s is missing. Should be 1e+20.', name)
+                file.error('Missing value attribute "%s" for variable "%s" is missing. Should be set to 1e+20.', name, variable_name)
 
         # check valid range
         if settings.MINMAX:
