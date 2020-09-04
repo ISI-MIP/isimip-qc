@@ -373,6 +373,7 @@ def check_variable(file):
             valid_min = definition.get('valid_min')
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_min is not None):
+                file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
                 var_min = variable[:].min()
                 var_max = variable[:].max()
                 if (var_min < float(valid_min)) or (var_max > float(valid_max)):
