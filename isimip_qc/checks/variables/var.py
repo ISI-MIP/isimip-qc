@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 from isimip_qc.config import settings
 
 
@@ -83,11 +84,17 @@ def check_variable(file):
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_min is not None):
                 file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
-                var_min = variable[:].min()
-                var_max = variable[:].max()
-                if (var_min < float(valid_min)) or (var_max > float(valid_max)):
-                    file.error('Min/Max values (%.2E/%.2E) of %s are outside the valid range (%.2E to %.2E).', var_min, var_max, variable_name, valid_min, valid_max)
-                else:
-                    file.info('Min/Max values within valid range (%.2E to %.2E).', valid_min, valid_max)
+                too_low = np.transpose(np.where(variable[:] < valid_min))
+                too_high = np.transpose(np.where(variable[:] > valid_max))
+
+                if too_low.size:
+                    file.error('%i values are lower than the valid minimum (%.2E): %s', too_low.size, valid_min, too_low)
+
+                if too_high.size:
+                    file.error('%i values are higher than the valid maximum (%.2E): %s', too_high.size, valid_max, too_high)
+
+                if not too_low.shape and not too_high.shape:
+                    file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
+
             else:
                 file.info('No min and/or max definition found for variable "%s".', variable_name)
