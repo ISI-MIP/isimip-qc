@@ -146,7 +146,7 @@ def check_lat_variable(file):
         if lat_first < lat_last:
             file.warn('latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
         else:
-            file.info('Latidute index order looks good (N to S).')
+            file.info('Latitude index order looks good (N to S).')
 
 
 def check_time_variable(file):
