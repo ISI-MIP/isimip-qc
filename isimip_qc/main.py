@@ -66,6 +66,8 @@ def main():
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open_log()
+
+            # 1st pass: perform checks
             file.open_dataset()
             file.match()
             for check in checks:
@@ -74,32 +76,37 @@ def main():
             file.validate()
             file.close_dataset()
 
+            # log result of checks, stop if flags are set
             if file.is_clean:
                 logger.info('File has successfully passed all checks')
             elif file.has_warnings and not file.has_errors:
                 logger.info('File passed all checks without unfixable issues.')
             elif file.has_errors:
                 logger.critical('File did not pass all checks. Unfixable issues detected.')
-
             if file.has_warnings and settings.STOP_WARN:
                 break
             if file.has_errors and settings.STOP_ERR:
                 break
 
+            # 2nd pass: fix warnings
             if file.has_warnings and settings.FIX:
                 print(' FIXING   : %s' % file_path)
                 file.open_dataset(write=True)
                 file.fix_warnings()
                 file.close_dataset()
 
+            # copy/move files to checked_path
             if file.is_clean:
                 if settings.MOVE:
                     file.move()
                 elif settings.COPY:
                     file.copy()
 
+            # close the log for this file
+            file.close_log()
         else:
             logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
 
+        # stop if flag is set
         if settings.FIRST_FILE:
             break

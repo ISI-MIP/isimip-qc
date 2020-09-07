@@ -1,8 +1,7 @@
 import logging
 
-import jsonschema
-
 import colorlog
+import jsonschema
 
 from .config import settings
 from .utils.files import copy_file, move_file
@@ -107,8 +106,8 @@ class File(object):
         # add handlers
         logger.addHandler(self.get_stream_handler())
         if settings.LOG_PATH:
-            self.file_handler = self.get_file_handler()
-            logger.addHandler(self.file_handler)
+            self.handler = self.get_file_handler()
+            logger.addHandler(self.handler)
 
         return logger
 
