@@ -3,8 +3,9 @@ import re
 from pathlib import Path
 from urllib.parse import urlparse
 
-import colorlog
 import requests
+
+import colorlog
 
 logger = colorlog.getLogger(__name__)
 
@@ -15,9 +16,13 @@ def fetch_definitions(bases, path):
     if definition_json:
         definitions = {}
         for definition_name, definition in definition_json.items():
-            definitions[definition_name] = {
-                row['specifier']: row for row in definition
-            }
+            if isinstance(definition, str):
+                definitions[definition_name] = definition
+            else:
+                definitions[definition_name] = {
+                    row['specifier']: row for row in definition
+                }
+
         return definitions
 
 
