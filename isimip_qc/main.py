@@ -62,7 +62,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print('Checking: %s' % file_path)
+        print(' CHECKING : %s' % file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open_log()
@@ -87,7 +87,7 @@ def main():
                 break
 
             if file.has_warnings and settings.FIX:
-                print(' Fix warnings:')
+                print(' FIXING   : %s' % file_path)
                 file.open_dataset(write=True)
                 file.fix_warnings()
                 file.close_dataset()
