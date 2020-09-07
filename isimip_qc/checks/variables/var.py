@@ -84,14 +84,20 @@ def check_variable(file):
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_min is not None):
                 file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
-                too_low = np.transpose(np.where(variable[:] < valid_min))
-                too_high = np.transpose(np.where(variable[:] > valid_max))
+                too_low = np.argwhere(variable[:] < valid_min)
+                too_high = np.argwhere(variable[:] > valid_max)
 
                 if too_low.size:
-                    file.error('%i values are lower than the valid minimum (%.2E): %s', too_low.size, valid_min, too_low)
+                    if too_low.shape[0] < 25:
+                        file.error('%i values are lower than the valid minimum (%.2E). Indexes are %s.', too_low.shape[0], valid_min, too_low.tolist())
+                    else:
+                        file.error('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min, list(too_low))
 
                 if too_high.size:
-                    file.error('%i values are higher than the valid maximum (%.2E): %s', too_high.size, valid_max, too_high)
+                    if too_low.shape[0] < 25:
+                        file.error('%i values are higher than the valid maximum (%.2E). Indexes are %s.', too_high.shape[0], valid_max, too_high.tolist())
+                    else:
+                        file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
