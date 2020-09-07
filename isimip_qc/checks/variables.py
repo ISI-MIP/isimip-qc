@@ -3,6 +3,7 @@ import math
 import numpy as np
 
 from ..config import settings
+from ..fixes import fix_set_variable_attr
 
 
 def check_lon_variable(file):
@@ -39,12 +40,12 @@ def check_lon_variable(file):
         try:
             if lon.axis != axis:
                 file.warn('Attribute lon.axis="%s" should be "%s".', lon.axis, axis, fix={
-                    'func': fix_set_attr,
+                    'func': fix_set_variable_attr,
                     'args': (file, 'lon', 'axis', axis)
                 })
         except AttributeError:
             file.warn('Attribute lon.axis is missing. Should be "%s".', axis, fix={
-                    'func': fix_set_attr,
+                    'func': fix_set_variable_attr,
                     'args': (file, 'lon', 'axis', axis)
                 })
 
@@ -107,12 +108,12 @@ def check_lat_variable(file):
         try:
             if lat.axis != axis:
                 file.warn('Attribute lat.axis="%s" should be "%s".', lat.axis, axis, fix={
-                    'func': fix_set_attr,
+                    'func': fix_set_variable_attr,
                     'args': (file, 'lat', 'axis', axis)
                 })
         except AttributeError:
             file.warn('Attribute lat.axis is missing. Should be "%s".', axis, fix={
-                    'func': fix_set_attr,
+                    'func': fix_set_variable_attr,
                     'args': (file, 'lat', 'axis', axis)
                 })
 
@@ -141,11 +142,12 @@ def check_lat_variable(file):
             file.warn('Attribute lat.units is missing. Should be "%s".', units)
 
         lat_first = file.dataset.variables.get('lat')[0]
-        lat_last  = file.dataset.variables.get('lat')[-1]
+        lat_last = file.dataset.variables.get('lat')[-1]
         if lat_first < lat_last:
             file.warn('latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
         else:
             file.info('Latidute index order looks good (N to S).')
+
 
 def check_time_variable(file):
     import netCDF4
@@ -169,12 +171,12 @@ def check_time_variable(file):
         try:
             if time.axis != axis:
                 file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis, fix={
-                    'func': fix_set_attr,
+                    'func': fix_set_variable_attr,
                     'args': (file, 'time', 'axis', axis)
                 })
         except AttributeError:
             file.warn('Attribute time.axis is missing. Should be "%s".', axis, fix={
-                'func': fix_set_attr,
+                'func': fix_set_variable_attr,
                 'args': (file, 'time', 'axis', axis)
             })
 
@@ -224,10 +226,8 @@ def check_time_variable(file):
         except AttributeError:
             file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders)
 
-
         # first and last year from file name specifiers must match those from internal time axis
         # number of time steps must match those expected from the time axis
-
         time = file.dataset.variables.get('time')
         time_steps = len(time[:])
         time_units = time.units
@@ -243,19 +243,19 @@ def check_time_variable(file):
             # for monthly resolution cftime.num2date only allows for '360_day' calendar
             time_calendar = '360_day'
 
-        if time_resolution in ['daily','monthly']:
-            firstdate_nc = netCDF4.num2date(time[0],time_units,time_calendar)
-            lastdate_nc  = netCDF4.num2date(time[time_steps-1],time_units,time_calendar)
+        if time_resolution in ['daily', 'monthly']:
+            firstdate_nc = netCDF4.num2date(time[0], time_units, time_calendar)
+            lastdate_nc = netCDF4.num2date(time[time_steps-1], time_units, time_calendar)
             startyear_nc = firstdate_nc.year
-            endyear_nc   = lastdate_nc.year
+            endyear_nc = lastdate_nc.year
         elif time_resolution == 'annual':
-            ref_year     = int(time.units.split()[2].split("-")[0])
+            ref_year = int(time.units.split()[2].split("-")[0])
             startyear_nc = ref_year + int(time[0])
-            endyear_nc   = ref_year + int(time[-1])
+            endyear_nc = ref_year + int(time[-1])
 
         startyear_file = int(file.specifiers.get('start_year'))
-        endyear_file   = int(file.specifiers.get('end_year'))
-        nyears_file    = endyear_file - startyear_file + 1
+        endyear_file = int(file.specifiers.get('end_year'))
+        nyears_file = endyear_file - startyear_file + 1
 
         if startyear_nc != startyear_file or endyear_nc != endyear_file:
             file.error('Start and/or end year of NetCDF time axis (%s-%s) doesn\'t match period defined in file name (%s-%s)', startyear_nc, endyear_nc, startyear_file, endyear_file)
@@ -263,9 +263,9 @@ def check_time_variable(file):
             file.info('Time period covered by this file matches the internal time axis (%s-%s)', startyear_nc, endyear_nc)
 
         if time_resolution == 'daily':
-            if time_calendar in ['proleptic_gregorian','standard']:
+            if time_calendar in ['proleptic_gregorian', 'standard']:
                 time_days = 0
-                for year in range(startyear_file,endyear_file+1):
+                for year in range(startyear_file, endyear_file+1):
                     if calendar.isleap(year):
                         time_days += 366
                     else:
@@ -382,7 +382,3 @@ def check_variable(file):
                     file.info('Min/Max values within valid range (%.2E to %.2E).', valid_min, valid_max)
             else:
                 file.info('No min and/or max definition found for variable "%s".', variable_name)
-
-def fix_set_attr(file, variable_name, attr, value):
-    file.info('Adding attribute "%s=%s" to variable "%s".', attr, value, variable_name)
-    file.dataset.variables[variable_name].setncattr(attr, value)

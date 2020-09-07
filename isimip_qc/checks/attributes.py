@@ -1,4 +1,7 @@
+import uuid
 from email.utils import parseaddr
+
+from ..fixes import fix_set_global_attr
 
 
 def check_isimip_id(file):
@@ -7,15 +10,9 @@ def check_isimip_id(file):
         file.info('Global attribute "isimip_id" found')
     except AttributeError:
         file.warn('Global attribute "isimip_id" is missing.', fix={
-            'func': fix_add_uuid,
-            'args': (file, )
+            'func': fix_set_global_attr,
+            'args': (file, 'isimip_id', str(uuid.uuid4()))
         })
-
-
-def fix_add_uuid(file):
-    import uuid
-    file.info('Adding isimip_id')
-    file.dataset.isimip_id = str(uuid.uuid4())
 
 
 def check_institution(file):

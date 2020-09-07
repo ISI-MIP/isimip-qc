@@ -1,3 +1,7 @@
+from ..fixes import (fix_remove_variable_attr, fix_rename_dimension,
+                     fix_rename_variable, fix_rename_variable_attr)
+
+
 def check_data_model(file):
     '''
     File must use the NetCDF4 classic data model
@@ -31,14 +35,14 @@ def check_lower_case(file):
     for dimension_name in file.dataset.dimensions:
         if not dimension_name.islower():
             file.warn('Dimension "%s" is not lower case.', dimension_name, fix={
-                        'func': fix_rename_dim,
+                        'func': fix_rename_dimension,
                         'args': (file, dimension_name)
                     })
 
     for variable_name, variable in file.dataset.variables.items():
         if not variable_name.islower():
             file.warn('Variable "%s" is not lower case.', variable_name, fix={
-                        'func': fix_rename_var,
+                        'func': fix_rename_variable,
                         'args': (file, variable_name)
                     })
 
@@ -46,28 +50,11 @@ def check_lower_case(file):
             if attr not in ['_FillValue']:
                 if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value', 'units']:
                     file.warn('Attribute "%s.%s" is not needed.', variable_name, attr, fix={
-                        'func': fix_remove_attr,
+                        'func': fix_remove_variable_attr,
                         'args': (file, variable_name, attr)
                     })
                 elif not attr.islower():
                     file.warn('Attribute "%s.%s" is not lower case.', variable_name, attr, fix={
-                        'func': fix_rename_attr,
+                        'func': fix_rename_variable_attr,
                         'args': (file, variable_name, attr)
                     })
-
-
-def fix_rename_dim(file, dimension_name):
-    file.info('Renaming dimension "%s" -> "%s".', dimension_name, dimension_name.lower())
-    file.dataset.dimensions[dimension_name].renameDimension(dimension_name, dimension_name.lower())
-
-def fix_rename_var(file, variable_name):
-    file.info('Renaming variable "%s" -> "%s".', variable_name, variable_name.lower())
-    file.dataset.variables[variable_name].renameVariable(variable_name, variable_name.lower())
-
-def fix_rename_attr(file, variable_name, attr_name):
-    file.info('Renaming "%s.%s" -> "%s.%s".', variable_name, attr_name, variable_name, attr_name.lower())
-    file.dataset.variables[variable_name].renameAttribute(attr_name, attr_name.lower())
-
-def fix_remove_attr(file, variable_name, attr_name):
-    file.info('Removing attribute "%s.%s"', variable_name, attr_name)
-    file.dataset.variables[variable_name].delncattr(attr_name)
