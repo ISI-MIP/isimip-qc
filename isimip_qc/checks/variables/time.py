@@ -50,6 +50,8 @@ def check_time_variable(file):
             file.warn('Attribute time.long_name is missing. Should be "%s".', long_names[2])
 
         # check units
+        time_step = file.specifiers.get('time_step')
+        increment = settings.DEFINITIONS['time_step'][time_step]['increment']
         minimum = settings.DEFINITIONS['time_span']['minimum']['value'][settings.SIMULATION_ROUND]
         units_templates = [
             "%s since %i-01-01",
@@ -57,9 +59,7 @@ def check_time_variable(file):
             "%s since %i-1-1",
             "%s since %i-1-1 00:00:00"
         ]
-        units = []
-        for specifier, definition in settings.DEFINITIONS['time_step'].items():
-            units += [template % (definition['increment'], minimum) for template in units_templates]
+        units = [template % (increment, minimum) for template in units_templates]
 
         try:
             if time.units not in units:
