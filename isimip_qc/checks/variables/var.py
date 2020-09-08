@@ -85,6 +85,9 @@ def check_variable(file):
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_min is not None):
                 file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
+                lat = file.dataset.variables.get('lat')
+                lon = file.dataset.variables.get('lon')
+                time = file.dataset.variables.get('time')
 
                 too_low = np.argwhere(variable[:] < valid_min)
                 too_high = np.argwhere(variable[:] > valid_max)
@@ -116,7 +119,7 @@ def check_variable(file):
                     file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
                     file.info('Top %i highest values are :', settings.MINMAX)
                     for index in too_high[0:settings.MINMAX]:
-                        file.info('date: %s, lon index: %i, lat index: %i, value: %s', netCDF4.num2date(index[0], time_units, time_calendar), index[1], index[2], variable[tuple(index)])
+                        file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %s', netCDF4.num2date(time[index[0]], time_units, time_calendar), lat[index[1]], lon[index[2]], variable[tuple(index)])
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
