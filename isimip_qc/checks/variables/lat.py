@@ -42,9 +42,9 @@ def check_lat_variable(file):
                 })
         except AttributeError:
             file.warn('Attribute lat.axis is missing. Should be "%s".', axis, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'lat', 'axis', axis)
-                })
+                'func': fix_set_variable_attr,
+                'args': (file, 'lat', 'axis', axis)
+            })
 
         # check standard_name
         standard_name = lat_definition.get('standard_name')

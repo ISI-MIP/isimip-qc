@@ -42,9 +42,9 @@ def check_lon_variable(file):
                 })
         except AttributeError:
             file.warn('Attribute lon.axis is missing. Should be "%s".', axis, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'lon', 'axis', axis)
-                })
+                'func': fix_set_variable_attr,
+                'args': (file, 'lon', 'axis', axis)
+            })
 
         # check standard_name
         standard_name = lon_definition.get('standard_name')

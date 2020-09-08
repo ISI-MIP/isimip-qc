@@ -35,16 +35,16 @@ def check_lower_case(file):
     for dimension_name in file.dataset.dimensions:
         if not dimension_name.islower():
             file.warn('Dimension "%s" is not lower case.', dimension_name, fix={
-                        'func': fix_rename_dimension,
-                        'args': (file, dimension_name)
-                    })
+                'func': fix_rename_dimension,
+                'args': (file, dimension_name)
+            })
 
     for variable_name, variable in file.dataset.variables.items():
         if not variable_name.islower():
             file.warn('Variable "%s" is not lower case.', variable_name, fix={
-                        'func': fix_rename_variable,
-                        'args': (file, variable_name)
-                    })
+                'func': fix_rename_variable,
+                'args': (file, variable_name)
+            })
 
         for attr in variable.__dict__:
             if attr not in ['_FillValue']:
