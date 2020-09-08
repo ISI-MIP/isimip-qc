@@ -1,5 +1,6 @@
 import math
 
+import netCDF4
 import numpy as np
 from isimip_qc.config import settings
 
@@ -84,20 +85,38 @@ def check_variable(file):
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_min is not None):
                 file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
+
                 too_low = np.argwhere(variable[:] < valid_min)
                 too_high = np.argwhere(variable[:] > valid_max)
 
+                time = file.dataset.variables.get('time')
+                time_resolution = file.specifiers.get('time_step')
+
+                try:
+                    time_units = time.units
+                except AttributeError:
+                    pass
+
+                if time_resolution == 'daily':
+                    try:
+                        time_calendar = time.calendar
+                    except AttributeError:
+                        pass
+                if time_resolution == 'monthly':
+                    time_calendar = '360_day'
+
                 if too_low.size:
-                    if too_low.shape[0] < 25:
-                        file.error('%i values are lower than the valid minimum (%.2E). Indexes are %s.', too_low.shape[0], valid_min, too_low.tolist())
-                    else:
-                        file.error('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min, list(too_low))
+                    file.error('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min)
+                    file.info('Top %i highest values are :', settings.MINMAX)
+                    # file.error('Top %i lowest value indexes are :', settings.MINMAX, too_low.tolist()[0:settings.MINMAX])
+                    for index in too_low[0:settings.MINMAX]:
+                        file.info('date: %s, lon index: %i, lat index: %i, value: %s', netCDF4.num2date(index[0], time_units, time_calendar), index[1], index[2], variable[tuple(index)])
 
                 if too_high.size:
-                    if too_low.shape[0] < 25:
-                        file.error('%i values are higher than the valid maximum (%.2E). Indexes are %s.', too_high.shape[0], valid_max, too_high.tolist())
-                    else:
-                        file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
+                    file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
+                    file.info('Top %i highest values are :', settings.MINMAX)
+                    for index in too_high[0:settings.MINMAX]:
+                        file.info('date: %s, lon index: %i, lat index: %i, value: %s', netCDF4.num2date(index[0], time_units, time_calendar), index[1], index[2], variable[tuple(index)])
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
