@@ -21,7 +21,7 @@ def check_time_resolution(file):
         except AttributeError:
             file.warn('Can\'t check for number of time steps because of missing time.calendar attribute')
             return
-    if time_resolution == 'monthly':
+    if time_resolution in ['monthly', 'annual']:
         # for monthly resolution cftime.num2date only allows for '360_day' calendar
         time_calendar = '360_day'
 
