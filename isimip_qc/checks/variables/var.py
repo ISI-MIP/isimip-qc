@@ -105,7 +105,7 @@ def check_variable(file):
                         time_calendar = time.calendar
                     except AttributeError:
                         pass
-                if time_resolution == 'monthly':
+                if time_resolution in ['monthly', 'annual']:
                     time_calendar = '360_day'
 
                 if too_low.size:
