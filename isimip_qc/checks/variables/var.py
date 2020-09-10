@@ -110,16 +110,35 @@ def check_variable(file):
 
                 if too_low.size:
                     file.error('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min)
-                    file.info('Top %i highest values are :', settings.MINMAX)
-                    # file.error('Top %i lowest value indexes are :', settings.MINMAX, too_low.tolist()[0:settings.MINMAX])
-                    for index in too_low[0:settings.MINMAX]:
-                        file.info('date: %s, lon index: %i, lat index: %i, value: %s', netCDF4.num2date(index[0], time_units, time_calendar), index[1], index[2], variable[tuple(index)])
+                    if settings.LOG_LEVEL == 'INFO':
+                        file.info('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
+
+                        too_low_list = []
+                        for index in too_low[0:too_low.shape[0]]:
+                            too_low_list.append([tuple(index), variable[tuple(index)].data.tolist()])
+                        too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
+                        for i in range(0, min(settings.MINMAX, too_low.shape[0])):
+                            file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                      netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
+                                      lat[too_low_sorted[i][0][1]],
+                                      lon[too_low_sorted[i][0][1]],
+                                      too_low_sorted[i][1])
 
                 if too_high.size:
                     file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
-                    file.info('Top %i highest values are :', settings.MINMAX)
-                    for index in too_high[0:settings.MINMAX]:
-                        file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %s', netCDF4.num2date(time[index[0]], time_units, time_calendar), lat[index[1]], lon[index[2]], variable[tuple(index)])
+                    if settings.LOG_LEVEL == 'INFO':
+                        file.info('%i highest values are :', min(settings.MINMAX, too_high.shape[0]))
+
+                        too_high_list = []
+                        for index in too_high[0:too_high.shape[0]]:
+                            too_high_list.append([tuple(index), variable[tuple(index)].data.tolist()])
+                        too_high_sorted = sorted(too_high_list, key=lambda value: value[1], reverse=True)
+                        for i in range(0, min(settings.MINMAX, too_high.shape[0])):
+                            file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                      netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
+                                      lat[too_high_sorted[i][0][1]],
+                                      lon[too_high_sorted[i][0][1]],
+                                      too_high_sorted[i][1])
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
