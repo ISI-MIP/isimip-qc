@@ -84,6 +84,9 @@ call env\Scripts\activate.bat
 
 # install from GitHub
 pip install git+https://github.com/ISI-MIP/isimip-qc
+
+# update from Github
+pip install --upgrade git+https://github.com/ISI-MIP/isimip-qc
 ```
 
 Usage
