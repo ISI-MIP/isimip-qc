@@ -55,11 +55,13 @@ def check_variable(file):
         # check dimension order
         dim_len = len(variable.dimensions)
         if dim_len == 3:
+            file.is_2d = True
             if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
                 file.warn('%s dimension order %s should be ["time", "lat", "lon"].', variable_name, variable.dimensions)
             else:
                 file.info('Dimensions for variable "%s" look good: %s', variable_name, variable.dimensions)
         elif dim_len == 4:
+            file.is_3d = True
             if variable.dimensions[0] != 'time' or variable.dimensions[1] not in ['depth'] or variable.dimensions[2] != 'lat' or variable.dimensions[2] != 'lon':
                 file.warn('%s dimension order %s should be ["time", "depth" , "lat", "lon"].', variable_name, variable.dimensions)
             else:

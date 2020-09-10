@@ -26,6 +26,9 @@ class File(object):
         self.dataset = None
         self.specifiers = {}
 
+        self.is_2d = False
+        self.is_3d = False
+
     @property
     def json(self):
         return {
