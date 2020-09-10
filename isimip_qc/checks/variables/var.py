@@ -53,23 +53,6 @@ def check_variable(file):
         else:
             file.warn('No units information on %s in definition.', variable_name)
 
-        # check dimension order
-        dim_len = len(variable.dimensions)
-        if dim_len == 3:
-            file.is_2d = True
-            if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
-                file.warn('%s dimension order %s should be ["time", "lat", "lon"].', variable_name, variable.dimensions)
-            else:
-                file.info('Dimensions for variable "%s" look good: %s', variable_name, variable.dimensions)
-        elif dim_len == 4:
-            file.is_3d = True
-            if variable.dimensions[0] != 'time' or variable.dimensions[1] not in ['depth'] or variable.dimensions[2] != 'lat' or variable.dimensions[2] != 'lon':
-                file.warn('%s dimension order %s should be ["time", "depth" , "lat", "lon"].', variable_name, variable.dimensions)
-            else:
-                file.info('Dimensions for variable "%s" look good', variable_name)
-        else:
-            file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', dim_len)
-
         # check _FillValue and missing_value
         for name in ['_FillValue', 'missing_value']:
             try:
@@ -120,11 +103,19 @@ def check_variable(file):
                             too_low_list.append([tuple(index), variable[tuple(index)].data.tolist()])
                         too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
                         for i in range(0, min(settings.MINMAX, too_low.shape[0])):
-                            file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
-                                      netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
-                                      lat[too_low_sorted[i][0][1]],
-                                      lon[too_low_sorted[i][0][2]],
-                                      too_low_sorted[i][1])
+                            if file.is_2d:
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                          netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
+                                          lat[too_low_sorted[i][0][-2]],
+                                          lon[too_low_sorted[i][0][-1]],
+                                          too_low_sorted[i][1])
+                            elif file.is_3d:
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, depth: %s, value: %E',
+                                          netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
+                                          too_low_sorted[i][0][-3],
+                                          lat[too_low_sorted[i][0][-2]],
+                                          lon[too_low_sorted[i][0][-1]],
+                                          too_low_sorted[i][1])
 
                 if too_high.size:
                     file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
@@ -136,11 +127,19 @@ def check_variable(file):
                             too_high_list.append([tuple(index), variable[tuple(index)].data.tolist()])
                         too_high_sorted = sorted(too_high_list, key=lambda value: value[1], reverse=True)
                         for i in range(0, min(settings.MINMAX, too_high.shape[0])):
-                            file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
-                                      netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
-                                      lat[too_high_sorted[i][0][1]],
-                                      lon[too_high_sorted[i][0][2]],
-                                      too_high_sorted[i][1])
+                            if file.is_2d:
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                          netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
+                                          lat[too_high_sorted[i][0][-2]],
+                                          lon[too_high_sorted[i][0][-1]],
+                                          too_high_sorted[i][1])
+                            elif file.is_3d:
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, depth: %s, value: %E',
+                                          netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
+                                          too_high_sorted[i][0][-3],
+                                          lat[too_high_sorted[i][0][-2]],
+                                          lon[too_high_sorted[i][0][-1]],
+                                          too_high_sorted[i][1])
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
