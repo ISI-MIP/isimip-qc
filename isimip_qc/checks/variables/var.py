@@ -31,7 +31,11 @@ def check_variable(file):
 
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
-        default_dimensions = ('time', 'lat', 'lon')
+        if file.is_2d:
+            default_dimensions = ('time', 'lat', 'lon')
+        elif file.is_3d:
+            default_dimensions = ('time', 'depth', 'lat', 'lon')
+
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
                 file.error('%s dimension %s must be %s or %s.', variable_name, variable.dimensions, definition_dimensions, default_dimensions)
