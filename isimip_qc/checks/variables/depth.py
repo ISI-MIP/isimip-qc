@@ -41,25 +41,31 @@ def check_depth_variable(file):
             standard_name = depth_definition.get('standard_name')
             try:
                 if depth.standard_name != standard_name:
-                    file.warn('Attribute depth.standard_name="%s" should be "%s".', depth.standard_name, standard_name)
+                    file.warn('Attribute depth.standard_name="%s" should be "%s".', depth.standard_name, standard_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, 'depth', 'standard_name', standard_name)
+                    })
             except AttributeError:
                 file.warn('Attribute depth.standard_name is missing. Should be "%s".', standard_name)
 
             # check long_name
-            long_names = depth_definition.get('long_names', [])
+            long_name = depth_definition.get('long_name')
             try:
-                if depth.long_name not in long_names:
-                    file.warn('Attribute depth.long_name="%s" should be in %s.', depth.long_name, long_names)
+                if depth.long_name != long_name:
+                    file.warn('Attribute depth.long_name="%s". Should be "%s".', depth.long_name, long_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, 'depth', 'long_name', long_name)
+                    })
             except AttributeError:
-                file.warn('Attribute depth.long_name is missing. Should be "%s".', long_names[0])
+                file.warn('Attribute depth.long_name is missing. Should be "%s".', long_name)
 
             # check units
             units = depth_definition.get('units')
             try:
                 if depth.units != units:
-                    file.warn('Attribute depth.units="%s" should be "%s".', depth.units, units)
+                    file.warn('Depth units="%s" should be "%s".', depth.units, units)
             except AttributeError:
-                file.warn('Attribute depth.units is missing. Should be "%s".', units)
+                file.warn('Depth units are missing. Should be "%s".', units)
 
             depth_first = file.dataset.variables.get('depth')[0]
             depth_last = file.dataset.variables.get('depth')[-1]

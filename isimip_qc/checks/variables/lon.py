@@ -50,7 +50,10 @@ def check_lon_variable(file):
         standard_name = lon_definition.get('standard_name')
         try:
             if lon.standard_name != standard_name:
-                file.warn('Attribute lon.standard_name="%s" should be "%s".', lon.standard_name, standard_name)
+                file.warn('Attribute lon.standard_name="%s" should be "%s".', lon.standard_name, standard_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lon', 'standard_name', standard_name)
+                })
         except AttributeError:
             file.warn('Attribute lon.standard_name is missing. Should be "%s".', standard_name)
 
@@ -58,7 +61,10 @@ def check_lon_variable(file):
         long_names = lon_definition.get('long_names', [])
         try:
             if lon.long_name not in long_names:
-                file.warn('Attribute lon.long_name="%s" should be in %s.', lon.long_name, long_names)
+                file.warn('Attribute lon.long_name="%s" should be in %s.', lon.long_name, long_names, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lon', 'long_name', long_names[0])
+                })
         except AttributeError:
             file.warn('Attribute lon.long_name is missing. Should be "%s".', long_names[0])
 

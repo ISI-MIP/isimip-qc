@@ -50,7 +50,10 @@ def check_lat_variable(file):
         standard_name = lat_definition.get('standard_name')
         try:
             if lat.standard_name != standard_name:
-                file.warn('Attribute lat.standard_name="%s" should be "%s".', lat.standard_name, standard_name)
+                file.warn('Attribute lat.standard_name="%s" should be "%s".', lat.standard_name, standard_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lat', 'standard_name', standard_name)
+                })
         except AttributeError:
             file.warn('Attribute lat.standard_name is missing. Should be "%s".', standard_name)
 
@@ -58,7 +61,10 @@ def check_lat_variable(file):
         long_names = lat_definition.get('long_names', [])
         try:
             if lat.long_name not in long_names:
-                file.warn('Attribute lat.long_name="%s" should be in %s.', lat.long_name, long_names)
+                file.warn('Attribute lat.long_name="%s" should be in %s.', lat.long_name, long_names, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lat', 'long_name', long_names[0])
+                })
         except AttributeError:
             file.warn('Attribute lat.long_name is missing. Should be "%s".', long_names[0])
 
