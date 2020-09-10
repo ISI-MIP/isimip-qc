@@ -25,8 +25,12 @@ def check_variable(file):
 
         # check chunking
         chunking = variable.chunking()
-        if chunking[0] != 1 or chunking[-2] != 360 or chunking[-1] != 720:
-            file.warn('%s.chunking=%s should be [1, ... , 360, 720].', variable_name, chunking)
+        if file.is_2d:
+            if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
+                file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, chunking)
+        if file.is_3d:
+            if chunking[0] != 1 or chunking[1] != 1 or chunking[2] != 360 or chunking[3] != 720:
+                file.warn('%s.chunking=%s should be [1, 1, 360, 720].', variable_name, chunking)
         else:
             file.info('Variable chunking looks good (%s)', chunking)
 
