@@ -54,13 +54,16 @@ def check_variable(file):
         if units is not None:
             try:
                 if variable.units != units:
-                    file.error('%s.units=%s should be %s.', variable_name, variable.units, units)
+                    if variable.units == '':
+                        file.error('Variable "%s" units attribute is empty. Should be "%s".', variable_name, units)
+                    else:
+                        file.error('%s.units="%s" should be "%s".', variable_name, variable.units, units)
                 else:
                     file.info('Variable unit matches protocol definition (%s)', variable.units)
             except AttributeError:
-                file.error('%s.units is missing. Should be "%s".', variable_name, units)
+                file.error('Variable "%s" units attribute is missing. Should be "%s".', variable_name, units)
         else:
-            file.warn('No units information on %s in definition.', variable_name)
+            file.warn('No units information for variable "%s" in definition.', variable_name)
 
         # check _FillValue and missing_value
         for name in ['_FillValue', 'missing_value']:
