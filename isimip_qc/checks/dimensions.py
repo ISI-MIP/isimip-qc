@@ -11,9 +11,11 @@ def check_1_dimensions(file):
     elif dim_len == 4:
         file.is_3d = True
 
+
 def check_lon_dimension(file):
     if file.dataset.dimensions.get('lon') is None:
         file.error('Dimension \'lon\' is missing.')
+
 
 def check_lat_dimension(file):
     if file.dataset.dimensions.get('lat') is None:
@@ -23,6 +25,12 @@ def check_lat_dimension(file):
 def check_time_dimension(file):
     if file.dataset.dimensions.get('time') is None:
         file.error('Dimension \'time\' is missing.')
+
+
+def check_depth_dimension(file):
+    if file.is_3d:
+        if file.dataset.dimensions.get('depth') is None:
+            file.error('Dimension \'depth\' is missing.')
 
 
 def check_2_dimensions(file):
