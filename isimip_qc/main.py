@@ -7,6 +7,8 @@ from .config import settings
 from .models import File
 from .utils.files import walk_files
 
+from os import path
+
 logger = colorlog.getLogger(__name__)
 
 
@@ -59,6 +61,16 @@ def main():
         parser.error('no pattern could be found.')
     if settings.SCHEMA is None:
         parser.error('no schema could be found.')
+
+    if settings.UNCHECKED_PATH:
+        if not path.exists(settings.UNCHECKED_PATH):
+            print('UNCHECKED_PATH does not exist:', settings.CHECKED_PATH)
+            quit()
+
+    if settings.CHECKED_PATH:
+        if not path.exists(settings.CHECKED_PATH):
+            print('CHECKED_PATH does not exist:', settings.CHECKED_PATH)
+            quit()
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
