@@ -4,7 +4,7 @@ from ..config import settings
 def check_lon_dimension(file):
     if file.dataset.dimensions.get('lon') is None:
         file.error('Dimension \'lon\' is missing.')
-
+    print('1')
 
 def check_lat_dimension(file):
     if file.dataset.dimensions.get('lat') is None:
@@ -17,6 +17,7 @@ def check_time_dimension(file):
 
 
 def check_dimensions(file):
+    print('2')
     # check dimension order
     variable_name = file.specifiers.get('variable')
     variable = file.dataset.variables.get(variable_name)

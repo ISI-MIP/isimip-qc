@@ -63,11 +63,11 @@ def check_time_variable(file):
 
         try:
             if time.units not in units:
-                file.warn('Attribute time.units="%s" should be one of %s.', time.units, units)
+                file.error('Attribute time.units="%s" should be one of %s.', time.units, units)
             else:
                 file.info('Valid time unit found (%s)', time.units)
         except AttributeError:
-            file.warn('Attribute time.units is missing. Should be "%s".', units)
+            file.error('Attribute time.units is missing. Should be "%s".', units)
 
         # check calenders
         calenders = time_definition.get('calenders', [])
