@@ -18,11 +18,6 @@ def check_depth_variable(file):
             if depth.dtype not in dtypes:
                 file.warn('depth.dtype="%s" should be in %s.', depth.dtype, dtypes)
 
-            # check shape
-            size = depth_definition.get('size')
-            if depth.shape != (size, ):
-                file.error('depth.shape=%s must be (%s, ).', depth.shape, size)
-
             # check axis
             axis = depth_definition.get('axis')
             try:
