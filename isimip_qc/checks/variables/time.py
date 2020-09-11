@@ -70,11 +70,21 @@ def check_time_variable(file):
             file.error('Attribute time.units is missing. Should be "%s".', units)
 
         # check calenders
-        calenders = time_definition.get('calenders', [])
-        try:
-            if time.calendar not in calenders:
-                file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders)
-            else:
-                file.info('Valid calendar found (%s)', time.calendar)
-        except AttributeError:
-            file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders)
+        if time_step == 'daily':
+            try:
+                calenders_daily = time_definition.get('calenders_daily', [])
+                if time.calendar not in calenders_daily:
+                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_daily)
+                else:
+                    file.info('Valid calendar found (%s)', time.calendar)
+            except AttributeError:
+                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_daily)
+        else:
+            try:
+                calenders_other = time_definition.get('calenders_other', [])
+                if time.calendar not in calenders_other:
+                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_other)
+                else:
+                    file.info('Valid calendar found (%s)', time.calendar)
+            except AttributeError:
+                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_other)
