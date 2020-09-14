@@ -9,9 +9,9 @@ def check_depth_variable(file):
         depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
         if depth is None:
-            file.error('Variable depth is missing.')
+            file.error('Variable "depth" is missing.')
         elif not depth_definition:
-            file.error('Definition for variable depth is missing.')
+            file.error('Definition for variable "depth" is missing.')
         else:
             # check dtype
             dtypes = ['float32', 'float64']

@@ -29,14 +29,15 @@ def check_variable(file):
             if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
                 file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, chunking)
         if file.is_3d:
-            depth_len = len(file.dataset.dimensions.get('depth'))
+            depth_len = len(file.dataset.dimensions.get(file.dim_vertical))
             if chunking[0] != 1 or chunking[1] != depth_len or chunking[2] != 360 or chunking[3] != 720:
-                file.warn('%s.chunking=%s should be [1, 1, 360, 720].', variable_name, chunking)
+                file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', variable_name, chunking, depth_len)
         else:
             file.info('Variable chunking looks good (%s)', chunking)
 
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
+
         if file.is_2d:
             default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
@@ -44,10 +45,10 @@ def check_variable(file):
 
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
-                file.error('%s dimension %s must be %s or %s.', variable_name, variable.dimensions, definition_dimensions, default_dimensions)
+                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, variable_name, default_dimensions)
         else:
             if variable.dimensions != default_dimensions:
-                file.error('%s dimension %s must be %s.', variable_name, variable.dimensions, default_dimensions)
+                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, variable_name, default_dimensions)
 
         # check variable units
         units = definition.get('units')
@@ -59,7 +60,7 @@ def check_variable(file):
                     else:
                         file.error('%s.units="%s" should be "%s".', variable_name, variable.units, units)
                 else:
-                    file.info('Variable unit matches protocol definition (%s)', variable.units)
+                    file.info('Variable unit matches protocol definition (%s).', variable.units)
             except AttributeError:
                 file.error('Variable "%s" units attribute is missing. Should be "%s".', variable_name, units)
         else:
@@ -116,18 +117,18 @@ def check_variable(file):
                         too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
                         for i in range(0, min(settings.MINMAX, too_low.shape[0])):
                             if file.is_2d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_low_sorted[i][0][-2]],
                                           lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][1])
+                                          too_low_sorted[i][1],units)
                             elif file.is_3d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, depth: %s, value: %E',
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
-                                          too_low_sorted[i][0][-3],
                                           lat[too_low_sorted[i][0][-2]],
                                           lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][1])
+                                          too_low_sorted[i][0][-3],
+                                          too_low_sorted[i][1],units)
 
                 if too_high.size:
                     file.error('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
@@ -140,18 +141,18 @@ def check_variable(file):
                         too_high_sorted = sorted(too_high_list, key=lambda value: value[1], reverse=True)
                         for i in range(0, min(settings.MINMAX, too_high.shape[0])):
                             if file.is_2d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E',
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_high_sorted[i][0][-2]],
                                           lon[too_high_sorted[i][0][-1]],
-                                          too_high_sorted[i][1])
+                                          too_high_sorted[i][1],units)
                             elif file.is_3d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, depth: %s, value: %E',
+                                file.info('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
-                                          too_high_sorted[i][0][-3],
                                           lat[too_high_sorted[i][0][-2]],
                                           lon[too_high_sorted[i][0][-1]],
-                                          too_high_sorted[i][1])
+                                          too_high_sorted[i][0][-3],
+                                          too_high_sorted[i][1],units)
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
