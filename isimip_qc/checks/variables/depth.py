@@ -11,7 +11,7 @@ def check_depth_variable(file):
         if depth is None and file.dim_vertical:
             file.error('Found "%s" as vertical variable. Rename to "depth".', file.dim_vertical)
             depth = file.dataset.variables.get(file.dim_vertical)
-
+            print(file.dim_vertical)
         if not depth_definition:
             file.error('No definition for variable "depth" in protocol.')
 
