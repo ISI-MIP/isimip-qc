@@ -127,7 +127,7 @@ def check_variable(file):
                                           netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_low_sorted[i][0][-2]],
                                           lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][0][-3],
+                                          too_low_sorted[i][0][-3] + 1,
                                           too_low_sorted[i][1],units)
 
                 if too_high.size:
@@ -151,7 +151,7 @@ def check_variable(file):
                                           netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_high_sorted[i][0][-2]],
                                           lon[too_high_sorted[i][0][-1]],
-                                          too_high_sorted[i][0][-3],
+                                          too_high_sorted[i][0][-3] + 1,
                                           too_high_sorted[i][1],units)
 
                 if not too_low.shape and not too_high.shape:
