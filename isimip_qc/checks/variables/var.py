@@ -50,6 +50,36 @@ def check_variable(file):
             if variable.dimensions != default_dimensions:
                 file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, variable_name, default_dimensions)
 
+        # check standard_name
+        standard_name = definition.get('standard_name')
+        if standard_name:
+            try:
+                if variable.standard_name != standard_name:
+                    file.warn('Attribute standard_name="%s" for variable "%s". Should be "%s".', variable.standard_name, variable_name, standard_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, variable_name, 'standard_name', standard_name)
+                    })
+            except AttributeError:
+                file.warn('Attribute standard_name is missing for variable "%s". Should be "%s".', variable_name, standard_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, variable_name, 'standard_name', standard_name)
+                })
+
+        # check long_name
+        long_name = definition.get('long_name')
+        if long_name:
+            try:
+                if variable.long_name != long_name:
+                    file.warn('Attribute long_name="%s" for variable "%s". Should be "%s".', variable.long_name, variable_name, long_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, variable_name, 'long_name', long_name)
+                    })
+            except AttributeError:
+                file.warn('Attribute long_name is missing for variable "%s". Should be "%s".', variable_name, long_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, variable_name, 'long_name', long_name)
+                })
+
         # check variable units
         units = definition.get('units')
         if units is not None:
