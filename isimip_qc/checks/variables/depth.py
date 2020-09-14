@@ -27,12 +27,12 @@ def check_depth_variable(file):
                 if depth.axis != axis:
                     file.warn('Attribute depth.axis="%s" should be "%s".', depth.axis, axis, fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, 'depth', 'axis', axis)
+                        'args': (file, file.dim_vertical, 'axis', axis)
                     })
             except AttributeError:
                 file.warn('Attribute depth.axis is missing. Should be "%s".', axis, fix={
                     'func': fix_set_variable_attr,
-                    'args': (file, 'depth', 'axis', axis)
+                    'args': (file, file.dim_vertical, 'axis', axis)
                 })
 
             # check standard_name
@@ -41,10 +41,13 @@ def check_depth_variable(file):
                 if depth.standard_name != standard_name:
                     file.warn('Attribute depth.standard_name="%s" should be "%s".', depth.standard_name, standard_name, fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, 'depth', 'standard_name', standard_name)
+                        'args': (file, file.dim_vertical, 'standard_name', standard_name)
                     })
             except AttributeError:
-                file.warn('Attribute depth.standard_name is missing. Should be "%s".', standard_name)
+                file.warn('Attribute depth.standard_name is missing. Should be "%s".', standard_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, file.dim_vertical, 'standard_name', standard_name)
+                })
 
             # check long_name
             long_name = depth_definition.get('long_name')
@@ -52,10 +55,13 @@ def check_depth_variable(file):
                 if depth.long_name != long_name:
                     file.warn('Attribute depth.long_name="%s". Should be "%s".', depth.long_name, long_name, fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, 'depth', 'long_name', long_name)
+                        'args': (file, file.dim_vertical, 'long_name', long_name)
                     })
             except AttributeError:
-                file.warn('Attribute depth.long_name is missing. Should be "%s".', long_name)
+                file.warn('Attribute depth.long_name is missing. Should be "%s".', long_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, file.dim_vertical, 'long_name', long_name)
+                })
 
             # check units
             units = depth_definition.get('units')

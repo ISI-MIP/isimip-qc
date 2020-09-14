@@ -72,6 +72,12 @@ def check_lon_variable(file):
         units = lon_definition.get('units')
         try:
             if lon.units != units:
-                file.warn('Attribute lon.units="%s" should be "%s".', lon.units, units)
+                file.warn('Attribute lon.units="%s" should be "%s".', lon.units, units, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lon', 'units', units)
+                })
         except AttributeError:
-            file.warn('Attribute lon.units is missing. Should be "%s".', units)
+            file.warn('Attribute lon.units is missing. Should be "%s".', units, fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'lat', 'units', units)
+            })

@@ -72,9 +72,15 @@ def check_lat_variable(file):
         units = lat_definition.get('units')
         try:
             if lat.units != units:
-                file.warn('Attribute lat.units="%s" should be "%s".', lat.units, units)
+                file.warn('Attribute lat.units="%s" should be "%s".', lat.units, units, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lat', 'units', units)
+                })
         except AttributeError:
-            file.warn('Attribute lat.units is missing. Should be "%s".', units)
+            file.warn('Attribute lat.units is missing. Should be "%s".', units, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'lat', 'units', units)
+                })
 
         lat_first = file.dataset.variables.get('lat')[0]
         lat_last = file.dataset.variables.get('lat')[-1]
