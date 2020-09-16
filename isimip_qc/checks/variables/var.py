@@ -3,6 +3,7 @@ import math
 import netCDF4
 import numpy as np
 from isimip_qc.config import settings
+from isimip_qc.fixes import fix_set_variable_attr
 
 
 def check_variable(file):
