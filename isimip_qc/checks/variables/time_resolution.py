@@ -28,7 +28,7 @@ def check_time_resolution(file):
     if all([time, time_definition, time_resolution, time_units, time_calendar]):
         # first and last year from file name specifiers must match those from internal time axis
         # number of time steps must match those expected from the time axis
-        time_steps = len(time[:])
+        time_steps = time.shape[0]
 
         if time_resolution in ['daily', 'monthly']:
             firstdate_nc = netCDF4.num2date(time[0], time_units, time_calendar)
