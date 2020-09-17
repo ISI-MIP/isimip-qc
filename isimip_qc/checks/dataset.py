@@ -14,18 +14,18 @@ def check_zip(file):
     '''
     Data variables must be compressed with at least compression level 4. Skip check for dimension variables.
     '''
-    variable_name = file.specifiers.get('variable')
-    variable = file.dataset.variables.get(variable_name)
+
+    variable = file.dataset.variables.get(file.variable_name)
 
     zlib = variable.filters().get('zlib')
     if zlib:
         complevel = variable.filters().get('complevel')
         if complevel < 1:
-            file.warn('Variable %s._DeflateLevel=%s should be > 4.', variable_name, complevel)
+            file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel)
         else:
-            file.info('Compression level for variable "%s" looks good (%s)', variable_name, complevel)
+            file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
     else:
-        file.warn('Variable "%s" is not compressed.', variable_name)
+        file.warn('Variable "%s" is not compressed.', file.variable_name)
 
 
 def check_lower_case(file):

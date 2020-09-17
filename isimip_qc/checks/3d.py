@@ -1,6 +1,12 @@
 def check_3d(file):
-    variable_name = file.specifiers.get('variable')
-    variable = file.dataset.variables.get(variable_name)
+    pft = file.specifiers.get('pft')
+
+    if pft:
+        file.variable_name = file.specifiers.get('variable') + '-' + file.specifiers.get('pft')
+    else:
+        file.variable_name = file.specifiers.get('variable')
+
+    variable = file.dataset.variables.get(file.variable_name)
     dim_len = len(variable.dimensions)
 
     # detect 2d or 3d data

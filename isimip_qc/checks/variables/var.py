@@ -7,32 +7,31 @@ from isimip_qc.fixes import fix_set_variable_attr
 
 
 def check_variable(file):
-    variable_name = file.specifiers.get('variable')
-    variable = file.dataset.variables.get(variable_name)
-    definition = settings.DEFINITIONS.get('variable', {}).get(variable_name)
+    variable = file.dataset.variables.get(file.variable_name)
+    definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
 
     if not variable:
-        file.error('Variable %s is missing.', variable_name)
+        file.error('Variable %s is missing.', file.variable_name)
     elif not definition:
-        file.error('Definition for variable %s is missing.', variable_name)
+        file.error('Definition for variable %s is missing.', file.variable_name)
     else:
         # check file name and NetCDF variable to match each other
-        if variable.name != variable_name:
-            file.error('File name variable (%s) does not match internal variable name (%s).', variable_name, variable.name)
+        if variable.name != file.variable_name:
+            file.error('File name variable (%s) does not match internal variable name (%s).', file.variable_name, variable.name)
 
         # check dtype
         if variable.dtype != 'float32':
-            file.warn('%s.dtype="%s" should be "float32".', variable_name, variable.dtype)
+            file.warn('%s.dtype="%s" should be "float32".', file.variable_name, variable.dtype)
 
         # check chunking
         chunking = variable.chunking()
         if file.is_2d:
             if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
-                file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, chunking)
+                file.warn('%s.chunking=%s should be [1, 360, 720].', file.variable_name, chunking)
         if file.is_3d:
             depth_len = file.dataset.dimensions.get(file.dim_vertical).size
             if chunking[0] != 1 or chunking[1] != depth_len or chunking[2] != 360 or chunking[3] != 720:
-                file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', variable_name, chunking, depth_len)
+                file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', file.variable_name, chunking, depth_len)
         else:
             file.info('Variable chunking looks good (%s)', chunking)
 
@@ -46,24 +45,24 @@ def check_variable(file):
 
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
-                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, variable_name, default_dimensions)
+                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, file.variable_name, default_dimensions)
         else:
             if variable.dimensions != default_dimensions:
-                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, variable_name, default_dimensions)
+                file.error('Found %s dimensions for "%s". Must be %s.', variable.dimensions, file.variable_name, default_dimensions)
 
         # check standard_name
         standard_name = definition.get('standard_name')
         if standard_name:
             try:
                 if variable.standard_name != standard_name:
-                    file.warn('Attribute standard_name="%s" for variable "%s". Should be "%s".', variable.standard_name, variable_name, standard_name, fix={
+                    file.warn('Attribute standard_name="%s" for variable "%s". Should be "%s".', variable.standard_name, file.variable_name, standard_name, fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, variable_name, 'standard_name', standard_name)
+                        'args': (file, file.variable_name, 'standard_name', standard_name)
                     })
             except AttributeError:
-                file.warn('Attribute standard_name is missing for variable "%s". Should be "%s".', variable_name, standard_name, fix={
+                file.warn('Attribute standard_name is missing for variable "%s". Should be "%s".', file.variable_name, standard_name, fix={
                     'func': fix_set_variable_attr,
-                    'args': (file, variable_name, 'standard_name', standard_name)
+                    'args': (file, file.variable_name, 'standard_name', standard_name)
                 })
 
         # check long_name
@@ -71,14 +70,14 @@ def check_variable(file):
         if long_name:
             try:
                 if variable.long_name != long_name:
-                    file.warn('Attribute long_name="%s" for variable "%s". Should be "%s".', variable.long_name, variable_name, long_name, fix={
+                    file.warn('Attribute long_name="%s" for variable "%s". Should be "%s".', variable.long_name, file.variable_name, long_name, fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, variable_name, 'long_name', long_name)
+                        'args': (file, file.variable_name, 'long_name', long_name)
                     })
             except AttributeError:
-                file.warn('Attribute long_name is missing for variable "%s". Should be "%s".', variable_name, long_name, fix={
+                file.warn('Attribute long_name is missing for variable "%s". Should be "%s".', file.variable_name, long_name, fix={
                     'func': fix_set_variable_attr,
-                    'args': (file, variable_name, 'long_name', long_name)
+                    'args': (file, file.variable_name, 'long_name', long_name)
                 })
 
         # check variable units
@@ -87,26 +86,26 @@ def check_variable(file):
             try:
                 if variable.units != units:
                     if variable.units == '':
-                        file.error('Variable "%s" units attribute is empty. Should be "%s".', variable_name, units)
+                        file.error('Variable "%s" units attribute is empty. Should be "%s".', file.variable_name, units)
                     else:
-                        file.error('%s.units="%s" should be "%s".', variable_name, variable.units, units)
+                        file.error('%s.units="%s" should be "%s".', file.variable_name, variable.units, units)
                 else:
                     file.info('Variable unit matches protocol definition (%s).', variable.units)
             except AttributeError:
-                file.error('Variable "%s" units attribute is missing. Should be "%s".', variable_name, units)
+                file.error('Variable "%s" units attribute is missing. Should be "%s".', file.variable_name, units)
         else:
-            file.warn('No units information for variable "%s" in definition.', variable_name)
+            file.warn('No units information for variable "%s" in definition.', file.variable_name)
 
         # check _FillValue and missing_value
         for name in ['_FillValue', 'missing_value']:
             try:
                 attr = variable.getncattr(name)
                 if not math.isclose(attr, 1e+20, rel_tol=1e-6):
-                    file.error('Missing values for variable "%s": %s=%s but should be 1e+20.', variable_name, name, attr)
+                    file.error('Missing values for variable "%s": %s=%s but should be 1e+20.', file.variable_name, name, attr)
                 else:
                     file.info('Missing value attribute "%s" is properly set.', name)
             except AttributeError:
-                file.error('Missing value attribute "%s" for variable "%s" is missing. Should be set to 1e+20.', name, variable_name)
+                file.error('Missing value attribute "%s" for variable "%s" is missing. Should be set to 1e+20.', name, file.variable_name)
 
         # check valid range
         if settings.MINMAX:
@@ -189,4 +188,4 @@ def check_variable(file):
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
 
             else:
-                file.info('No min and/or max definition found for variable "%s".', variable_name)
+                file.info('No min and/or max definition found for variable "%s".', file.variable_name)

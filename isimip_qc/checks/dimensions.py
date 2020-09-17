@@ -24,20 +24,19 @@ def check_depth_dimension(file):
 
 def check_dimensions(file):
     # check dimension order
-    variable_name = file.specifiers.get('variable')
-    variable = file.dataset.variables.get(variable_name)
+    variable = file.dataset.variables.get(file.variable_name)
 
     dim_len = len(variable.dimensions)
     if file.is_2d:
         if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
-            file.error('%s dimension order %s should be ["time", "lat", "lon"].', variable_name, variable.dimensions)
+            file.error('%s dimension order %s should be ["time", "lat", "lon"].', file.variable_name, variable.dimensions)
         else:
-            file.info('Dimensions for variable "%s" look good: %s', variable_name, variable.dimensions)
+            file.info('Dimensions for variable "%s" look good: %s', file.variable_name, variable.dimensions)
     elif file.is_3d:
         if variable.dimensions[0] != 'time' or file.dim_vertical not in ['depth'] or variable.dimensions[2] != 'lat' or variable.dimensions[3] != 'lon':
-            file.error('Found %s dimension dependencies and order %s. Should be ["time", "depth" , "lat", "lon"].', variable_name, variable.dimensions)
+            file.error('Found %s dimension dependencies and order %s. Should be ["time", "depth" , "lat", "lon"].', file.variable_name, variable.dimensions)
         else:
-            file.info('Dimensions for variable "%s" look good', variable_name)
+            file.info('Dimensions for variable "%s" look good', file.variable_name)
     else:
         file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', dim_len)
 
