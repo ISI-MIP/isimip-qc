@@ -16,6 +16,7 @@ class File(object):
         self.path = file_path.relative_to(settings.UNCHECKED_PATH)
         self.abs_path = file_path
 
+        self.infos = []
         self.warnings = []
         self.errors = []
 
@@ -57,8 +58,9 @@ class File(object):
     def debug(self, message, *args):
         self.logger.debug(message, *args)
 
-    def info(self, message, *args):
+    def info(self, message, *args, fix=None):
         self.logger.info(message, *args)
+        self.infos.append((message % args, fix))
 
     def warn(self, message, *args, fix=None):
         self.logger.warn(message, *args)
