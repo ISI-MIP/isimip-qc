@@ -59,7 +59,7 @@ def check_time_resolution(file):
                         time_days += 365
             elif time_calendar == '366_day':
                 time_days = nyears_file * 366
-            elif time_calendar == '365_day':
+            elif time_calendar in ['365_day', 'noleap']:
                 time_days = nyears_file * 365
             elif time_calendar == '360_day':
                 time_days = nyears_file * 360
