@@ -30,7 +30,7 @@ def check_variable(file):
             if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
                 file.warn('%s.chunking=%s should be [1, 360, 720].', variable_name, chunking)
         if file.is_3d:
-            depth_len = len(file.dataset.dimensions.get(file.dim_vertical))
+            depth_len = file.dataset.dimensions.get(file.dim_vertical).size
             if chunking[0] != 1 or chunking[1] != depth_len or chunking[2] != 360 or chunking[3] != 720:
                 file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', variable_name, chunking, depth_len)
         else:
