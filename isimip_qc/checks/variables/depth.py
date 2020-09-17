@@ -9,13 +9,13 @@ def check_depth_variable(file):
         depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
         if depth is None and file.dim_vertical:
-            file.error('Found "%s" as vertical variable. Rename to "depth".', file.dim_vertical)
+            file.error('Found a vertical dimension (%s) but no variable linked to it. Introduce "depth" as variable also.', file.dim_vertical)
             depth = file.dataset.variables.get(file.dim_vertical)
 
         if not depth_definition:
             file.error('No definition for variable "depth" in protocol.')
 
-        if file.dim_vertical and depth_definition:
+        if depth and depth_definition:
             # check dtype
             dtypes = ['float32', 'float64']
             if depth.dtype not in dtypes:
