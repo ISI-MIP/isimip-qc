@@ -8,7 +8,7 @@ logger = colorlog.getLogger(__name__)
 
 
 def walk_files(path):
-    for root, dirs, file_names in os.walk(path):
+    for root, dirs, file_names in sorted(os.walk(path)):
         for file_name in sorted(file_names):
             file_path = Path(root) / file_name
             yield file_path
