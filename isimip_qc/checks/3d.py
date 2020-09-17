@@ -20,4 +20,3 @@ def check_3d(file):
     elif dim_len == 4:
         file.is_3d = True
         file.dim_vertical = variable.dimensions[1]
-
