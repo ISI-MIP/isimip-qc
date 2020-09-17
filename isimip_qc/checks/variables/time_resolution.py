@@ -65,7 +65,7 @@ def check_time_resolution(file):
                 time_days = nyears_file * 360
 
             if time_days != time_steps:
-                file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). (\'%s\' calendar found)', time_steps, time_days, time_calendar)
+                file.error('Number of internal time steps (%s) does not match the expected number from the file name specifiers (%s). ("%s" calendar found)', time_steps, time_days, time_calendar)
             else:
                 file.info('Correct number of time steps (%s) given the defined calendar (%s)', time_steps, time_calendar)
         elif time_resolution == 'monthly':

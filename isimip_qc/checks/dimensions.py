@@ -3,23 +3,23 @@ from ..config import settings
 
 def check_lon_dimension(file):
     if file.dataset.dimensions.get('lon') is None:
-        file.error('Dimension \'lon\' is missing.')
+        file.error('Dimension "lon" is missing.')
 
 
 def check_lat_dimension(file):
     if file.dataset.dimensions.get('lat') is None:
-        file.error('Dimension \'lat\' is missing.')
+        file.error('Dimension "lat" is missing.')
 
 
 def check_time_dimension(file):
     if file.dataset.dimensions.get('time') is None:
-        file.error('Dimension \'time\' is missing.')
+        file.error('Dimension "time" is missing.')
 
 
 def check_depth_dimension(file):
     if file.is_3d:
         if file.dataset.dimensions.get('depth') is None:
-            file.error('Dimension \'depth\' is missing. Found "%s" instead.', file.dim_vertical)
+            file.error('Dimension "depth" is missing. Found "%s" instead.', file.dim_vertical)
 
 
 def check_dimensions(file):
