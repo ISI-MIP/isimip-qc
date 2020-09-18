@@ -1,4 +1,5 @@
 import argparse
+from os import path
 
 import colorlog
 
@@ -6,8 +7,6 @@ from .checks import checks
 from .config import settings
 from .models import File
 from .utils.files import walk_files
-
-from os import path
 
 logger = colorlog.getLogger(__name__)
 
@@ -45,6 +44,8 @@ def get_parser():
                         help='test values for valid range (slow, default show top 10 values)')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected on the original files')
+    parser.add_argument('--fix-cdo', dest='fix_cdo', action='store_true', default=False,
+                        help='fix more severe warnings using CDO (slow)')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     return parser
@@ -102,10 +103,15 @@ def main():
 
             # 2nd pass: fix warnings
             if file.has_warnings and settings.FIX:
-                print(' FIXING   : %s' % file_path)
+                print(' FIX      : %s' % file_path)
                 file.open_dataset(write=True)
                 file.fix_warnings()
                 file.close_dataset()
+
+            # 2nd pass: fix warnings
+            if file.has_warnings and settings.FIX_CDO:
+                print(' FIX CDO  : %s' % file_path)
+                file.fix_cdo()
 
             # copy/move files to checked_path
             if file.is_clean:

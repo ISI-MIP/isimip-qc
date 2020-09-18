@@ -1,7 +1,8 @@
 import math
 
-import netCDF4
 import numpy as np
+
+import netCDF4
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
@@ -21,7 +22,7 @@ def check_variable(file):
 
         # check dtype
         if variable.dtype != 'float32':
-            file.warn('%s.dtype="%s" should be "float32".', file.variable_name, variable.dtype)
+            file.warn('%s.dtype="%s" should be "float32".', file.variable_name, variable.dtype, fix_cdo=True)
 
         # check chunking
         chunking = variable.chunking()
