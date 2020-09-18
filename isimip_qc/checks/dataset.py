@@ -17,15 +17,16 @@ def check_zip(file):
 
     variable = file.dataset.variables.get(file.variable_name)
 
-    zlib = variable.filters().get('zlib')
-    if zlib:
-        complevel = variable.filters().get('complevel')
-        if complevel < 1:
-            file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel, fix_cdo=True)
-        else:
-            file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
-    else:
-        file.warn('Variable "%s" is not compressed.', file.variable_name, fix_cdo=True)
+    try:
+        zlib = variable.filters().get('zlib')
+        if zlib:
+            complevel = variable.filters().get('complevel')
+            if complevel < 1:
+                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel)
+            else:
+                file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
+    except AttributeError:
+        file.warn('Variable "%s" is not compressed.', file.variable_name)
 
 
 def check_lower_case(file):

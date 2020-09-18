@@ -26,15 +26,18 @@ def check_variable(file):
 
         # check chunking
         chunking = variable.chunking()
-        if file.is_2d:
-            if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
-                file.warn('%s.chunking=%s should be [1, 360, 720].', file.variable_name, chunking)
-        if file.is_3d:
-            depth_len = file.dataset.dimensions.get(file.dim_vertical).size
-            if chunking[0] != 1 or chunking[1] != depth_len or chunking[2] != 360 or chunking[3] != 720:
-                file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', file.variable_name, chunking, depth_len)
+        if chunking:
+            if file.is_2d:
+                if chunking[0] != 1 or chunking[1] != 360 or chunking[2] != 720:
+                    file.warn('%s.chunking=%s should be [1, 360, 720].', file.variable_name, chunking)
+            if file.is_3d:
+                depth_len = file.dataset.dimensions.get(file.dim_vertical).size
+                if chunking[0] != 1 or chunking[1] != depth_len or chunking[2] != 360 or chunking[3] != 720:
+                    file.warn('%s.chunking=%s. Should be [1, %s, 360, 720].', file.variable_name, chunking, depth_len)
+                else:
+                    file.info('Variable chunking looks good (%s)', chunking)
         else:
-            file.info('Variable chunking looks good (%s)', chunking)
+            file.info('Variable chunking not supported by data model found.')
 
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
