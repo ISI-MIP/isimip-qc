@@ -22,11 +22,11 @@ def check_zip(file):
         if zlib:
             complevel = variable.filters().get('complevel')
             if complevel < 1:
-                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel)
+                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel, fix_cdo=True)
             else:
                 file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
     except AttributeError:
-        file.warn('Variable "%s" is not compressed.', file.variable_name)
+        file.warn('Variable "%s" is not compressed.', file.variable_name, fix_cdo=True)
 
 
 def check_lower_case(file):
