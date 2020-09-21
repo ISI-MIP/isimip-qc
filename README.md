@@ -108,8 +108,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE
                         File path of the config file
-  -c, --copy            Copy checked files to CHECKED_PATH
-  -m, --move            Move checked files to CHECKED_PATH
+  -c, --copy            Copy checked files to CHECKED_PATH if now warnings or errors were found
+  -m, --move            Move checked files to CHECKED_PATH if now warnings or errors were found
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
   --checked-path CHECKED_PATH
