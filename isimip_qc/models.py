@@ -4,7 +4,7 @@ import colorlog
 import jsonschema
 
 from .config import settings
-from .utils.cdo import call_cdo
+from .utils.datamodel import call_cdo, call_nccopy
 from .utils.files import copy_file, move_file
 from .utils.netcdf import (get_dimensions, get_global_attributes,
                            get_variables, open_dataset_read,
@@ -86,16 +86,22 @@ class File(object):
         if any([fix_datamodel for _, _, fix_datamodel in self.warnings]):
             # fix using tmpfile
             tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
-            call_cdo(['-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+            if settings.FIX_DATAMODEL == 'cdo':
+                call_cdo(['-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+            elif settings.FIX_DATAMODEL == 'nccopy':
+                call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
+            else:
+                print(' ERROR    : "' + settings.FIX_DATAMODEL + '" is not a valid argument for --fix-datamodel option. Chose from "nccopy" or "cdo"')
 
-            # move tmp file to original file
-            move_file(tmp_abs_path, self.abs_path)
+            if settings.FIX_DATAMODEL in ['nccopy', 'cdo']:
+                # move tmp file to original file
+                move_file(tmp_abs_path, self.abs_path)
 
-            # remove warnings after fix
-            for warning in self.warnings[:]:
-                message, _, fix_datamodel = warning
-                if fix_datamodel:
-                    self.warnings.remove(warning)
+                # remove warnings after fix
+                for warning in self.warnings[:]:
+                    message, _, fix_datamodel = warning
+                    if fix_datamodel:
+                        self.warnings.remove(warning)
 
     @property
     def has_warnings(self):

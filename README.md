@@ -95,19 +95,14 @@ Usage
 The tool has several options which can be inspected using the help option `-h, --help`:
 
 ```plain
-usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m]
-                 [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH]
-                 [--protocol-location PROTOCOL_LOCATIONS]
-                 [--log-level LOG_LEVEL] [--log-path LOG_PATH]
-                 [-f] [-w] [-e] [-r]
-                 [--fix] [--check CHECK]
+usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m] [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH] [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL] [--log-path LOG_PATH] [-f] [-w] [-e]
+                 [-r [MINMAX]] [--fix] [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
 
 positional arguments:
-  schema_path           ISIMIP schema_path, e.g.
-                        ISIMIP3a/OutputData/water_global
+  schema_path           ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -120,8 +115,7 @@ optional arguments:
   --checked-path CHECKED_PATH
                         base path for the checked files
   --protocol-location PROTOCOL_LOCATIONS
-                        URL or file path to the protocol
-                        when different from official repository
+                        URL or file path to the protocol when different from official repository
   --log-level LOG_LEVEL
                         Log level (ERROR, WARN, INFO, or DEBUG)
   --log-path LOG_PATH   base path for the individual log files
@@ -129,8 +123,11 @@ optional arguments:
   -w, --stop-on-warnings
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
-  -r, --minmax          test values for valid range (slow)
+  -r [MINMAX], --minmax [MINMAX]
+                        test values for valid range (slow, argument MINMAX defaults to show the top 10 values)
   --fix                 try to fix warnings detected on the original files
+  --fix-datamodel [FIX_DATAMODEL]
+                        also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.
   --check CHECK         perform only one particular check
 ```
 
