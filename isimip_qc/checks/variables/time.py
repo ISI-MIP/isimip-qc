@@ -37,17 +37,29 @@ def check_time_variable(file):
         standard_name = time_definition.get('standard_name')
         try:
             if time.standard_name != standard_name:
-                file.warn('Attribute time.standard_name="%s" should be "%s".', time.standard_name, standard_name)
+                file.warn('Attribute time.standard_name="%s" should be "%s".', time.standard_name, standard_name, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'time', 'standard_name', standard_name)
+                })
         except AttributeError:
-            file.warn('Attribute time.standard_name is missing. Should be "%s".', standard_name)
+            file.warn('Attribute time.standard_name is missing. Should be "%s".', standard_name, fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'time', 'standard_name', standard_name)
+            })
 
         # check long_name
         long_names = time_definition.get('long_names', [])
         try:
             if time.long_name not in long_names:
-                file.warn('Attribute time.long_name="%s" should be in %s.', time.long_name, long_names)
+                file.warn('Attribute time.long_name="%s" should be in %s.', time.long_name, long_names, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'time', 'long_name', long_names[2])
+                })
         except AttributeError:
-            file.warn('Attribute time.long_name is missing. Should be "%s".', long_names[2])
+            file.warn('Attribute time.long_name is missing. Should be "%s".', long_names[2], fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'time', 'long_name', long_names[2])
+            })
 
         # check units
         time_step = file.specifiers.get('time_step')
