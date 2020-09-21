@@ -41,11 +41,11 @@ def get_parser():
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
     parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
-                        help='test values for valid range (slow, default show top 10 values)')
+                        help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected on the original files')
-    parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store_true', default=False,
-                        help='fix more severe warnings using nccopy (slow)')
+    parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store', nargs='?', const='nccopy', type=str,
+                        help='also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     return parser
