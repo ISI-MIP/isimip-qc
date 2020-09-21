@@ -2,6 +2,7 @@ import logging
 
 import colorlog
 import jsonschema
+import shutil
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -87,11 +88,19 @@ class File(object):
             # fix using tmpfile
             tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
             if settings.FIX_DATAMODEL == 'cdo':
-                call_cdo(['-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+                if shutil.which('cdo'):
+                    self.info('Rewriting file with fixed data model using "cdo"')
+                    call_cdo(['-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+                else:
+                    self.error('"cdo" is not available for execution. Please install before.')
             elif settings.FIX_DATAMODEL == 'nccopy':
-                call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
+                if shutil.which('nccopy'):
+                    self.info('Rewriting file with fixed data model using "nccopy"')
+                    call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
+                else:
+                    self.error('"nccopy" is not available for execution. Please install before.')
             else:
-                print(' ERROR    : "' + settings.FIX_DATAMODEL + '" is not a valid argument for --fix-datamodel option. Chose from "nccopy" or "cdo"')
+                self.error('"' + settings.FIX_DATAMODEL + '" is not a valid argument for --fix-datamodel option. Chose "nccopy" or "cdo"')
 
             if settings.FIX_DATAMODEL in ['nccopy', 'cdo']:
                 # move tmp file to original file
