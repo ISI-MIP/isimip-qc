@@ -63,9 +63,9 @@ class File(object):
         self.logger.info(message, *args)
         self.infos.append((message % args, fix))
 
-    def warn(self, message, *args, fix=None, fix_cdo=None):
+    def warn(self, message, *args, fix=None, fix_datamodel=None):
         self.logger.warn(message, *args)
-        self.warnings.append((message % args, fix, fix_cdo))
+        self.warnings.append((message % args, fix, fix_datamodel))
 
     def error(self, message, *args, fix=None):
         self.logger.error(message, *args)
@@ -81,20 +81,20 @@ class File(object):
                 fix['func'](*fix['args'])
                 self.warnings.remove(warning)
 
-    def fix_cdo(self):
+    def fix_datamodel(self):
         # check if we need to fix using cdu
-        if any([fix_cdo for _, _, fix_cdo in self.warnings]):
+        if any([fix_datamodel for _, _, fix_datamodel in self.warnings]):
             # fix using tmpfile
             tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
-            call_cdo(['-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+            call_cdo(['-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
 
             # move tmp file to original file
             move_file(tmp_abs_path, self.abs_path)
 
             # remove warnings after fix
             for warning in self.warnings[:]:
-                message, _, fix_cdo = warning
-                if fix_cdo:
+                message, _, fix_datamodel = warning
+                if fix_datamodel:
                     self.warnings.remove(warning)
 
     @property

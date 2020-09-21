@@ -7,7 +7,7 @@ def check_data_model(file):
     File must use the NetCDF4 classic data model
     '''
     if file.dataset.data_model != 'NETCDF4_CLASSIC':
-        file.warn('Data model is %s (not NETCDF4_CLASSIC).', file.dataset.data_model, fix_cdo=True)
+        file.warn('Data model is %s (not NETCDF4_CLASSIC).', file.dataset.data_model, fix_datamodel=True)
 
 
 def check_zip(file):
@@ -22,11 +22,11 @@ def check_zip(file):
         if zlib:
             complevel = variable.filters().get('complevel')
             if complevel < 1:
-                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel, fix_cdo=True)
+                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel, fix_datamodel=True)
             else:
                 file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
     except AttributeError:
-        file.warn('Variable "%s" is not compressed.', file.variable_name, fix_cdo=True)
+        file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
 
 
 def check_lower_case(file):

@@ -22,7 +22,7 @@ def check_variable(file):
 
         # check dtype
         if variable.dtype != 'float32':
-            file.warn('%s.dtype="%s" should be "float32".', file.variable_name, variable.dtype, fix_cdo=True)
+            file.warn('%s.dtype="%s" should be "float32".', file.variable_name, variable.dtype, fix_datamodel=True)
 
         # check chunking
         chunking = variable.chunking()

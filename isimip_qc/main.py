@@ -44,8 +44,8 @@ def get_parser():
                         help='test values for valid range (slow, default show top 10 values)')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected on the original files')
-    parser.add_argument('--fix-cdo', dest='fix_cdo', action='store_true', default=False,
-                        help='fix more severe warnings using CDO (slow)')
+    parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store_true', default=False,
+                        help='fix more severe warnings using nccopy (slow)')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     return parser
@@ -103,15 +103,15 @@ def main():
 
             # 2nd pass: fix warnings
             if file.has_warnings and settings.FIX:
-                print(' FIX      : %s' % file_path)
+                print(' FIX WARNINGS  : %s' % file_path)
                 file.open_dataset(write=True)
                 file.fix_warnings()
                 file.close_dataset()
 
             # 2nd pass: fix warnings
-            if file.has_warnings and settings.FIX_CDO:
-                print(' FIX CDO  : %s' % file_path)
-                file.fix_cdo()
+            if file.has_warnings and settings.FIX_DATAMODEL:
+                print(' FIX DATAMODEL : %s' % file_path)
+                file.fix_datamodel()
 
             # copy/move files to checked_path
             if file.is_clean:
