@@ -95,8 +95,14 @@ def check_time_variable(file):
             try:
                 calenders_other = time_definition.get('calenders_other', [])
                 if time.calendar not in calenders_other:
-                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_other)
+                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_other, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, 'time', 'calendar', '360_day')
+                    })
                 else:
                     file.info('Valid calendar found (%s)', time.calendar)
             except AttributeError:
-                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_other)
+                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_other, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'time', 'calendar', '360_day')
+                })
