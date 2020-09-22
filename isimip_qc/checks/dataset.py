@@ -8,7 +8,8 @@ def check_data_model(file):
     '''
     if file.dataset.data_model != 'NETCDF4_CLASSIC':
         file.warn('Data model is %s (not NETCDF4_CLASSIC).', file.dataset.data_model, fix_datamodel=True)
-
+    else:
+        file.info('Data model looks good (%s).', file.dataset.data_model)
 
 def check_zip(file):
     '''
@@ -21,10 +22,10 @@ def check_zip(file):
         zlib = variable.filters().get('zlib')
         if zlib:
             complevel = variable.filters().get('complevel')
-            if complevel < 1:
-                file.warn('Variable %s._DeflateLevel=%s should be > 4.', file.variable_name, complevel, fix_datamodel=True)
+            if complevel < 4:
+                file.warn('Variable "%s" compression level is "%s". Should be > 4.', file.variable_name, complevel, fix_datamodel=True)
             else:
-                file.info('Compression level for variable "%s" looks good (%s)', file.variable_name, complevel)
+                file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
     except AttributeError:
         file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
 
