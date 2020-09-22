@@ -90,13 +90,22 @@ def check_variable(file):
             try:
                 if variable.units != units:
                     if variable.units == '':
-                        file.error('Variable "%s" units attribute is empty. Should be "%s".', file.variable_name, units)
+                        file.warn('Variable "%s" units attribute is empty. Should be "%s".', file.variable_name, units, fix={
+                            'func': fix_set_variable_attr,
+                            'args': (file, file.variable_name, 'units', units)
+                        })
                     else:
-                        file.error('%s.units="%s" should be "%s".', file.variable_name, variable.units, units)
+                        file.warn('%s.units="%s" should be "%s".', file.variable_name, variable.units, units, fix={
+                            'func': fix_set_variable_attr,
+                            'args': (file, file.variable_name, 'units', units)
+                        })
                 else:
                     file.info('Variable unit matches protocol definition (%s).', variable.units)
             except AttributeError:
-                file.error('Variable "%s" units attribute is missing. Should be "%s".', file.variable_name, units)
+                file.warn('Variable "%s" units attribute is missing. Should be "%s".', file.variable_name, units, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, file.variable_name, 'units', units)
+                })
         else:
             file.warn('No units information for variable "%s" in definition.', file.variable_name)
 
