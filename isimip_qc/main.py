@@ -83,42 +83,45 @@ def main():
             # 1st pass: perform checks
             file.open_dataset()
             file.match()
-            for check in checks:
-                if not settings.CHECK or check.__name__ == settings.CHECK:
-                    check(file)
-            file.validate()
-            file.close_dataset()
+            if file.matched:
+                for check in checks:
+                    if not settings.CHECK or check.__name__ == settings.CHECK:
+                        check(file)
+                    file.validate()
+                    file.close_dataset()
 
-            # log result of checks, stop if flags are set
-            if file.is_clean:
-                logger.info('File has successfully passed all checks')
-            elif file.has_warnings and not file.has_errors:
-                logger.info('File passed all checks without unfixable issues.')
-            elif file.has_errors:
-                logger.critical('File did not pass all checks. Unfixable issues detected.')
-            if file.has_warnings and settings.STOP_WARN:
-                break
-            if file.has_errors and settings.STOP_ERR:
-                break
+                # log result of checks, stop if flags are set
+                if file.is_clean:
+                    logger.info('File has successfully passed all checks')
+                elif file.has_warnings and not file.has_errors:
+                    logger.info('File passed all checks without unfixable issues.')
+                elif file.has_errors:
+                    logger.critical('File did not pass all checks. Unfixable issues detected.')
 
-            # 2nd pass: fix warnings
-            if file.has_warnings and settings.FIX:
-                print(' FIX WARNINGS  : %s' % file_path)
-                file.open_dataset(write=True)
-                file.fix_warnings()
-                file.close_dataset()
+                if file.has_warnings and settings.STOP_WARN:
+                    break
 
-            # 2nd pass: fix warnings
-            if file.has_warnings and settings.FIX_DATAMODEL:
-                print(' FIX DATAMODEL : %s' % file_path)
-                file.fix_datamodel()
+                if file.has_errors and settings.STOP_ERR:
+                    break
 
-            # copy/move files to checked_path
-            if file.is_clean:
-                if settings.MOVE:
-                    file.move()
-                elif settings.COPY:
-                    file.copy()
+                # 2nd pass: fix warnings
+                if file.has_warnings and settings.FIX:
+                    print(' FIX WARNINGS  : %s' % file_path)
+                    file.open_dataset(write=True)
+                    file.fix_warnings()
+                    file.close_dataset()
+
+                # 2nd pass: fix warnings
+                if file.has_warnings and settings.FIX_DATAMODEL:
+                    print(' FIX DATAMODEL : %s' % file_path)
+                    file.fix_datamodel()
+
+                # copy/move files to checked_path
+                if file.is_clean:
+                    if settings.MOVE:
+                        file.move()
+                    elif settings.COPY:
+                        file.copy()
 
             # close the log for this file
             file.close_log()

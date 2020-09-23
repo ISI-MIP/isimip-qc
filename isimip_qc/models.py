@@ -172,9 +172,11 @@ class File(object):
                     else:
                         self.specifiers[key] = value
 
-            self.info('File matched: %s.', self.specifiers)
+            self.info('File matched naming scheme: %s.', self.specifiers)
+            self.matched = True
         else:
-            self.error('File did not match.')
+            self.error('File did not match naming scheme.')
+            self.matched = False
 
     def validate(self):
         try:
