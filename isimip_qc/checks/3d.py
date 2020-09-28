@@ -4,6 +4,7 @@ def check_3d(file):
     pft = file.specifiers.get('pft')
 
     file.variable_name = file.specifiers.get('variable')
+
     if crop:
         file.variable_name = file.variable_name + '-' + file.specifiers.get('crop')
     if irrigation:
@@ -11,7 +12,12 @@ def check_3d(file):
     if pft:
         file.variable_name = file.variable_name + '-' + file.specifiers.get('pft')
 
-    variable = file.dataset.variables.get(file.variable_name)
+    try:
+        variable = file.dataset.variables.get(file.variable_name)
+    except:
+        file.critical('Variable "%s" not found in file! Check NetCDF header.', file.variable_name)
+        # abort further tests
+
     dim_len = len(variable.dimensions)
 
     # detect 2d or 3d data
