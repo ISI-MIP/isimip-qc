@@ -123,6 +123,9 @@ def main():
                     elif settings.COPY:
                         file.copy()
 
+            else:
+                file.close_dataset()
+
             # close the log for this file
             file.close_log()
         else:
