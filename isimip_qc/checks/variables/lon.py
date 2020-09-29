@@ -17,11 +17,6 @@ def check_lon_variable(file):
         if lon.dtype not in dtypes:
             file.warn('lon.dtype="%s" should be in %s.', lon.dtype, dtypes)
 
-        # check shape
-        size = lon_definition.get('size')
-        if lon.shape != (size, ):
-            file.error('lon.shape=%s must be (%s, ).', lon.shape, size)
-
         # check minimum
         minimum = lon_definition.get('minimum')
         if np.min(lon) != minimum:

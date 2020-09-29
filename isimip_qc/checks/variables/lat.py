@@ -17,11 +17,6 @@ def check_lat_variable(file):
         if lat.dtype not in dtypes:
             file.warn('lat.dtype="%s" should be in %s.', lat.dtype, dtypes)
 
-        # check shape
-        size = lat_definition.get('size')
-        if lat.shape != (size, ):
-            file.error('lat.shape=%s must be (%s, ).', lat.shape, size)
-
         # check minimum
         minimum = lat_definition.get('minimum')
         if np.min(lat) != minimum:
