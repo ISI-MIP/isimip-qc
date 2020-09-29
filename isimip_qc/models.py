@@ -1,10 +1,11 @@
 import logging
+import shutil
 
 import colorlog
 import jsonschema
-import shutil
 
 from .config import settings
+from .exceptions import FileCritical, FileError, FileWarning
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.files import copy_file, move_file
 from .utils.netcdf import (get_dimensions, get_global_attributes,
@@ -21,6 +22,7 @@ class File(object):
         self.infos = []
         self.warnings = []
         self.errors = []
+        self.criticals = []
 
         self.logger = None
         self.handler = None
@@ -67,13 +69,24 @@ class File(object):
     def warn(self, message, *args, fix=None, fix_datamodel=None):
         self.logger.warn(message, *args)
         self.warnings.append((message % args, fix, fix_datamodel))
+        raise FileWarning
 
-    def error(self, message, *args, fix=None):
+    def error(self, message, *args):
         self.logger.error(message, *args)
-        self.errors.append((message % args, fix))
+        self.errors.append((message % args))
+        raise FileError
 
     def critical(self, message, *args):
         self.logger.critical(message, *args)
+        self.criticals.append((message % args))
+        raise FileCritical
+
+    def fix_infos(self):
+        for info in self.infos[:]:
+            message, fix = info
+            if fix:
+                fix['func'](*fix['args'])
+                self.infos.remove(info)
 
     def fix_warnings(self):
         for warning in self.warnings[:]:
@@ -121,8 +134,12 @@ class File(object):
         return bool(self.errors)
 
     @property
+    def has_criticals(self):
+        return bool(self.criticals)
+
+    @property
     def is_clean(self):
-        return not (self.has_warnings or self.has_errors)
+        return not (self.has_warnings or self.has_errors or self.has_criticals)
 
     def get_logger(self):
         # setup a log handler for the command line and one for the file
