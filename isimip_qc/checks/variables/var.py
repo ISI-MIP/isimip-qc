@@ -45,7 +45,7 @@ def check_variable(file):
         if file.is_2d:
             default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
-            default_dimensions = ('time', 'depth', 'lat', 'lon')
+            default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
 
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:

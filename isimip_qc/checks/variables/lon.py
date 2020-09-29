@@ -20,7 +20,7 @@ def check_lon_variable(file):
         # check shape
         size = lon_definition.get('size')
         if lon.shape != (size, ):
-            file.error('lat.shape=%s must be (%s, ).', lon.shape, size)
+            file.error('lon.shape=%s must be (%s, ).', lon.shape, size)
 
         # check minimum
         minimum = lon_definition.get('minimum')
@@ -79,5 +79,5 @@ def check_lon_variable(file):
         except AttributeError:
             file.warn('Attribute lon.units is missing. Should be "%s".', units, fix={
                 'func': fix_set_variable_attr,
-                'args': (file, 'lat', 'units', units)
+                'args': (file, 'lon', 'units', units)
             })

@@ -30,8 +30,8 @@ def check_time_dimension(file):
 
 def check_depth_dimension(file):
     if file.is_3d:
-        if file.dataset.dimensions.get('depth') is None:
-            file.error('Dimension "depth" is missing. Found "%s" instead.', file.dim_vertical)
+        if file.dataset.dimensions.get(file.dim_vertical) is None:
+            file.error('Valid 4th dimension is missing. Should be of of [depth, bins]. Found "%s" instead.', file.dim_vertical)
 
 
 def check_dimensions(file):
@@ -45,8 +45,8 @@ def check_dimensions(file):
         else:
             file.info('Dimensions for variable "%s" look good: %s.', file.variable_name, variable.dimensions)
     elif file.is_3d:
-        if variable.dimensions[0] != 'time' or file.dim_vertical not in ['depth'] or variable.dimensions[2] != 'lat' or variable.dimensions[3] != 'lon':
-            file.error('Found %s dimension dependencies and order %s. Should be ["time", "depth" , "lat", "lon"].', file.variable_name, variable.dimensions)
+        if variable.dimensions[0] != 'time' or file.dim_vertical not in ['depth', 'bins'] or variable.dimensions[2] != 'lat' or variable.dimensions[3] != 'lon':
+            file.error('Found %s dimension dependencies and order %s. Should be ["time", "%s" , "lat", "lon"].', file.variable_name, variable.dimensions, file.dim_vertical)
         else:
             file.info('Dimensions for variable "%s" look good.', file.variable_name)
     else:
