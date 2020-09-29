@@ -87,8 +87,8 @@ def main():
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
                         check(file)
-                    file.validate()
-                    file.close_dataset()
+                file.validate()
+                file.close_dataset()
 
                 # log result of checks, stop if flags are set
                 if file.is_clean:
