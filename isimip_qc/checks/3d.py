@@ -1,4 +1,8 @@
+from ..config import settings
+
 def check_3d(file):
+    file.sector = str(settings.SCHEMA_PATH).split(sep="/")[2]
+
     crop = file.specifiers.get('crop')
     irrigation = file.specifiers.get('irrigation')
     pft = file.specifiers.get('pft')
