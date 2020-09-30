@@ -26,6 +26,8 @@ def check_zip(file):
                 file.warn('Variable "%s" compression level is "%s". Should be > 4.', file.variable_name, complevel, fix_datamodel=True)
             else:
                 file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
+        else:
+            file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
     except AttributeError:
         file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
 
