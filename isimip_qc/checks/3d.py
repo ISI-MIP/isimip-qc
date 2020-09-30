@@ -1,7 +1,13 @@
 from ..config import settings
 
 def check_3d(file):
-    file.sector = str(settings.SCHEMA_PATH).split(sep="/")[2]
+
+    # for dimension checks
+    sector = str(settings.SCHEMA_PATH).split(sep="/")[2]
+    if sector in ['marine-fishery_global']:
+        file.sector = sector
+    else:
+        file.sector = 'other'
 
     crop = file.specifiers.get('crop')
     irrigation = file.specifiers.get('irrigation')

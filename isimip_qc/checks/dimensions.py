@@ -3,24 +3,28 @@ from ..config import settings
 
 def check_lon_dimension(file):
     lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
+    lon_size = lon_definition['size'][file.sector]
+
     if file.dataset.dimensions.get('lon') is None:
         file.error('Longitude dimension "lon" is missing.')
     else:
-        if lon_definition['size'] != file.dataset.dimensions.get('lon').size:
-            file.warn('Less than %s longitudes found (%s).', lon_definition['size'], file.dataset.dimensions.get('lon').size)
+        if lon_size != file.dataset.dimensions.get('lon').size:
+            file.warn('Less than %s longitudes found (%s).', lon_size, file.dataset.dimensions.get('lon').size)
         else:
-            file.info('%s longitudes defined.', lon_definition['size'])
+            file.info('%s longitudes defined.', lon_size)
 
 
 def check_lat_dimension(file):
     lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
+    lat_size = lat_definition['size'][file.sector]
+
     if file.dataset.dimensions.get('lat') is None:
         file.error('Latitude dimension "lat" is missing.')
     else:
-        if lat_definition['size'] != file.dataset.dimensions.get('lat').size:
-            file.warn('Less than %s latitudes found (%s).', lat_definition['size'], file.dataset.dimensions.get('lat').size)
+        if lat_size != file.dataset.dimensions.get('lat').size:
+            file.warn('Less than %s latitudes found (%s).', lat_size, file.dataset.dimensions.get('lat').size)
         else:
-            file.info('%s latitudes defined.', lat_definition['size'])
+            file.info('%s latitudes defined.', lat_size)
 
 
 def check_time_dimension(file):
@@ -56,8 +60,10 @@ def check_dimensions(file):
         dimension_definition = settings.DEFINITIONS['dimensions'].get(dimension_name)
 
         if dimension_definition:
-            size = dimension_definition.get('size')
-            if size and dimension.size != size:
-                file.error('%s.size=%s must be %s.', dimension_name, dimension.size, size)
+            # size of lat and lon are checked above 
+            if dimension_definition.get('specifier') not in ['lat', 'lon']:
+                size = dimension_definition.get('size')
+                if size and dimension.size != size:
+                    file.error('%s.size=%s must be %s.', dimension_name, dimension.size, size)
         else:
             file.error('"%s" is not a valid dimension name as per protocol.', dimension_name)
