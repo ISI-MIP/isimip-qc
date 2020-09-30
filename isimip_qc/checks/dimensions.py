@@ -3,7 +3,7 @@ from ..config import settings
 
 def check_lon_dimension(file):
     lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
-    lon_size = lon_definition['size'][file.sector]
+    lon_size = lon_definition['size']
 
     if file.dataset.dimensions.get('lon') is None:
         file.error('Longitude dimension "lon" is missing.')
@@ -16,7 +16,7 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
-    lat_size = lat_definition['size'][file.sector]
+    lat_size = lat_definition['size']
 
     if file.dataset.dimensions.get('lat') is None:
         file.error('Latitude dimension "lat" is missing.')

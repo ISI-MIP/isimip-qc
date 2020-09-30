@@ -18,12 +18,12 @@ def check_lon_variable(file):
             file.warn('lon.dtype="%s" should be in %s.', lon.dtype, dtypes)
 
         # check minimum
-        minimum = lon_definition.get('minimum')[file.sector]
+        minimum = lon_definition.get('minimum')
         if np.min(lon) != minimum:
             file.error('min(lon)=%s must be %s.', np.min(lon), minimum)
 
         # check maximum
-        maximum = lon_definition.get('maximum')[file.sector]
+        maximum = lon_definition.get('maximum')
         if np.max(lon) != maximum:
             file.error('max(lon)=%s must be %s.', np.max(lon), maximum)
 
