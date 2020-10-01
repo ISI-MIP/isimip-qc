@@ -18,12 +18,12 @@ def check_lat_variable(file):
             file.warn('lat.dtype="%s" should be in %s.', lat.dtype, dtypes)
 
         # check minimum
-        minimum = lat_definition.get('minimum')[file.sector]
+        minimum = lat_definition.get('minimum')
         if np.min(lat) != minimum:
             file.error('min(lat)=%s must be %s.', np.min(lat), minimum)
 
         # check maximum
-        maximum = lat_definition.get('maximum')[file.sector]
+        maximum = lat_definition.get('maximum')
         if np.max(lat) != maximum:
             file.error('max(lat)=%s must be %s.', np.max(lat), maximum)
 

@@ -1,8 +1,7 @@
 import math
 
-import numpy as np
-
 import netCDF4
+import numpy as np
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
@@ -27,8 +26,8 @@ def check_variable(file):
         # check chunking
         chunking = variable.chunking()
         if chunking:
-            lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size'][file.sector]
-            lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size'][file.sector]
+            lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+            lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
                     file.warn('%s.chunking=%s should be [1, %s, %s].', file.variable_name, chunking, lat_size, lon_size)

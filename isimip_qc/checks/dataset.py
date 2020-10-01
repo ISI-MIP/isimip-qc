@@ -11,6 +11,7 @@ def check_data_model(file):
     else:
         file.info('Data model looks good (%s).', file.dataset.data_model)
 
+
 def check_zip(file):
     '''
     Data variables must be compressed with at least compression level 4. Skip check for dimension variables.

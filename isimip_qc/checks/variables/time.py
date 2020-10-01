@@ -64,7 +64,7 @@ def check_time_variable(file):
         # check units
         time_step = file.specifiers.get('time_step')
         increment = settings.DEFINITIONS['time_step'][time_step]['increment']
-        minimum = settings.DEFINITIONS['time_span']['minimum']['value'][settings.SIMULATION_ROUND]
+        minimum = settings.DEFINITIONS['time_span']['minimum']['value']
         units_templates = [
             "%s since %i-01-01",
             "%s since %i-01-01 00:00:00",
