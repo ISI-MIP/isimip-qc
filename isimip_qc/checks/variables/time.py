@@ -17,18 +17,18 @@ def check_time_variable(file):
         # check dtype
         dtypes = ['float32', 'float64']
         if time.dtype not in dtypes:
-            file.warn('time.dtype="%s" should be in %s.', time.dtype, dtypes)
+            file.warn('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, dtypes)
 
         # check axis
         axis = time_definition.get('axis')
         try:
             if time.axis != axis:
-                file.warn('Attribute time.axis="%s" should be "%s".', time.axis, axis, fix={
+                file.warn('"axis" attribute of "time" is %s. Should be "%s".', time.axis, axis, fix={
                     'func': fix_set_variable_attr,
                     'args': (file, 'time', 'axis', axis)
                 })
         except AttributeError:
-            file.warn('Attribute time.axis is missing. Should be "%s".', axis, fix={
+            file.warn('"axis" attribute of "time" is missing. Should be "%s".', axis, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, 'time', 'axis', axis)
             })
@@ -37,12 +37,12 @@ def check_time_variable(file):
         standard_name = time_definition.get('standard_name')
         try:
             if time.standard_name != standard_name:
-                file.warn('Attribute time.standard_name="%s" should be "%s".', time.standard_name, standard_name, fix={
+                file.warn('"standard_name" attribute of "time" is "%s". Should be "%s".', time.standard_name, standard_name, fix={
                     'func': fix_set_variable_attr,
                     'args': (file, 'time', 'standard_name', standard_name)
                 })
         except AttributeError:
-            file.warn('Attribute time.standard_name is missing. Should be "%s".', standard_name, fix={
+            file.warn('"standard_name" attribute of "time" is missing. Should be "%s".', standard_name, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, 'time', 'standard_name', standard_name)
             })
@@ -51,12 +51,12 @@ def check_time_variable(file):
         long_names = time_definition.get('long_names', [])
         try:
             if time.long_name not in long_names:
-                file.warn('Attribute time.long_name="%s" should be in %s.', time.long_name, long_names, fix={
+                file.warn('"long_name" attribute of "time" is %s". Should be in %s.', time.long_name, long_names, fix={
                     'func': fix_set_variable_attr,
                     'args': (file, 'time', 'long_name', long_names[2])
                 })
         except AttributeError:
-            file.warn('Attribute time.long_name is missing. Should be "%s".', long_names[2], fix={
+            file.warn('"long_name" attribute of "time" is missing. Should be "%s".', long_names[2], fix={
                 'func': fix_set_variable_attr,
                 'args': (file, 'time', 'long_name', long_names[2])
             })
@@ -75,7 +75,7 @@ def check_time_variable(file):
 
         try:
             if time.units not in units:
-                file.error('Attribute time.units="%s" should be one of %s.', time.units, units)
+                file.error('"units" attribute for "time" is "%s". Should be "%s".', time.units, units)
             else:
                 file.info('Valid time unit found (%s)', time.units)
         except AttributeError:
@@ -86,23 +86,23 @@ def check_time_variable(file):
             try:
                 calenders_daily = time_definition.get('calenders_daily', [])
                 if time.calendar not in calenders_daily:
-                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_daily)
+                    file.error('"calendar" attribute for "time" is "%s". Should be "%s".', time.calendar, calenders_daily)
                 else:
                     file.info('Valid calendar found (%s)', time.calendar)
             except AttributeError:
-                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_daily)
+                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_daily)
         else:
             try:
                 calenders_other = time_definition.get('calenders_other', [])
                 if time.calendar not in calenders_other:
-                    file.warn('Attribute time.calendar="%s" should be one of %s', time.calendar, calenders_other, fix={
+                    file.warn('"calendar" attribute for "time" is "%s". Should be one of %s', time.calendar, calenders_other, fix={
                         'func': fix_set_variable_attr,
                         'args': (file, 'time', 'calendar', '360_day')
                     })
                 else:
                     file.info('Valid calendar found (%s)', time.calendar)
             except AttributeError:
-                file.warn('Attribute time.calendar is missing. Should be in "%s".', calenders_other, fix={
+                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_other, fix={
                     'func': fix_set_variable_attr,
                     'args': (file, 'time', 'calendar', '360_day')
                 })

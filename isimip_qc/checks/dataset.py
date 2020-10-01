@@ -55,12 +55,12 @@ def check_lower_case(file):
         for attr in variable.__dict__:
             if attr not in ['_FillValue']:
                 if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value', 'units']:
-                    file.warn('Attribute "%s.%s" is not needed.', variable_name, attr, fix={
+                    file.warn('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
                         'func': fix_remove_variable_attr,
                         'args': (file, variable_name, attr)
                     })
                 elif not attr.islower():
-                    file.warn('Attribute "%s.%s" is not lower case.', variable_name, attr, fix={
+                    file.warn('Attribute "%s" for variable "%s" is not lower case.', attr, variable_name, fix={
                         'func': fix_rename_variable_attr,
                         'args': (file, variable_name, attr)
                     })
