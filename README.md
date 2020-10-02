@@ -131,17 +131,30 @@ optional arguments:
   --check CHECK         perform only one particular check
 ```
 
-The only mandatory option is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
+The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
 
-Caution: With the `--fix` option the fixes are going to be applied on your original files in UNCHECKED_PATH.
+### The options in detail
 
-Default values for the optional arguments are set in the code, but can also be provided via:
+* `--config-file`: Default values for the optional arguments are set in the code, but can also be provided via:
+    * a config file given by `--config-file`, or located at `isimip-qc.conf`, `~/.isimip-qc.conf`, or `/etc/isimip-qc.conf`. The config file needs to have a section `isimip-qc` and uses lower case variables and underscores, e.g.:
+        ```
+        [isimip-qc]
+        pattern_locations = /path/to/isimip-protocol-3/output/pattern/
+        schema_locations = path/to/isimip-protocol-3/output/schema/
+        ```
 
-* a config file given by `--config-file`, or located at `isimip-qc.conf`, `~/.isimip-qc.conf`, or `/etc/isimip-qc.conf`. The config file needs to have a section `isimip-qc` and uses lower case variables and underscores, e.g.:
-    ```
-    [isimip-qc]
-    pattern_locations = /path/to/isimip-protocol-3/output/pattern/
-    schema_locations = path/to/isimip-protocol-3/output/schema/
-    ```
+    * environment variables (in caps and with underscores, e.g. `UNCHECKED_PATH`).
+* `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination.
+* `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
+* `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
+* `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories). Omit for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3)
+* `--log-level LOG_LEVEL`: Set the detail level of log output. Default is WARNING while INFO also gives feedback on successful tests. ERROR or CRITICAL will only report very severe issues.
+* `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
+* `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Usefull for revealing issues that may occur on all your files.
+* `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
+* `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
+* `-r [MINMAX], --minmax [MINMAX]`: Test the data for valid ranges when defined in the protocol. Per default and when violations are detected the top 20 minimum and maximum values along with their time and geographic location will be logged as well. MINMAX is optional and defines how many values should be reported instead. This test drastically slows down the run time of the tool.
+* `--fix`: This option activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
+* `--fix-datamodel`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on one of the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
+* `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the funtions defined in the `isimip_qc/checks/*.py` files.
 
-* environment variables (in caps and with underscores, e.g. `UNCHECKED_PATH`).
