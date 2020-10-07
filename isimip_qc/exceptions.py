@@ -1,10 +1,19 @@
 class FileWarning(Exception):
-    pass
+
+    def __init__(self, file, message, *args, **kwargs):
+        file.warn(message, *args, **kwargs)
+        super().__init__(message % args)
 
 
 class FileError(Exception):
-    pass
+
+    def __init__(self, file, message, *args, **kwargs):
+        file.error(message, *args, **kwargs)
+        super().__init__(message % args)
 
 
 class FileCritical(Exception):
-    pass
+
+    def __init__(self, file, message, *args, **kwargs):
+        file.critical(message, *args, **kwargs)
+        super().__init__(message % args)
