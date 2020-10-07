@@ -5,7 +5,6 @@ import colorlog
 import jsonschema
 
 from .config import settings
-from .exceptions import FileCritical, FileError, FileWarning
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.files import copy_file, move_file
 from .utils.netcdf import (get_dimensions, get_global_attributes,
