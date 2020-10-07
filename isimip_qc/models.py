@@ -69,17 +69,14 @@ class File(object):
     def warn(self, message, *args, fix=None, fix_datamodel=None):
         self.logger.warn(message, *args)
         self.warnings.append((message % args, fix, fix_datamodel))
-        raise FileWarning
 
     def error(self, message, *args):
         self.logger.error(message, *args)
         self.errors.append((message % args))
-        raise FileError
 
     def critical(self, message, *args):
         self.logger.critical(message, *args)
         self.criticals.append((message % args))
-        raise FileCritical
 
     def fix_infos(self):
         for info in self.infos[:]:
