@@ -5,6 +5,7 @@ import colorlog
 
 from .checks import checks
 from .config import settings
+from .exceptions import FileCritical, FileError, FileWarning
 from .models import File
 from .utils.files import walk_files
 
@@ -86,7 +87,15 @@ def main():
             if file.matched:
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
-                        check(file)
+                        try:
+                            check(file)
+                        except FileWarning:
+                            pass
+                        except FileError:
+                            pass
+                        except FileCritical:
+                            pass
+
                 file.validate()
                 file.close_dataset()
 
@@ -104,16 +113,20 @@ def main():
                 if file.has_errors and settings.STOP_ERR:
                     break
 
-                # 2nd pass: fix warnings
-                if file.has_warnings and settings.FIX:
-                    print(' FIX WARNINGS  : %s' % file_path)
+                # 2nd pass: fix warnings and fixable infos
+                if settings.FIX:
                     file.open_dataset(write=True)
-                    file.fix_warnings()
+                    if file.has_infos_fixable:
+                        print(' FIX INFOS...')
+                        file.fix_infos()
+                    if file.has_warnings:
+                        print(' FIX WARNINGS...')
+                        file.fix_warnings()
                     file.close_dataset()
 
                 # 2nd pass: fix warnings
                 if file.has_warnings and settings.FIX_DATAMODEL:
-                    print(' FIX DATAMODEL : %s' % file_path)
+                    print(' FIX DATAMODEL...')
                     file.fix_datamodel()
 
                 # copy/move files to checked_path
