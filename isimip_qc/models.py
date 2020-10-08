@@ -122,6 +122,13 @@ class File(object):
                         self.warnings.remove(warning)
 
     @property
+    def has_infos_fixable(self):
+        for info in self.infos[:]:
+            message, fix = info
+            if fix:
+                return bool(self.infos)
+
+    @property
     def has_warnings(self):
         return bool(self.warnings)
 

@@ -113,17 +113,20 @@ def main():
                 if file.has_errors and settings.STOP_ERR:
                     break
 
-                # 2nd pass: fix warnings
-                if file.has_warnings and settings.FIX:
-                    print(' FIX WARNINGS  : %s' % file_path)
+                # 2nd pass: fix warnings and fixable infos
+                if settings.FIX:
                     file.open_dataset(write=True)
-                    file.fix_infos()
-                    file.fix_warnings()
+                    if file.has_infos_fixable:
+                        print(' FIX INFOS...')
+                        file.fix_infos()
+                    if file.has_warnings:
+                        print(' FIX WARNINGS...')
+                        file.fix_warnings()
                     file.close_dataset()
 
                 # 2nd pass: fix warnings
                 if file.has_warnings and settings.FIX_DATAMODEL:
-                    print(' FIX DATAMODEL : %s' % file_path)
+                    print(' FIX DATAMODEL...')
                     file.fix_datamodel()
 
                 # copy/move files to checked_path
