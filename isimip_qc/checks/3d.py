@@ -25,4 +25,11 @@ def check_3d(file):
         file.is_2d = True
     elif dim_len == 4:
         file.is_3d = True
-        file.dim_vertical = variable.dimensions[1]
+        if variable.dimensions[1] in ['time', 'lat', 'lon']:
+            for pos in range(0, dim_len):
+                if variable.dimensions[pos] not in ['time', 'lat', 'lon']:
+                    break
+            file.critical('Variable "%s" has "time", "lat" or "lon" as second dependeny. Depencency order must be [time, %s, lat, lon]. "time" is first always.', file.variable_name, variable.dimensions[pos])
+            file.dim_vertical = variable.dimensions[pos]
+        else:
+            file.dim_vertical = variable.dimensions[1]
