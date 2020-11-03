@@ -49,7 +49,7 @@ def check_dimensions(file):
         else:
             file.info('Dimensions for variable "%s" look good: %s.', file.variable_name, variable.dimensions)
     elif file.is_3d:
-        if variable.dimensions[0] != 'time' or file.dim_vertical not in ['depth', 'bins'] or variable.dimensions[2] != 'lat' or variable.dimensions[3] != 'lon':
+        if variable.dimensions[0] != 'time' or variable.dimensions[2] != 'lat' or variable.dimensions[3] != 'lon':
             file.error('Dimension order for variable "%s" is %s. Should be ["time", "%s" , "lat", "lon"].', file.variable_name, variable.dimensions, file.dim_vertical)
         else:
             file.info('Dimensions for variable "%s" look good.', file.variable_name)
