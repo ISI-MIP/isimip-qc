@@ -26,7 +26,7 @@ def check_latlon_variable(file):
             # check maximum
             maximum = var_definition.get('maximum')
             if np.max(var) != maximum:
-                file.error('Last value of variable "%s" is %s. Must be %s.', variable, np.min(var), maximum)
+                file.error('Last value of variable "%s" is %s. Must be %s.', variable, np.max(var), maximum)
 
             # check axis
             axis = var_definition.get('axis')
