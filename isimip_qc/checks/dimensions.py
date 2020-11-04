@@ -2,29 +2,31 @@ from ..config import settings
 
 
 def check_lon_dimension(file):
-    lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
-    lon_size = lon_definition['size']
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+        lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
+        lon_size = lon_definition['size']
 
-    if file.dataset.dimensions.get('lon') is None:
-        file.error('Longitude dimension "lon" is missing.')
-    else:
-        if lon_size != file.dataset.dimensions.get('lon').size:
-            file.warn('Unexpected number of longitudes found (%s). Should be %s', file.dataset.dimensions.get('lon').size, lon_size)
+        if file.dataset.dimensions.get('lon') is None:
+            file.error('Longitude dimension "lon" is missing.')
         else:
-            file.info('%s longitudes defined.', lon_size)
+            if lon_size != file.dataset.dimensions.get('lon').size:
+                file.warn('Unexpected number of longitudes found (%s). Should be %s', file.dataset.dimensions.get('lon').size, lon_size)
+            else:
+                file.info('%s longitudes defined.', lon_size)
 
 
 def check_lat_dimension(file):
-    lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
-    lat_size = lat_definition['size']
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+        lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
+        lat_size = lat_definition['size']
 
-    if file.dataset.dimensions.get('lat') is None:
-        file.error('Latitude dimension "lat" is missing.')
-    else:
-        if lat_size != file.dataset.dimensions.get('lat').size:
-            file.warn('Unexpected number of latitudes found (%s). Should be %s', file.dataset.dimensions.get('lat').size, lat_size)
+        if file.dataset.dimensions.get('lat') is None:
+            file.error('Latitude dimension "lat" is missing.')
         else:
-            file.info('%s latitudes defined.', lat_size)
+            if lat_size != file.dataset.dimensions.get('lat').size:
+                file.warn('Unexpected number of latitudes found (%s). Should be %s', file.dataset.dimensions.get('lat').size, lat_size)
+            else:
+                file.info('%s latitudes defined.', lat_size)
 
 
 def check_time_dimension(file):

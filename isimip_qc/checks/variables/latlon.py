@@ -18,16 +18,6 @@ def check_latlon_variable(file):
             if var.dtype not in dtypes:
                 file.warn('Data type of "%s" is "%s". Should be float or double (one of %s).', variable, var.dtype, dtypes)
 
-            # check minimum
-            minimum = var_definition.get('minimum')
-            if np.min(var) != minimum:
-                file.error('First value of variable "%s" is %s. Must be %s.', variable, np.min(var), minimum)
-
-            # check maximum
-            maximum = var_definition.get('maximum')
-            if np.max(var) != maximum:
-                file.error('Last value of variable "%s" is %s. Must be %s.', variable, np.max(var), maximum)
-
             # check axis
             axis = var_definition.get('axis')
             try:
@@ -78,10 +68,21 @@ def check_latlon_variable(file):
                     'args': (file, variable, 'units', units)
                 })
 
-            if variable == 'lat':
-                lat_first = file.dataset.variables.get('lat')[0]
-                lat_last = file.dataset.variables.get('lat')[-1]
-                if lat_first < lat_last:
-                    file.warn('Latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
-                else:
-                    file.info('Latitude index order looks good (N to S).')
+            if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+                # check minimum
+                minimum = var_definition.get('minimum')
+                if np.min(var) != minimum:
+                    file.error('First value of variable "%s" is %s. Must be %s.', variable, np.min(var), minimum)
+
+                # check maximum
+                maximum = var_definition.get('maximum')
+                if np.max(var) != maximum:
+                    file.error('Last value of variable "%s" is %s. Must be %s.', variable, np.max(var), maximum)
+
+                if variable == 'lat':
+                    lat_first = file.dataset.variables.get('lat')[0]
+                    lat_last = file.dataset.variables.get('lat')[-1]
+                    if lat_first < lat_last:
+                        file.warn('Latitudes in wrong order. Index should range from north to south. (found %s to %s)', lat_first, lat_last)
+                    else:
+                        file.info('Latitude index order looks good (N to S).')
