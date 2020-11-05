@@ -1,5 +1,6 @@
 import uuid
 from email.utils import parseaddr
+from datetime import datetime
 
 from .. import __version__
 from ..config import settings
@@ -76,3 +77,21 @@ def check_contact(file):
             file.info('Global attribute "contact" looks good.')
     except AttributeError:
         file.error('Global attribute "contact" is missing.')
+
+
+def check_isimip_qc_date(file):
+    datetime_now = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    try:
+        date = file.dataset.getncattr('isimip_qc_pass_date')
+        if date is not None:
+            file.info('Global attribute "isimip_qc_pass_date" is set to "%s".',
+                      date, fix={
+                          'func': fix_set_global_attr,
+                          'args': (file, 'isimip_qc_pass_date', datetime_now)
+                      })
+    except AttributeError:
+        file.info('Global attribute "isimip_qc_pass_date" not yet set.',
+                  fix={
+                      'func': fix_set_global_attr,
+                      'args': (file, 'isimip_qc_pass_date', datetime_now)
+                  })
