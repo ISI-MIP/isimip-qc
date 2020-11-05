@@ -132,8 +132,10 @@ def main():
                 # copy/move files to checked_path
                 if file.is_clean:
                     if settings.MOVE:
+                        print(' MOVE FILE...')
                         file.move()
                     elif settings.COPY:
+                        print(' COPY FILE...')
                         file.copy()
 
             else:
