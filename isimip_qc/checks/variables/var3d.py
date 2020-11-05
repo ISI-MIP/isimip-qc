@@ -69,9 +69,15 @@ def check_3d_variable(file):
             units = var3d_definition.get('units')
             try:
                 if var3d.units != units:
-                    file.warn('%s.units="%s" should be "%s".', file.dim_vertical, var3d.units, units)
+                    file.warn('%s.units="%s" should be "%s".', file.dim_vertical, var3d.units, units, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, file.dim_vertical, 'units', units)
+                    })
             except AttributeError:
-                file.warn('"%s" units are missing. Should be "%s".', file.dim_vertical, units)
+                file.warn('"%s" units are missing. Should be "%s".', file.dim_vertical, units, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, file.dim_vertical, 'units', units)
+                    })
 
             if file.dim_vertical == 'depth':
                 # check direction of depth dimension
