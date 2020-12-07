@@ -159,8 +159,8 @@ def check_variable(file):
 
                 if too_low.size:
                     file.warn('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min)
-                    if settings.LOG_LEVEL == 'INFO':
-                        file.info('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
+                    if settings.LOG_LEVEL == 'WARN':
+                        file.warn('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
 
                         too_low_list = []
                         for index in too_low[0:too_low.shape[0]]:
@@ -168,23 +168,23 @@ def check_variable(file):
                         too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
                         for i in range(0, min(settings.MINMAX, too_low.shape[0])):
                             if file.is_2d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_low_sorted[i][0][-2]],
                                           lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][1],units)
+                                          too_low_sorted[i][1], units)
                             elif file.is_3d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_low_sorted[i][0][-2]],
                                           lon[too_low_sorted[i][0][-1]],
                                           too_low_sorted[i][0][-3] + 1,
-                                          too_low_sorted[i][1],units)
+                                          too_low_sorted[i][1], units)
 
                 if too_high.size:
                     file.warn('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
-                    if settings.LOG_LEVEL == 'INFO':
-                        file.info('%i highest values are :', min(settings.MINMAX, too_high.shape[0]))
+                    if settings.LOG_LEVEL == 'WARN':
+                        file.warn('%i highest values are :', min(settings.MINMAX, too_high.shape[0]))
 
                         too_high_list = []
                         for index in too_high[0:too_high.shape[0]]:
@@ -192,18 +192,18 @@ def check_variable(file):
                         too_high_sorted = sorted(too_high_list, key=lambda value: value[1], reverse=True)
                         for i in range(0, min(settings.MINMAX, too_high.shape[0])):
                             if file.is_2d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_high_sorted[i][0][-2]],
                                           lon[too_high_sorted[i][0][-1]],
-                                          too_high_sorted[i][1],units)
+                                          too_high_sorted[i][1], units)
                             elif file.is_3d:
-                                file.info('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           netCDF4.num2date(time[too_high_sorted[i][0][0]], time_units, time_calendar),
                                           lat[too_high_sorted[i][0][-2]],
                                           lon[too_high_sorted[i][0][-1]],
                                           too_high_sorted[i][0][-3] + 1,
-                                          too_high_sorted[i][1],units)
+                                          too_high_sorted[i][1], units)
 
                 if not too_low.shape and not too_high.shape:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
