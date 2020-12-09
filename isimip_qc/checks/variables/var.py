@@ -158,7 +158,7 @@ def check_variable(file):
                     time_calendar = '360_day'
 
                 if too_low.size:
-                    file.warn('%i values are lower than the valid minimum (%.2E).', too_low.shape[0], valid_min)
+                    file.warn('%i values are lower than the valid minimum (%.2E %s).', too_low.shape[0], valid_min, units)
                     if settings.LOG_LEVEL == 'WARN':
                         file.warn('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
 
@@ -182,7 +182,7 @@ def check_variable(file):
                                           too_low_sorted[i][1], units)
 
                 if too_high.size:
-                    file.warn('%i values are higher than the valid maximum (%.2E).', too_high.shape[0], valid_max)
+                    file.warn('%i values are higher than the valid maximum (%.2E %s).', too_high.shape[0], valid_max, units)
                     if settings.LOG_LEVEL == 'WARN':
                         file.warn('%i highest values are :', min(settings.MINMAX, too_high.shape[0]))
 
