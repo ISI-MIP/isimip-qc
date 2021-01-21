@@ -108,8 +108,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE
                         File path of the config file
-  -c, --copy            Copy checked files to CHECKED_PATH if now warnings or errors were found
-  -m, --move            Move checked files to CHECKED_PATH if now warnings or errors were found
+  -c, --copy            Copy checked files to CHECKED_PATH if no warnings or errors were found
+  -m, --move            Move checked files to CHECKED_PATH if no warnings or errors were found
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
   --checked-path CHECKED_PATH
@@ -131,7 +131,7 @@ optional arguments:
   --check CHECK         perform only one particular check
 ```
 
-The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`.
+The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`. If the only argument used is `schema_path`, the current user path when calling the tool should be same as the directory of the files to be checked.
 
 ### The options in detail
 
