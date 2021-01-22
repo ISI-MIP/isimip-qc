@@ -21,9 +21,9 @@ def get_parser():
                         help='File path of the config file')
 
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
-                        help='Copy checked files to CHECKED_PATH if now warnings or errors were found')
+                        help='Copy checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
-                        help='Move checked files to CHECKED_PATH if now warnings or errors were found')
+                        help='Move checked files to CHECKED_PATH if no warnings or errors were found')
 
     parser.add_argument('--unchecked-path', dest='unchecked_path',
                         help='base path of the unchecked files')
