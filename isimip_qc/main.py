@@ -58,11 +58,11 @@ def main():
     settings.setup(args)
 
     if settings.DEFINITIONS is None:
-        parser.error('no definitions could be found.')
+        parser.error('no definitions could be found. Check schema_path argument.')
     if settings.PATTERN is None:
-        parser.error('no pattern could be found.')
+        parser.error('no pattern could be found. Check schema_path argument.')
     if settings.SCHEMA is None:
-        parser.error('no schema could be found.')
+        parser.error('no schema could be found. Check schema_path argument.')
 
     if settings.UNCHECKED_PATH:
         if not path.exists(settings.UNCHECKED_PATH):
