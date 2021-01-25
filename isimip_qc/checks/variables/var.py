@@ -132,7 +132,7 @@ def check_variable(file):
         if settings.MINMAX:
             valid_min = definition.get('valid_min')
             valid_max = definition.get('valid_max')
-            if (valid_min is not None) and (valid_min is not None):
+            if (valid_min is not None) and (valid_max is not None):
                 file.info("Checking values for valid minimum and maximum range defined in the protocol. This could take some time...")
                 lat = file.dataset.variables.get('lat')
                 lon = file.dataset.variables.get('lon')
