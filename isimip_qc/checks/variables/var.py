@@ -129,6 +129,9 @@ def check_variable(file):
                 file.error('Missing value attribute "%s" for variable "%s" is missing. Should be set to 1e+20.', name, file.variable_name)
 
         # check valid range
+        if settings.SECTOR == 'agriculture':
+            return
+
         if settings.MINMAX:
             valid_min = definition.get('valid_min')
             valid_max = definition.get('valid_max')

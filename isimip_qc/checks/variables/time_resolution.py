@@ -5,6 +5,9 @@ from isimip_qc.config import settings
 
 
 def check_time_resolution(file):
+    if settings.SECTOR == 'agriculture':
+        return
+
     time = file.dataset.variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
     time_resolution = file.specifiers.get('time_step')
