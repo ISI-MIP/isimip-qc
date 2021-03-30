@@ -4,7 +4,23 @@ from isimip_qc.fixes import fix_set_variable_attr
 
 
 def check_3d_variable(file):
+
+    def check_attribute(var3d, attr_type, attribute):
+        try:
+            var3d_attr = getattr(var3d, attr_type)
+            if var3d_attr != attribute:
+                file.warn('Attribute %s.%s="%s". Should be "%s".', var3d.name, attr_type, var3d_attr, attribute, fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, var3d.name, attr_type, attribute)
+                })
+        except AttributeError:
+            file.warn('Attribute %s.%s is missing. Should be "%s".', var3d.name, attr_type, attribute, fix={
+                'func': fix_set_variable_attr,
+                'args': (file, var3d.name, attr_type, attribute)
+            })
+
     if file.is_3d:
+
         var3d = file.dataset.variables.get(file.dim_vertical)
         var3d_definition = settings.DEFINITIONS['dimensions'].get(file.dim_vertical)
 
@@ -23,61 +39,10 @@ def check_3d_variable(file):
             if var3d.dtype not in dtypes:
                 file.warn('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, dtypes)
 
-            # check axis
-            axis = var3d_definition.get('axis')
-            try:
-                if var3d.axis != axis:
-                    file.warn('Attribute %s.axis="%s" should be "%s".', file.dim_vertical, var3d.axis, axis, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.dim_vertical, 'axis', axis)
-                    })
-            except AttributeError:
-                file.warn('Attribute %s.axis is missing. Should be "%s".', file.dim_vertical, axis, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, file.dim_vertical, 'axis', axis)
-                })
-
-            # check standard_name
-            standard_name = var3d_definition.get('standard_name')
-            try:
-                if var3d.standard_name != standard_name:
-                    file.warn('Attribute %s.standard_name="%s" should be "%s".', file.dim_vertical, var3d.standard_name, standard_name, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.dim_vertical, 'standard_name', standard_name)
-                    })
-            except AttributeError:
-                file.warn('Attribute %s.standard_name is missing. Should be "%s".', file.dim_vertical, standard_name, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, file.dim_vertical, 'standard_name', standard_name)
-                })
-
-            # check long_name
-            long_name = var3d_definition.get('long_name')
-            try:
-                if var3d.long_name != long_name:
-                    file.warn('Attribute %s.long_name="%s". Should be "%s".', file.dim_vertical, var3d.long_name, long_name, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.dim_vertical, 'long_name', long_name)
-                    })
-            except AttributeError:
-                file.warn('Attribute %s.long_name is missing. Should be "%s".', file.dim_vertical, long_name, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, file.dim_vertical, 'long_name', long_name)
-                })
-
-            # check units
-            units = var3d_definition.get('units')
-            try:
-                if var3d.units != units:
-                    file.warn('%s.units="%s" should be "%s".', file.dim_vertical, var3d.units, units, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.dim_vertical, 'units', units)
-                    })
-            except AttributeError:
-                file.warn('"%s" units are missing. Should be "%s".', file.dim_vertical, units, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.dim_vertical, 'units', units)
-                    })
+            # check attributes
+            for attribute in ['axis', 'standard_name', 'long_name', 'units']:
+                attr_definition = var3d_definition.get(attribute)
+                check_attribute(var3d, attribute, attr_definition)
 
             if file.dim_vertical == 'depth':
                 # check direction of depth dimension
@@ -88,3 +53,25 @@ def check_3d_variable(file):
                     file.warn('Depths in wrong order. Should increase with depth . (found %s to %s)', depth_first, depth_last)
                 else:
                     file.info('Depths order looks good (positive down).')
+
+            # for lakes sector
+            if file.dim_vertical == 'levlak':
+                depth_file = file.dataset.variables.get('depth')
+
+                if depth_file is None:
+                    file.error('Variable "depth" not found. Introduce layer vertical center depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
+                else:
+                    if len(depth_file.dimensions) == 4:
+                        if depth_file.dimensions[1] != 'levlak':
+                            file.error('Time varying "depth" variable has no dependency for "levlak" level index. Expecting: depth(time,levlak,lat,lon)')
+                    elif len(depth_file.dimensions) == 3:
+                        if depth_file.dimensions[0] != 'levlak':
+                            file.error('Fixed-time "depth" variable has no dependency for "levlak" level index. Expecting: depth(levlak,lat,lon)')
+
+                    depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
+                    if depth_definition is None:
+                        file.warn('Dimension "depth" is not yet defined in protocol. Skipping attribute checks for "depth".')
+                    else:
+                        for attribute in ['axis', 'standard_name', 'long_name', 'units']:
+                            attr_definition = depth_definition.get(attribute)
+                            check_attribute(depth_file, attribute, attr_definition)
