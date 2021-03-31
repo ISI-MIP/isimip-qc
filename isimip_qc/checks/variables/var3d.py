@@ -67,6 +67,11 @@ def check_3d_variable(file):
                     elif len(depth_file.dimensions) == 3:
                         if depth_file.dimensions[0] != 'levlak':
                             file.error('Fixed-time "depth" variable has no dependency for "levlak" level index. Expecting: depth(levlak,lat,lon)')
+                    elif len(depth_file.dimensions) == 1:
+                        if depth_file.dimensions[0] != 'levlak':
+                            file.error('Globally fixed "depth" variable has no dependency for "levlak" level index. Expecting: depth(levlak)')
+                    else:
+                        file.error('No proper "levlak" dependency found in "depth" variable.')
 
                     depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
                     if depth_definition is None:
