@@ -56,6 +56,15 @@ def check_3d_variable(file):
 
             # for lakes sector
             if file.dim_vertical == 'levlak':
+                levlak_first = file.dataset.variables.get(file.dim_vertical)[0]
+                levlak_last = file.dataset.variables.get(file.dim_vertical)[-1]
+
+                if levlak_first > levlak_last:
+                    file.warn('"levlak" in wrong order. Should increase with depth . (found %s to %s)', levlak_first, levlak_last)
+                else:
+                    file.info('"levlak" order looks good (positive down).')
+
+
                 depth_file = file.dataset.variables.get('depth')
 
                 if depth_file is None:
