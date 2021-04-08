@@ -66,13 +66,11 @@ def check_time_variable(file):
         increment = settings.DEFINITIONS['time_step'][time_step]['increment']
         minimum = settings.DEFINITIONS['time_span']['minimum']['value']
 
-        if settings.SECTOR == 'agriculture':
+        if settings.SECTOR == 'agriculture' and time_step == "annual":
             increment = 'growing seasons'
-            # request to reformat time axis sent to sector coordination
-            minimum = 1661
             units_templates = [
-                "%s since %i-01-01, 00:00:00",
-                "%s since %i-1-1, 00:00:00"
+                "%s since %i-01-01 00:00:00",
+                "%s since %i-1-1 00:00:00"
             ]
         else:
             units_templates = [
