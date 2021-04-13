@@ -99,7 +99,7 @@ class File(object):
             if settings.FIX_DATAMODEL == 'cdo':
                 if shutil.which('cdo'):
                     self.info('Rewriting file with fixed data model using "cdo"')
-                    call_cdo(['--history', '-s', '-z', 'zip_4', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
+                    call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-copy'], self.abs_path, tmp_abs_path)
                 else:
                     self.error('"cdo" is not available for execution. Please install before.')
             elif settings.FIX_DATAMODEL == 'nccopy':
