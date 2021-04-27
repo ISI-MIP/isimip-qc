@@ -1,7 +1,10 @@
 import calendar
+import re
 
 import netCDF4
 from isimip_qc.config import settings
+
+date_pattern = re.compile(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})')
 
 
 def check_time_resolution(file):
@@ -22,9 +25,13 @@ def check_time_resolution(file):
             file.warn('Can\'t check for number of time steps because of missing time.calendar attribute')
             return
 
-    if time_resolution in ['monthly', 'annual']:
+    elif time_resolution in ['monthly', 'annual']:
         # for monthly resolution cftime.num2date only allows for '360_day' calendar
         time_calendar = '360_day'
+
+    elif time_resolution == 'seasonal':
+        # seasonal
+        return
 
     if file.dataset.data_model in ['NETCDF4', 'NETCDF4_CLASSIC']:
 
@@ -38,8 +45,9 @@ def check_time_resolution(file):
                 lastdate_nc = netCDF4.num2date(time[time_steps-1], time_units, time_calendar)
                 startyear_nc = firstdate_nc.year
                 endyear_nc = lastdate_nc.year
-            elif time_resolution == 'annual':
-                ref_year = int(time.units.split()[2].split("-")[0])
+
+            elif time_resolution in ['annual']:
+                ref_year = int(date_pattern.search(time.units).group('year'))
                 startyear_nc = ref_year + int(time[0])
                 endyear_nc = ref_year + int(time[-1])
 
