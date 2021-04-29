@@ -126,7 +126,13 @@ def check_variable(file):
                 else:
                     file.info('Missing value attribute "%s" is properly set.', name)
             except AttributeError:
-                file.error('Missing value attribute "%s" for variable "%s" is missing. Should be set to 1e+20.', name, file.variable_name)
+                if name == 'missing_value':
+                    file.warn('"%s" attribute for variable "%s" is missing. Should be set to 1e+20.', name, file.variable_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, file.variable_name, 'missing_value', 1e+20)
+                    })
+                else:
+                    file.error('"%s" attribute for variable "%s" is missing. Should be set to 1e+20 and must be set when variable is created.', name, file.variable_name)
 
         # check valid range
         if settings.MINMAX:
