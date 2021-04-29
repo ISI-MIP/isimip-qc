@@ -2,7 +2,7 @@ from ..config import settings
 
 
 def check_lon_dimension(file):
-    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
         lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
         lon_size = lon_definition['size']
 
@@ -16,7 +16,7 @@ def check_lon_dimension(file):
 
 
 def check_lat_dimension(file):
-    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
         lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
         lat_size = lat_definition['size']
 

@@ -74,7 +74,7 @@ def check_latlon_variable(file):
                     'args': (file, variable, 'units', units)
                 })
 
-            if settings.SECTOR not in ['marine-fishery_regional', 'water_regional']:
+            if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
                 # check minimum
                 minimum = var_definition.get('minimum')
                 if np.min(var) != minimum:
