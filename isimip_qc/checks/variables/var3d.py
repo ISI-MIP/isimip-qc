@@ -68,7 +68,7 @@ def check_3d_variable(file):
                 depth_file = file.dataset.variables.get('depth')
 
                 if depth_file is None:
-                    file.error('Variable "depth" not found. Introduce layer vertical center depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
+                    file.warn('Variable "depth" not found. Introduce layer vertical center depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
                 else:
                     if len(depth_file.dimensions) == 4:
                         if depth_file.dimensions[1] != 'levlak':
