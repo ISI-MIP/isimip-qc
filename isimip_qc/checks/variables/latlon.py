@@ -57,7 +57,7 @@ def check_latlon_variable(file):
             except AttributeError:
                 file.warn('"long_name" attribute of "%s" is missing. Should be "%s".', variable, long_names[0], fix={
                     'func': fix_set_variable_attr,
-                    'args': (file, variable, 'long_name', long_name)
+                    'args': (file, variable, 'long_name', long_names[0])
                 })
 
             # check units
