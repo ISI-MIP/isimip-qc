@@ -4,7 +4,7 @@ from datetime import datetime
 
 from .. import __version__
 from ..config import settings
-from ..fixes import fix_set_global_attr
+from ..fixes import fix_set_global_attr, fix_remove_global_attr
 
 
 def check_isimip_id(file):
@@ -95,3 +95,15 @@ def check_isimip_qc_date(file):
                       'func': fix_set_global_attr,
                       'args': (file, 'isimip_qc_pass_date', datetime_now)
                   })
+
+
+def check_history(file):
+    try:
+        file.dataset.getncattr('history')
+        file.warn('Global attribute "history" is set and will get removed.',
+                  fix={
+                      'func': fix_remove_global_attr,
+                      'args': (file, 'history')
+                  })
+    except AttributeError:
+        pass
