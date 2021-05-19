@@ -35,6 +35,10 @@ def get_parser():
                         help='Log level (ERROR, WARN, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
+    parser.add_argument('--include', dest='variables_include',
+                        help='include only this comma-separated list of variables')
+    parser.add_argument('--exclude', dest='variables_exclude',
+                        help='exclude this comma-separated list of variables')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
     parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
@@ -84,7 +88,17 @@ def main():
             # 1st pass: perform checks
             file.open_dataset()
             file.match()
+
             if file.matched:
+
+                if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
+                    logger.info('skipped by include option')
+                    continue
+
+                if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
+                    logger.info('skipped by exclude option')
+                    continue
+
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
                         try:
