@@ -119,6 +119,10 @@ optional arguments:
   --log-level LOG_LEVEL
                         Log level (ERROR, WARN, INFO, or DEBUG)
   --log-path LOG_PATH   base path for the individual log files
+  --include VARIABLES_INCLUDE
+                        include only this comma-separated list of variables
+  --exclude VARIABLES_EXCLUDE
+                        exclude this comma-separated list of variables
   -f, --first-file      only process first file found in UNCHECKED_PATH
   -w, --stop-on-warnings
                         stop execution on warnings
@@ -150,6 +154,8 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories folder). Omit option for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3). An internet connection is required for reading the online protocols.
 * `--log-level LOG_LEVEL`: Set the detail level of log output. Default is WARNING while INFO also gives feedback on successful tests. ERROR or CRITICAL will only report very severe issues.
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
+* `--include VARIABLES_INCLUDE` : Provide a comma-separated list of variables to include for the checks.
+* `--exclude VARIABLES_INCLUDE` : Provide a comma-separated list of variables to exclude from the checks.
 * `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Useful for revealing issues that may occur on all your files.
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
