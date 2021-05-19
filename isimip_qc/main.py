@@ -89,14 +89,16 @@ def main():
             file.open_dataset()
             file.match()
 
-            if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
-                logger.info('skipped by include option')
-                continue
-            if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
-                logger.info('skipped by exclude option')
-                continue
-
             if file.matched:
+
+                if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
+                    logger.info('skipped by include option')
+                    continue
+
+                if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
+                    logger.info('skipped by exclude option')
+                    continue
+
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
                         try:
