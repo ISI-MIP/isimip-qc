@@ -2,13 +2,17 @@ from ..config import settings
 
 
 def check_lon_dimension(file):
+    model = file.specifiers.get('model')
     if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
-        lon_definition = settings.DEFINITIONS['dimensions'].get('lon')
-        lon_size = lon_definition['size']
 
         if file.dataset.dimensions.get('lon') is None:
             file.error('Longitude dimension "lon" is missing.')
         else:
+            if model == 'dbem':
+                lon_size = 720
+            else:
+                lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
+
             if lon_size != file.dataset.dimensions.get('lon').size:
                 file.warn('Unexpected number of longitudes found (%s). Should be %s', file.dataset.dimensions.get('lon').size, lon_size)
             else:
@@ -16,13 +20,17 @@ def check_lon_dimension(file):
 
 
 def check_lat_dimension(file):
+    model = file.specifiers.get('model')
     if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
-        lat_definition = settings.DEFINITIONS['dimensions'].get('lat')
-        lat_size = lat_definition['size']
 
         if file.dataset.dimensions.get('lat') is None:
             file.error('Latitude dimension "lat" is missing.')
         else:
+            if model == 'dbem':
+                lat_size = 360
+            else:
+                lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+
             if lat_size != file.dataset.dimensions.get('lat').size:
                 file.warn('Unexpected number of latitudes found (%s). Should be %s', file.dataset.dimensions.get('lat').size, lat_size)
             else:
