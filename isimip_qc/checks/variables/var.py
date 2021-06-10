@@ -9,6 +9,7 @@ from isimip_qc.fixes import fix_set_variable_attr
 def check_variable(file):
     variable = file.dataset.variables.get(file.variable_name)
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
+    model = file.specifiers.get('model')
 
     if not variable:
         file.error('Variable %s is missing.', file.variable_name)
@@ -30,8 +31,12 @@ def check_variable(file):
                 lat_size = file.dataset.variables.get('lat').shape[0]
                 lon_size = file.dataset.variables.get('lon').shape[0]
             else:
-                lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
-                lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
+                if model == 'dbem':
+                    lat_size = 360
+                    lon_size = 720
+                else:
+                    lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+                    lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
