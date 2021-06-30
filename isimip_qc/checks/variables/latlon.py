@@ -75,7 +75,7 @@ def check_latlon_variable(file):
                     'args': (file, variable, 'units', units)
                 })
 
-            if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
+            if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
                 # check minimum and maximum
                 if model == 'dbem':
