@@ -3,7 +3,7 @@ from ..config import settings
 
 def check_lon_dimension(file):
     model = file.specifiers.get('model')
-    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
         if file.dataset.dimensions.get('lon') is None:
             file.error('Longitude dimension "lon" is missing.')
@@ -21,7 +21,7 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     model = file.specifiers.get('model')
-    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
+    if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
         if file.dataset.dimensions.get('lat') is None:
             file.error('Latitude dimension "lat" is missing.')
