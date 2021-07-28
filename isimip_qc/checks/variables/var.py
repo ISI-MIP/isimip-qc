@@ -27,7 +27,7 @@ def check_variable(file):
         # check chunking
         chunking = variable.chunking()
         if chunking:
-            if settings.SECTOR in ['marine-fishery_regional', 'water_regional', 'lakes_local']:
+            if settings.SECTOR in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
                 lat_size = file.dataset.variables.get('lat').shape[0]
                 lon_size = file.dataset.variables.get('lon').shape[0]
             else:
