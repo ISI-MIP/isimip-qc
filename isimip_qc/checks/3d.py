@@ -2,6 +2,7 @@ def check_3d(file):
     crop = file.specifiers.get('crop')
     irrigation = file.specifiers.get('irrigation')
     pft = file.specifiers.get('pft')
+    species = file.specifiers.get('species')
 
     file.variable_name = file.specifiers.get('variable')
 
@@ -11,6 +12,8 @@ def check_3d(file):
         file.variable_name = file.variable_name + '-' + file.specifiers.get('irrigation')
     if pft:
         file.variable_name = file.variable_name + '-' + file.specifiers.get('pft')
+    if species:
+        file.variable_name = file.variable_name + '-' + file.specifiers.get('species')
 
     try:
         variable = file.dataset.variables.get(file.variable_name)
