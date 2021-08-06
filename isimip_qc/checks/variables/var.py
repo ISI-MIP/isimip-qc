@@ -220,4 +220,4 @@ def check_variable(file):
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
 
             else:
-                file.info('No min and/or max definition found for variable "%s".', file.variable_name)
+                file.warn('No min and/or max definition found for variable "%s" in protocol. Skipping test.', file.variable_name)
