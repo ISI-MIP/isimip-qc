@@ -40,13 +40,13 @@ def check_variable(file):
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
-                    file.warn('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).', file.variable_name, chunking, lat_size, lon_size)
+                    file.warn('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).', file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
             if file.is_3d:
                 var3d_len = file.dataset.dimensions.get(file.dim_vertical).size
                 if chunking[0] != 1 or chunking[1] != 1 or chunking[2] != lat_size or chunking[3] != lon_size:
-                    file.warn('%s.chunking=%s. Should be [1, 1, %s, %s] (with proper depencency order).', file.variable_name, chunking, lat_size, lon_size)
+                    file.warn('%s.chunking=%s. Should be [1, 1, %s, %s] (with proper depencency order).', file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, 1, %s, %s].', lat_size, lon_size)
         else:
