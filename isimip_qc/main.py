@@ -158,7 +158,7 @@ def main():
             # close the log for this file
             file.close_log()
         else:
-            logger.error('%s has wrong suffix. Use "%s" for this simulation round', file_path, settings.PATTERN['suffix'][0])
+            logger.error('File has wrong suffix. Use "%s" for this simulation round', settings.PATTERN['suffix'][0])
 
         # stop if flag is set
         if settings.FIRST_FILE:
