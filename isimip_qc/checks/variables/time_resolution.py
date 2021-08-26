@@ -39,7 +39,10 @@ def check_time_resolution(file):
                 startyear_nc = firstdate_nc.year
                 endyear_nc = lastdate_nc.year
             elif time_resolution == 'annual':
-                ref_year = int(time.units.split()[2].split("-")[0])
+                if settings.SECTOR == 'agriculture' and settings.SIMULATION_ROUND == 'ISIMIP3b':
+                    ref_year = int(time.units.split()[3].split("-")[0])
+                else:
+                    ref_year = int(time.units.split()[2].split("-")[0])
                 startyear_nc = ref_year + int(time[0])
                 endyear_nc = ref_year + int(time[-1])
 
