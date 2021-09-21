@@ -110,6 +110,7 @@ optional arguments:
                         File path of the config file
   -c, --copy            Copy checked files to CHECKED_PATH if no warnings or errors were found
   -m, --move            Move checked files to CHECKED_PATH if no warnings or errors were found
+  -O, --overwrite       Overwrite files in CHECKED_PATH if present. Default is False
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
   --checked-path CHECKED_PATH
@@ -149,6 +150,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 
     * environment variables (in caps and with underscores, e.g. `UNCHECKED_PATH`).
 * `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination. Effective only when no warnings have been found on the file.
+* '-O, --overwrite`: Allow overwriting of existing files in CHECKED_PATH. Default is to skip copy or move in case the target file is already present.
 * `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
 * `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
 * `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories folder). Omit option for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3). An internet connection is required for reading the online protocols.

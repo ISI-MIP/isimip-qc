@@ -24,7 +24,8 @@ def get_parser():
                         help='Copy checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
                         help='Move checked files to CHECKED_PATH if no warnings or errors were found')
-
+    parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
+                        help='Overwrite files in CHECKED_PATH if present. Default is False.')
     parser.add_argument('--unchecked-path', dest='unchecked_path',
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path',
@@ -131,25 +132,23 @@ def main():
                 if settings.FIX:
                     file.open_dataset(write=True)
                     if file.has_infos_fixable:
-                        print(' FIX INFOS...')
+                        logger.info('Fix INFOs...')
                         file.fix_infos()
                     if file.has_warnings:
-                        print(' FIX WARNINGS...')
+                        logger.info('Fix WARNINGs...')
                         file.fix_warnings()
                     file.close_dataset()
 
                 # 2nd pass: fix warnings
                 if file.has_warnings and settings.FIX_DATAMODEL:
-                    print(' FIX DATAMODEL...')
+                    logger.info('Fix data model...')
                     file.fix_datamodel()
 
                 # copy/move files to checked_path
                 if file.is_clean:
                     if settings.MOVE:
-                        print(' MOVE FILE...')
                         file.move()
                     elif settings.COPY:
-                        print(' COPY FILE...')
                         file.copy()
 
             else:

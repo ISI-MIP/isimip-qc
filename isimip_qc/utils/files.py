@@ -1,6 +1,7 @@
 import os
 import shutil
 from pathlib import Path
+from ..config import settings
 
 import colorlog
 
@@ -17,10 +18,18 @@ def walk_files(path):
 def move_file(source_path, target_path):
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.move(source_path, target_path)
+    if not target_path.is_file() or settings.OVERWRITE:
+        logger.info('Copy file')
+        shutil.move(source_path, target_path)
+    else:
+        logger.warn('Skip moving because target file is present and overwriting not allowed. Use -O to allow overwriting.')
 
 
 def copy_file(source_path, target_path):
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy(source_path, target_path)
+    if not target_path.is_file() or settings.OVERWRITE:
+        logger.info('Copy file')
+        shutil.copy(source_path, target_path)
+    else:
+        logger.warn('Skip copying because target file is present and overwriting not allowed. Use -O to allow overwriting.')
