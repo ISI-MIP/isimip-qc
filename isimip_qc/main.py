@@ -95,10 +95,14 @@ def main():
 
                 if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
                     logger.info('skipped by include option')
+                    file.close_log()
+                    file.close_dataset()
                     continue
 
                 if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
                     logger.info('skipped by exclude option')
+                    file.close_log()
+                    file.close_dataset()
                     continue
 
                 for check in checks:
