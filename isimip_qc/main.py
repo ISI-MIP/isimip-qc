@@ -1,5 +1,6 @@
 import argparse
 from os import path
+import sys
 
 import colorlog
 
@@ -123,10 +124,12 @@ def main():
                     logger.critical('File did not pass all checks. Unfixable issues detected.')
 
                 if file.has_warnings and settings.STOP_WARN:
-                    break
+                    logger.warn('Warnings found. Exiting per -w option')
+                    sys.exit(1)
 
                 if file.has_errors and settings.STOP_ERR:
-                    break
+                    logger.error('Errors found. Exiting per -e option')
+                    sys.exit(1)
 
                 # 2nd pass: fix warnings and fixable infos
                 if settings.FIX:
