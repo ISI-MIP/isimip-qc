@@ -1,5 +1,5 @@
 __title__ = 'isimip-qc'
-__version__ = '2.7.1'
+__version__ = '2.7.2'
 __author__ = 'Jochen Klar'
 __email__ = 'jochen.klar@pik-potsdam.de'
 __license__ = 'MIT'
