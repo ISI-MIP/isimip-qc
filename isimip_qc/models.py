@@ -113,7 +113,7 @@ class File(object):
 
             if settings.FIX_DATAMODEL in ['nccopy', 'cdo']:
                 # move tmp file to original file
-                move_file(tmp_abs_path, self.abs_path)
+                move_file(tmp_abs_path, self.abs_path, overwrite=True)
 
                 # remove warnings after fix
                 for warning in self.warnings[:]:
