@@ -31,7 +31,7 @@ def move_file(source_path, target_path, overwrite=False):
 def copy_file(source_path, target_path):
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
-    if not target_path.is_file() or overwrite:
+    if not target_path.is_file() or settings.OVERWRITE:
         logger.info('Copy file')
         shutil.copy(source_path, target_path)
     else:
