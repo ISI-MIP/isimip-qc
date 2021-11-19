@@ -26,7 +26,14 @@ def check_3d(file):
     dim_len = len(variable.dimensions)
 
     # detect 2d or 3d data
-    if dim_len == 3:
+    file.is_time_fixed = False
+
+    if file.specifiers.get('time_step') == 'fixed':
+        file.is_time_fixed = True
+        if dim_len > 2:
+            file.critical('File has fixed data but more than 2 dimensions. Remove "time" dimension if present.')
+            return
+    elif dim_len == 3:
         file.is_2d = True
     elif dim_len == 4:
         file.is_3d = True

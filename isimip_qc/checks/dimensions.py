@@ -38,7 +38,7 @@ def check_lat_dimension(file):
 
 
 def check_time_dimension(file):
-    if file.dataset.dimensions.get('time') is None:
+    if not file.is_time_fixed and file.dataset.dimensions.get('time') is None:
         file.error('Dimension "time" is missing.')
 
 
@@ -53,7 +53,12 @@ def check_dimensions(file):
     variable = file.dataset.variables.get(file.variable_name)
 
     dim_len = len(variable.dimensions)
-    if file.is_2d:
+    if file.is_time_fixed:
+        if variable.dimensions[0] != 'lat' or variable.dimensions[1] != 'lon':
+            file.error('Dimension order for variable "%s" is %s. Should be ["lat", "lon"].', file.variable_name, variable.dimensions)
+        else:
+            file.info('Dimensions for variable "%s" look good: %s.', file.variable_name, variable.dimensions)
+    elif file.is_2d:
         if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
             file.error('Dimension order for variable "%s" is %s. Should be ["time", "lat", "lon"].', file.variable_name, variable.dimensions)
         else:

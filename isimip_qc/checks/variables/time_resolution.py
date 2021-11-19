@@ -5,6 +5,8 @@ from isimip_qc.config import settings
 
 
 def check_time_resolution(file):
+    if file.is_time_fixed:
+        return
     time = file.dataset.variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
     time_resolution = file.specifiers.get('time_step')

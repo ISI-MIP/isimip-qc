@@ -55,6 +55,8 @@ def check_variable(file):
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
 
+        if file.is_time_fixed:
+            default_dimensions = ('lat', 'lon')
         if file.is_2d:
             default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
@@ -141,6 +143,10 @@ def check_variable(file):
 
         # check valid range
         if settings.MINMAX:
+            if file.is_time_fixed:
+                file.warn('Valid range test for fixed data not yet implemented')
+                return
+
             valid_min = definition.get('valid_min')
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_max is not None):

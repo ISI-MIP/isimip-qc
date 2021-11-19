@@ -6,6 +6,8 @@ from isimip_qc.fixes import fix_set_variable_attr
 
 
 def check_time_variable(file):
+    if file.is_time_fixed:
+        return
     time = file.dataset.variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
 
