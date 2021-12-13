@@ -44,11 +44,11 @@ def check_variable(file):
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
             if file.is_3d:
-                var3d_len = file.dataset.dimensions.get(file.dim_vertical).size
-                if chunking[0] != 1 or chunking[1] != 1 or chunking[2] != lat_size or chunking[3] != lon_size:
-                    file.warn('%s.chunking=%s. Should be [1, 1, %s, %s] (with proper depencency order).', file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
+                var3d_size = file.dataset.dimensions.get(file.dim_vertical).size
+                if chunking[0] != 1 or ( chunking[1] != 1 and chunking[1] != var3d_size ) or chunking[2] != lat_size or chunking[3] != lon_size:
+                    file.warn('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s] (with proper depencency order).', file.variable_name, chunking, var3d_size, lat_size, lon_size, lat_size, lon_size, fix_datamodel=True)
                 else:
-                    file.info('Variable properly chunked [1, 1, %s, %s].', lat_size, lon_size)
+                    file.info('Variable properly chunked [1, %s, %s, %s].', var3d_size, lat_size, lon_size)
         else:
             file.info('Variable chunking not supported by data model found.')
 
