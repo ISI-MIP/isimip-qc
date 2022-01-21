@@ -111,3 +111,41 @@ def check_time_variable(file):
                     'func': fix_set_variable_attr,
                     'args': (file, 'time', 'calendar', '360_day')
                 })
+
+def check_time_span_periods(file):
+
+    if 'pre-industrial' in str(file.path):
+        definition_startyear = settings.DEFINITIONS['time_span'].get('start_pre-ind')['value']
+        definition_endyear = settings.DEFINITIONS['time_span'].get('end_pre-ind')['value']
+    elif 'historical' in str(file.path):
+        if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a']:
+            climate_forcing = file.specifiers.get('climate_forcing')
+            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value'][climate_forcing]
+            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value'][climate_forcing]
+        else:
+            specifier_start = 'start_hist'
+            specifier_end = 'end_hist'
+    elif 'future' in str(file.path):
+        definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
+        definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
+    else:
+        file.warn('Skipping check for simulation period as the period itself could not be determined from the file path (pre-industrial, historical or future).')
+        return
+
+    file_startyear = file.specifiers.get('start_year')
+    file_endyear = file.specifiers.get('end_year')
+
+    time_resolution = file.specifiers.get('time_step')
+
+    if time_resolution not in ['daily']:
+        if definition_startyear != file_startyear or definition_endyear != file_endyear:
+            file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s). Ensure to prepare the full period for all variables using the latest input data set.',
+                      file_startyear, file_endyear, definition_startyear, definition_endyear)
+        else:
+            file.info('File is covering the full simulation period (by file name)')
+    else:
+        if 'historical' in str(file.path):
+            if file_startyear == 2011:
+                if  definition_endyear != file_endyear:
+                    file.warn('Last year of time period covered by file (%s) does not match end of input data time span (%s). Ensure to prepare the full period for all variables using the latest input data set.',
+                              file_endyear, definition_endyear)
