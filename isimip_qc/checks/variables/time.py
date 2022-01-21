@@ -65,7 +65,7 @@ def check_time_variable(file):
 
         # check units
         time_step = file.specifiers.get('time_step')
-        if settings.SECTOR == 'agriculture' and settings.SIMULATION_ROUND == 'ISIMIP3b' and file.specifiers.get('time_step') == 'annual':
+        if settings.SECTOR == 'agriculture' and file.specifiers.get('time_step') == 'annual':
             increment = 'growing seasons'
         else:
             increment = settings.DEFINITIONS['time_step'][time_step]['increment']
