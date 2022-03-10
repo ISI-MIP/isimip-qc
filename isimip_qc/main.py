@@ -152,11 +152,14 @@ def main():
                     file.fix_datamodel()
 
                 # copy/move files to checked_path
-                if file.is_clean:
-                    if settings.MOVE:
-                        file.move()
-                    elif settings.COPY:
-                        file.copy()
+                if settings.MOVE or settings.COPY:
+                    if file.is_clean:
+                        if settings.MOVE:
+                            file.move()
+                        elif settings.COPY:
+                            file.copy()
+                    else:
+                        logger.warn('File has not been moved or copied due to warnings or erros found.')
 
             else:
                 file.close_dataset()
