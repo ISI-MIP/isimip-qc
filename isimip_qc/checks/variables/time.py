@@ -137,7 +137,7 @@ def check_time_span_periods(file):
 
     time_resolution = file.specifiers.get('time_step')
 
-    if time_resolution not in ['daily']:
+    if time_resolution not in ['daily', 'fixed']:
         if definition_startyear != file_startyear or definition_endyear != file_endyear:
             file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s). Ensure to prepare the full period for all variables using the latest input data set.',
                       file_startyear, file_endyear, definition_startyear, definition_endyear)
