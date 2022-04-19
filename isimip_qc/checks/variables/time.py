@@ -114,6 +114,10 @@ def check_time_variable(file):
 
 def check_time_span_periods(file):
 
+    if settings.TIME_SPAN:
+        file.info('skipping test of covered simulation period per option')
+        return
+
     if 'pre-industrial' in str(file.abs_path):
         definition_startyear = settings.DEFINITIONS['time_span'].get('start_pre-ind')['value']
         definition_endyear = settings.DEFINITIONS['time_span'].get('end_pre-ind')['value']

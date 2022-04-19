@@ -130,6 +130,8 @@ optional arguments:
   -e, --stop-on-errors  stop execution on errors
   -r [MINMAX], --minmax [MINMAX]
                         test values for valid range (slow, argument MINMAX defaults to show the top 10 values)
+  -nt, --skip-time-span-check
+                        skip check for simulated time period
   --fix                 try to fix warnings detected on the original files
   --fix-datamodel [FIX_DATAMODEL]
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.
@@ -162,6 +164,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
 * `-r [MINMAX], --minmax [MINMAX]`: Test the data for valid ranges when defined in the protocol. Per default and when violations are detected the top 20 minimum and maximum values along with their time and geographic location will be logged as well. MINMAX is optional and defines how many values should be reported instead of 20. This test drastically slows down the run time of the tool.
+* -nt, --skip-time-span-check: Skip checking non-dialy data for proper coverage of simulation periods.
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the funtions defined in the `isimip_qc/checks/*.py` files.
