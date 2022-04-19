@@ -122,9 +122,9 @@ def check_time_span_periods(file):
             climate_forcing = file.specifiers.get('climate_forcing')
             definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value'][climate_forcing]
             definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value'][climate_forcing]
-        else:
-            specifier_start = 'start_hist'
-            specifier_end = 'end_hist'
+        elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b']:
+            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value']
+            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value']
     elif 'future' in str(file.abs_path):
         definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
         definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
