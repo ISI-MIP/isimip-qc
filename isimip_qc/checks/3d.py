@@ -18,10 +18,11 @@ def check_3d(file):
     try:
         variable = file.dataset.variables.get(file.variable_name)
         if variable is None:
-            file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header.', file.variable_name)
+            file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!', file.variable_name)
+            raise SystemExit(1)
     except AttributeError:
-        file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header.', file.variable_name)
-        # abort further tests
+        file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!', file.variable_name)
+        raise SystemExit(1)
 
     dim_len = len(variable.dimensions)
 
