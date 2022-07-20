@@ -32,6 +32,7 @@ class File(object):
 
         self.is_2d = False
         self.is_3d = False
+        self.is_time_fixed = False
 
     @property
     def json(self):
