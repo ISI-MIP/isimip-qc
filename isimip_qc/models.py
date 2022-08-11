@@ -1,8 +1,10 @@
 import logging
 import shutil
+from collections import Counter
 
 import colorlog
 import jsonschema
+from prettytable.colortable import ColorTable, Themes
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -210,3 +212,74 @@ class File(object):
 
     def move(self):
         move_file(self.abs_path, settings.CHECKED_PATH / self.path)
+
+
+class Summary(object):
+
+    def __init__(self):
+        self.specifiers = {}
+        self.variables = {}
+
+    def update_specifiers(self, specifiers):
+        for identifier, specifier in specifiers.items():
+            if identifier not in self.specifiers:
+                self.specifiers[identifier] = Counter()
+            self.specifiers[identifier][specifier] += 1
+
+    def update_variables(self, variable):
+        if variable is not None:
+            if variable not in self.variables:
+                definition = settings.DEFINITIONS['variable'].get(variable)
+                self.variables[variable] = {
+                    'specifier': variable,
+                    'sectors': definition.get('sectors'),
+                    'count': 1
+                }
+            else:
+                self.variables[variable]['count'] += 1
+
+    def print_specifiers(self):
+        title = ColorTable(theme=Themes.OCEAN)
+        title.header = False
+        title.add_row(['Specifier summary'])
+
+        print()
+        print(title)
+
+        table = ColorTable(theme=Themes.OCEAN)
+        table.field_names = ['Identifier', 'Specifier', 'Count']
+        table.align['Identifier'] = 'l'
+        table.align['Specifier'] = 'l'
+        table.align['Count'] = 'r'
+
+        for identifier, counter in self.specifiers.items():
+            for i, (specifier, count) in enumerate(counter.items()):
+                table.add_row([identifier if i == 0 else '', specifier, count])
+
+        print()
+        print(table)
+
+    def print_variables(self):
+        title = ColorTable(theme=Themes.OCEAN)
+        title.header = False
+        title.add_row(['Variable summary'])
+
+        print()
+        print(title)
+
+        table = ColorTable(theme=Themes.OCEAN)
+        table.field_names = ['Specifier', 'Sectors', 'Count']
+        table.align['Specifier'] = 'l'
+        table.align['Long name'] = 'l'
+        table.align['Sectors'] = 'l'
+        table.align['Count'] = 'r'
+
+        for specifier, variable in self.variables.items():
+            table.add_row([specifier, ', '.join(variable.get('sectors')), variable.get('count')])
+
+        print()
+        print(table)
+
+    def print(self):
+        self.print_specifiers()
+        self.print_variables()

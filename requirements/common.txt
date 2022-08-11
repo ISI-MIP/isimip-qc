@@ -3,3 +3,4 @@ requests
 jsonschema
 colorlog
 python-dotenv
+prettytable

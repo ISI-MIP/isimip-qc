@@ -7,7 +7,7 @@ import colorlog
 from .checks import checks
 from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
-from .models import File
+from .models import File, Summary
 from .utils.files import walk_files
 
 logger = colorlog.getLogger(__name__)
@@ -57,6 +57,8 @@ def get_parser():
                         help='also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
+    parser.add_argument('--summary', action='store_true', dest='summary',
+                        help='display summary about the checked files')
     return parser
 
 
@@ -64,6 +66,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     settings.setup(args)
+    summary = Summary()
 
     if settings.DEFINITIONS is None:
         parser.error('no definitions could be found. Check schema_path argument.')
@@ -163,6 +166,11 @@ def main():
                     else:
                         logger.warn('File has not been moved or copied due to warnings or erros found.')
 
+                # collect stats about the file
+                if settings.SUMMARY:
+                    summary.update_specifiers(file.specifiers)
+                    summary.update_variables(file.specifiers.get('variable'))
+
             else:
                 file.close_dataset()
 
@@ -174,3 +182,6 @@ def main():
         # stop if flag is set
         if settings.FIRST_FILE:
             break
+
+    if settings.SUMMARY:
+        summary.print()
