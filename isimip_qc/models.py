@@ -4,7 +4,7 @@ from collections import Counter
 
 import colorlog
 import jsonschema
-from prettytable.colortable import ColorTable, Themes
+from prettytable.colortable import PrettyTable
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -12,6 +12,7 @@ from .utils.files import copy_file, move_file
 from .utils.netcdf import (get_dimensions, get_global_attributes,
                            get_variables, open_dataset_read,
                            open_dataset_write)
+from .utils.logging import SUMMARY
 
 
 class File(object):
@@ -238,15 +239,8 @@ class Summary(object):
             else:
                 self.variables[variable]['count'] += 1
 
-    def print_specifiers(self):
-        title = ColorTable(theme=Themes.OCEAN)
-        title.header = False
-        title.add_row(['Specifier summary'])
-
-        print()
-        print(title)
-
-        table = ColorTable(theme=Themes.OCEAN)
+    def log_specifiers(self):
+        table = PrettyTable()
         table.field_names = ['Identifier', 'Specifier', 'Count']
         table.align['Identifier'] = 'l'
         table.align['Specifier'] = 'l'
@@ -256,18 +250,11 @@ class Summary(object):
             for i, (specifier, count) in enumerate(counter.items()):
                 table.add_row([identifier if i == 0 else '', specifier, count])
 
-        print()
-        print(table)
+        for line in table.get_string().splitlines():
+            colorlog.log(SUMMARY, line)
 
-    def print_variables(self):
-        title = ColorTable(theme=Themes.OCEAN)
-        title.header = False
-        title.add_row(['Variable summary'])
-
-        print()
-        print(title)
-
-        table = ColorTable(theme=Themes.OCEAN)
+    def log_variables(self):
+        table = PrettyTable()
         table.field_names = ['Specifier', 'Sectors', 'Count']
         table.align['Specifier'] = 'l'
         table.align['Long name'] = 'l'
@@ -277,9 +264,9 @@ class Summary(object):
         for specifier, variable in self.variables.items():
             table.add_row([specifier, ', '.join(variable.get('sectors')), variable.get('count')])
 
-        print()
-        print(table)
+        for line in table.get_string().splitlines():
+            colorlog.log(SUMMARY, line)
 
-    def print(self):
-        self.print_specifiers()
-        self.print_variables()
+    def log(self):
+        self.log_specifiers()
+        self.log_variables()
