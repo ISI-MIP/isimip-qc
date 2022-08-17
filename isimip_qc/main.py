@@ -86,7 +86,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        logger.log(CHECKING, settings.CHECKED_PATH)
+        logger.log(CHECKING, settings.UNCHECKED_PATH)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open_log()
