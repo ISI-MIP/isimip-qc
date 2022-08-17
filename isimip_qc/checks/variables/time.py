@@ -118,12 +118,13 @@ def check_time_span_periods(file):
         file.info('skipping test of covered simulation period per option')
         return
 
+    climate_forcing = file.specifiers.get('climate_forcing')
+
     if 'pre-industrial' in str(file.abs_path):
         definition_startyear = settings.DEFINITIONS['time_span'].get('start_pre-ind')['value']
         definition_endyear = settings.DEFINITIONS['time_span'].get('end_pre-ind')['value']
     elif 'historical' in str(file.abs_path):
         if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a']:
-            climate_forcing = file.specifiers.get('climate_forcing')
             definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value'][climate_forcing]
             definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value'][climate_forcing]
         elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b']:
@@ -149,7 +150,12 @@ def check_time_span_periods(file):
             file.info('File is covering the full simulation period (by file name)')
     else:
         if 'historical' in str(file.abs_path):
-            if file_startyear == 2011:
+            if settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5':
+                last_file_startyear = 2021
+            else:
+                last_file_startyear = 2011
+
+            if file_startyear == last_file_startyear:
                 if  definition_endyear != file_endyear:
                     file.warn('Last year of time period covered by file (%s) does not match end of input data time span (%s). Ensure to prepare the full period for all variables using the latest input data set.',
                               file_endyear, definition_endyear)
