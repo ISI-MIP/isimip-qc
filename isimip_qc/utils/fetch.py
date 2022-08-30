@@ -60,7 +60,10 @@ def fetch_json(bases, path):
                 return response.json()
 
         else:
-            location = Path(base).expanduser().joinpath(path)
+            location = Path(base).expanduser().joinpath('output', path)
             logger.debug('json_path=%s', location)
             if location.exists():
                 return json.loads(open(location).read())
+            else:
+                logger.error('No valid %s path found in --protocol-location (%s). Make sure the protocol was properly built.',
+                             path.parts[0] , location)
