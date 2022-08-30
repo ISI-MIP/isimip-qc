@@ -7,8 +7,9 @@ import colorlog
 from .checks import checks
 from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
-from .models import File
+from .models import File, Summary
 from .utils.files import walk_files
+from .utils.logging import CHECKING
 
 logger = colorlog.getLogger(__name__)
 
@@ -64,6 +65,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
     settings.setup(args)
+    summary = Summary()
 
     if settings.DEFINITIONS is None:
         parser.error('no definitions could be found. Check schema_path argument.')
@@ -74,17 +76,17 @@ def main():
 
     if settings.UNCHECKED_PATH:
         if not path.exists(settings.UNCHECKED_PATH):
-            print('UNCHECKED_PATH does not exist:', settings.CHECKED_PATH)
+            logger.error('UNCHECKED_PATH does not exist:', settings.UNCHECKED_PATH)
             quit()
 
     if settings.CHECKED_PATH:
         if not path.exists(settings.CHECKED_PATH):
-            print('CHECKED_PATH does not exist:', settings.CHECKED_PATH)
+            logger.error('CHECKED_PATH does not exist:', settings.CHECKED_PATH)
             quit()
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        print('CHECKING  : %s' % file_path)
+        logger.log(CHECKING, file_path)
         if file_path.suffix in settings.PATTERN['suffix']:
             file = File(file_path)
             file.open_log()
@@ -163,6 +165,10 @@ def main():
                     else:
                         logger.warn('File has not been moved or copied due to warnings or erros found.')
 
+                # collect stats about the file
+                summary.update_specifiers(file.specifiers)
+                summary.update_variables(file.specifiers.get('variable'))
+
             else:
                 file.close_dataset()
 
@@ -174,3 +180,5 @@ def main():
         # stop if flag is set
         if settings.FIRST_FILE:
             break
+
+    summary.log()
