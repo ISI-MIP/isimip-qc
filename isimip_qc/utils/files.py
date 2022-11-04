@@ -17,7 +17,7 @@ def walk_files(path):
 
 def move_file(source_path, target_path, overwrite=False):
     if settings.OVERWRITE is True:
-        overwrite=True
+        overwrite = True
 
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)

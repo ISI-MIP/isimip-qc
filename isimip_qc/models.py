@@ -6,12 +6,13 @@ import colorlog
 import jsonschema
 from prettytable.colortable import PrettyTable
 
+from isimip_utils.netcdf import (get_dimensions, get_global_attributes,
+                                 get_variables, open_dataset_read,
+                                 open_dataset_write)
+
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.files import copy_file, move_file
-from .utils.netcdf import (get_dimensions, get_global_attributes,
-                           get_variables, open_dataset_read,
-                           open_dataset_write)
 from .utils.logging import SUMMARY
 
 

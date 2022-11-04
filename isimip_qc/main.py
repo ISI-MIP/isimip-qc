@@ -34,6 +34,7 @@ def get_parser():
     parser.add_argument('--checked-path', dest='checked_path',
                         help='base path for the checked files')
     parser.add_argument('--protocol-location', dest='protocol_locations',
+                        default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
                         help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
@@ -66,8 +67,7 @@ def get_parser():
 
 def main():
     parser = get_parser()
-    args = parser.parse_args()
-    settings.setup(args)
+    settings.setup(parser)
     summary = Summary()
 
     if settings.DEFINITIONS is None:
