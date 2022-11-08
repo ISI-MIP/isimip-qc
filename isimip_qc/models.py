@@ -9,6 +9,8 @@ from prettytable.colortable import PrettyTable
 from isimip_utils.netcdf import (get_dimensions, get_global_attributes,
                                  get_variables, open_dataset_read,
                                  open_dataset_write)
+from isimip_utils.patterns import match_file
+from isimip_utils.exceptions import DidNotMatch
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -189,19 +191,13 @@ class File(object):
         return handler
 
     def match(self):
-        match = settings.PATTERN['file'].match(self.path.name)
-        if match:
-            for key, value in match.groupdict().items():
-                if value is not None:
-                    if value.isdigit():
-                        self.specifiers[key] = int(value)
-                    else:
-                        self.specifiers[key] = value
-
+        try:
+            path, self.specifiers = match_file(settings.PATTERN, self.path)
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
-        else:
+        except DidNotMatch as e:
             self.error('File did not match naming scheme.')
+            self.debug(e)
             self.matched = False
 
     def validate(self):
