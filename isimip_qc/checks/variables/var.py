@@ -109,6 +109,9 @@ def check_variable(file):
                             'func': fix_set_variable_attr,
                             'args': (file, file.variable_name, 'units', units)
                         })
+                    elif (units == '%' and variable.units != '%'):
+                        file.error('%s unit is expected in "%s" but "%s" is found. Check the conversion for consistency with percentage ranges.',
+                                   file.variable_name, units, variable.units)
                     else:
                         file.warn('%s.units="%s" should be "%s".', file.variable_name, variable.units, units, fix={
                             'func': fix_set_variable_attr,
