@@ -1,9 +1,9 @@
-from functools import cached_property
 from pathlib import Path
 
 import colorlog
 
 from isimip_utils.config import ISIMIPSettings
+from isimip_utils.decorators import cached_property
 from isimip_utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
 
 from datetime import datetime
