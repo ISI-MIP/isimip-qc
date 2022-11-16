@@ -175,7 +175,8 @@ class File(object):
         return handler
 
     def get_file_handler(self):
-        log_path = settings.LOG_PATH / self.path.with_suffix('.log')
+        log_name = str(settings.NOW.isoformat()) + '_' + self.path.name
+        log_path = (settings.LOG_PATH / self.path.parent / log_name).with_suffix('.log')
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
         formatter = logging.Formatter(' %(levelname)-9s: %(message)s')

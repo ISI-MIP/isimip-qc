@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 
 from .utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
 
+from datetime import datetime
+
 logger = colorlog.getLogger(__name__)
 
 
@@ -40,6 +42,8 @@ class Settings(object):
 
         # combine settings from args, os.environ, and config
         self.build_settings(args, os.environ, config)
+
+        self.NOW = datetime.utcnow().replace(microsecond=0)
 
         # set create pathes and set default values
         if self.UNCHECKED_PATH is not None:
