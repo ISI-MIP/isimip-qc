@@ -104,19 +104,8 @@ def check_variable(file):
         if units is not None:
             try:
                 if variable.units != units:
-                    if variable.units == '':
-                        file.warn('Variable "%s" units attribute is empty. Should be "%s".', file.variable_name, units, fix={
-                            'func': fix_set_variable_attr,
-                            'args': (file, file.variable_name, 'units', units)
-                        })
-                    elif (units == '%' and variable.units != '%'):
-                        file.error('%s unit is expected in "%s" but "%s" is found. Check the conversion for consistency with percentage ranges.',
-                                   file.variable_name, units, variable.units)
-                    else:
-                        file.warn('%s.units="%s" should be "%s".', file.variable_name, variable.units, units, fix={
-                            'func': fix_set_variable_attr,
-                            'args': (file, file.variable_name, 'units', units)
-                        })
+                    file.error('%s.units="%s" should be "%s". Check if values are matching the unit given.',
+                               file.variable_name, variable.units, units)
                 else:
                     file.info('Variable unit matches protocol definition (%s).', variable.units)
             except AttributeError:
