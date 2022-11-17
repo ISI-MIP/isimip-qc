@@ -168,27 +168,26 @@ def check_variable(file):
 
                 if too_low.size:
                     file.warn('%i values are lower than the valid minimum (%.2E %s).', too_low.shape[0], valid_min, units)
-                    if settings.LOG_LEVEL == 'WARN':
-                        file.warn('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
+                    file.warn('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
 
-                        too_low_list = []
-                        for index in too_low[0:too_low.shape[0]]:
-                            too_low_list.append([tuple(index), variable[tuple(index)].data.tolist()])
-                        too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
-                        for i in range(0, min(settings.MINMAX, too_low.shape[0])):
-                            if file.is_2d:
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
-                                          netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
-                                          lat[too_low_sorted[i][0][-2]],
-                                          lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][1], units)
-                            elif file.is_3d:
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
-                                          netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
-                                          lat[too_low_sorted[i][0][-2]],
-                                          lon[too_low_sorted[i][0][-1]],
-                                          too_low_sorted[i][0][-3] + 1,
-                                          too_low_sorted[i][1], units)
+                    too_low_list = []
+                    for index in too_low[0:too_low.shape[0]]:
+                        too_low_list.append([tuple(index), variable[tuple(index)].data.tolist()])
+                    too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
+                    for i in range(0, min(settings.MINMAX, too_low.shape[0])):
+                        if file.is_2d:
+                            file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                      netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
+                                      lat[too_low_sorted[i][0][-2]],
+                                      lon[too_low_sorted[i][0][-1]],
+                                      too_low_sorted[i][1], units)
+                        elif file.is_3d:
+                            file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                      netCDF4.num2date(time[too_low_sorted[i][0][0]], time_units, time_calendar),
+                                      lat[too_low_sorted[i][0][-2]],
+                                      lon[too_low_sorted[i][0][-1]],
+                                      too_low_sorted[i][0][-3] + 1,
+                                      too_low_sorted[i][1], units)
 
                 if too_high.size:
                     file.warn('%i values are higher than the valid maximum (%.2E %s).', too_high.shape[0], valid_max, units)
