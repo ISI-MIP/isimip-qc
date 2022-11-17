@@ -168,7 +168,7 @@ def check_variable(file):
 
                 if too_low.size:
                     file.warn('%i values are lower than the valid minimum (%.2E %s).', too_low.shape[0], valid_min, units)
-                    if settings.LOG_LEVEL == 'WARN':
+                    if settings.LOG_LEVEL == 'VRDETAIL':
                         file.warn('%i lowest values are :', min(settings.MINMAX, too_low.shape[0]))
 
                         too_low_list = []
@@ -192,7 +192,7 @@ def check_variable(file):
 
                 if too_high.size:
                     file.warn('%i values are higher than the valid maximum (%.2E %s).', too_high.shape[0], valid_max, units)
-                    if settings.LOG_LEVEL == 'WARN':
+                    if settings.LOG_LEVEL == 'VRDETAIL':
                         file.warn('%i highest values are :', min(settings.MINMAX, too_high.shape[0]))
 
                         too_high_list = []
