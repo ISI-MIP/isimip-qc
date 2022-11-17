@@ -175,7 +175,7 @@ class File(object):
         return handler
 
     def get_file_handler(self):
-        log_name = str(settings.NOW.isoformat()) + '_' + self.path.name
+        log_name =  self.path.name + '_' + str(settings.NOW.isoformat())
         log_path = (settings.LOG_PATH / self.path.parent / log_name).with_suffix('.log')
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
