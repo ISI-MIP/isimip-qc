@@ -118,7 +118,7 @@ optional arguments:
   --protocol-location PROTOCOL_LOCATIONS
                         URL or file path to the protocol when different from official repository
   --log-level LOG_LEVEL
-                        Log level (ERROR, WARN, INFO, or DEBUG)
+                        Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)
   --log-path LOG_PATH   base path for the individual log files
   --include VARIABLES_INCLUDE
                         include only this comma-separated list of variables
@@ -156,7 +156,15 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
 * `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
 * `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories folder). Omit option for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3). An internet connection is required for reading the online protocols.
-* `--log-level LOG_LEVEL`: Set the detail level of log output. Default is WARNING while INFO also gives feedback on successful tests. ERROR or CRITICAL will only report very severe issues.
+* `--log-level LOG_LEVEL`: Set the detail level of log output. Default is `CHECKING`. Log levels from `CRITICAL` to `VRDETAIL` will not show the file currently checked in the terminal but write all of them to the data file specific log file.<br>
+`CRITICAL` : only very severe errors<br>
+`ERROR`: all errors<br>
+`WARN`: warnings and all errors<br>
+`VRDETAIL`: same as CHECKING but with details on time and location of valid ranges violations when invoked with `--minmax` option. Very slow when violations are detected.<br>
+`CHECKING`: includes warnings and errors<br>
+`SUMMARY`: includes warnings, errors and the summary shown at the end<br>
+`INFO`: includes `SUMMARY` and details for successful checks<br>
+`DEBUG`: all the above plus details for some debugging cases.
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
 * `--include VARIABLES_INCLUDE` : Provide a comma-separated list of variables to include for the checks.
 * `--exclude VARIABLES_INCLUDE` : Provide a comma-separated list of variables to exclude from the checks.

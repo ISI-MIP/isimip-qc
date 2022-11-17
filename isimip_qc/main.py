@@ -34,8 +34,8 @@ def get_parser():
                         help='base path for the checked files')
     parser.add_argument('--protocol-location', dest='protocol_locations',
                         help='URL or file path to the protocol when different from official repository')
-    parser.add_argument('--log-level', dest='log_level',
-                        help='Log level (ERROR, WARN, INFO, or DEBUG)')
+    parser.add_argument('--log-level', dest='log_level', default='CHECKING',
+                        help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
     parser.add_argument('--include', dest='variables_include',
