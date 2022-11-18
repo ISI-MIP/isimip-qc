@@ -136,6 +136,7 @@ optional arguments:
   --fix-datamodel [FIX_DATAMODEL]
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.
   --check CHECK         perform only one particular check
+  -V, --version         show program's version number and exit
 ```
 
 The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`. If the only argument used is `schema_path`, the current user path when calling the tool should be same as the directory of the files to be checked.

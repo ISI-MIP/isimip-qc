@@ -2,6 +2,8 @@ import argparse
 from os import path
 import sys
 
+from isimip_qc import VERSION
+
 import colorlog
 
 from .checks import checks
@@ -58,6 +60,8 @@ def get_parser():
                         help='also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
+    parser.add_argument('-V', '--version', action='version',
+                        version=VERSION)
     return parser
 
 
