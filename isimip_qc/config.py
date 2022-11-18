@@ -43,7 +43,7 @@ class Settings(object):
         # combine settings from args, os.environ, and config
         self.build_settings(args, os.environ, config)
 
-        self.NOW = datetime.utcnow().replace(microsecond=0)
+        self.NOW = datetime.utcnow().strftime("%Y%m%dZ%H%M")
 
         # set create pathes and set default values
         if self.UNCHECKED_PATH is not None:
