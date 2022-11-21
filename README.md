@@ -1,10 +1,8 @@
 ISIMIP quality control
 ======================
 
-[![Python Version](https://img.shields.io/badge/python-3.7|3.8-blue)](https://www.python.org/)
+[![Python Version](https://img.shields.io/badge/python->=3.6-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](https://github.com/ISI-MIP/isimip-qc/blob/master/LICENSE)
-[![Build Status](https://travis-ci.org/ISI-MIP/isimip-qc.svg?branch=master)](https://travis-ci.org/ISI-MIP/isimip-qc)
-[![Coverage Status](https://coveralls.io/repos/github/ISI-MIP/isimip-qc/badge.svg?branch=master)](https://coveralls.io/github/ISI-MIP/isimip-qc?branch=master)
 
 A command line tool for the quality control of climate impact data of the ISIMIP project. It mainly covers tests of:
 - the file name against the protocol schemas and patterns
@@ -16,62 +14,12 @@ A command line tool for the quality control of climate impact data of the ISIMIP
 **This is still work in progress.**
 
 
-Prerequisites
--------------
-
-The application is written in Python (> 3.6) uses only dependencies, which can be installed without administrator priviledges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub.
-
-### Linux
-
-On Linux, Python3 is probably already installed, but the development packages are usually not. You should be able to install them using:
-
-```
-# Ubuntu/Debian
-sudo apt-get install python3 python3-dev python3-venv
-
-# CentOS/RHEL
-sudo yum install python3 python3-devel
-
-# openSUSE/SLES
-zypper install python3 python3-devel
-```
-
-Git can be installed in a similar way using the `git` package (on all distributions).
-
-### macOS
-
-While we reccoment using [Homebrew](https://brew.sh) to install Python3 on a Mac, other means of obtaining Python like [Anaconda](https://www.anaconda.com/products/individual), [MacPorts](https://www.macports.org/), or [Fink](https://www.finkproject.org/) should work just as fine:
-
-```
-brew install python
-brew install git
-```
-
-### Windows
-
-#### Regular installation
-
-The software prerequisites need to be downloaded and installed from their particular web sites.
-
-For python:
-* download from <https://www.python.org/downloads/windows/>
-* use the 64bit version if your system is not very old
-* **don't forget to check 'Add Python to PATH' during setup**
-
-For git:
-* download from <https://git-for-windows.github.io/>
-* use the 64bit version if your system is not very old
-
-All further steps need to be performed using the windows shell `cmd.exe`. You can open it from the Start-Menu.
-
-#### Using the Windows Subsystem for Linux (WSL)
-
-As an alternative for advanced users, you can use the Windows Subsystem for Linux (WSL) to install a Linux distribution whithin Windows 10. The installation is explained in the [Microsoft documentation](https://docs.microsoft.com/en-us/windows/wsl/install-win10). When using WSL, please install Python3 as explained in the Linux section.
-
 Setup
 -----
 
-The tool can be installed via pip. Usually you want to create a [virtual environment]() first, but this is optional.
+The application is written in Python (> 3.6) uses only dependencies, which can be installed without administrator priviledges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different plattforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
+
+The tool itself can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
 
 ```bash
 # setup venv on Linux/macOS/Windows WSL
@@ -82,7 +30,13 @@ source env/bin/activate
 python -m venv env
 call env\Scripts\activate.bat
 
-# install from GitHub
+# install from the Python Package Index (PyPI), recommended
+pip install isimip-qc
+
+# update from PyPI
+pip install --upgrade rdmo
+
+# install directly from GitHub
 pip install git+https://github.com/ISI-MIP/isimip-qc
 
 # update from Github
