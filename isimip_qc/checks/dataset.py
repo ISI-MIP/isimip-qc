@@ -24,7 +24,7 @@ def check_zip(file):
         if zlib:
             complevel = variable.filters().get('complevel')
             if complevel < 4:
-                file.warn('Variable "%s" compression level is "%s". Should be > 4.', file.variable_name, complevel, fix_datamodel=True)
+                file.warn('Variable "%s" compression level is "%s". Should be >= 5.', file.variable_name, complevel, fix_datamodel=True)
             else:
                 file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
         else:
