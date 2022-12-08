@@ -17,16 +17,15 @@ def check_time_resolution(file):
         file.warn('Can\'t check for number of time steps because of missing time.units attribute')
         return
 
-    if time_resolution == 'daily':
-        try:
-            time_calendar = time.calendar
-        except AttributeError:
-            file.warn('Can\'t check for number of time steps because of missing time.calendar attribute')
-            return
+    try:
+        time_calendar = time.calendar
+    except AttributeError:
+        file.warn('Can\'t check for number of time steps because of missing time.calendar attribute')
+        return
 
-    if time_resolution in ['monthly', 'annual']:
-        # for monthly resolution cftime.num2date only allows for '360_day' calendar
-        time_calendar = '360_day'
+    if time_resolution in ['monthly', 'annual'] and time_calendar == '360_day':
+        file.error('360_day calendar is not allowed for monthly and annual data anymore. Use one of ["standard", "proleptic_gregorian", "365_day", "366_day"]')
+        return
 
     if file.dataset.data_model in ['NETCDF4', 'NETCDF4_CLASSIC']:
 

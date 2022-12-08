@@ -86,31 +86,15 @@ def check_time_variable(file):
         except AttributeError:
             file.error('Attribute time.units is missing. Should be "%s".', units)
 
-        # check calenders
-        if time_step == 'daily':
-            try:
-                calenders_daily = time_definition.get('calenders_daily', [])
-                if time.calendar not in calenders_daily:
-                    file.error('"calendar" attribute for "time" is "%s". Should be "%s".', time.calendar, calenders_daily)
-                else:
-                    file.info('Valid calendar found (%s)', time.calendar)
-            except AttributeError:
-                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_daily)
-        else:
-            try:
-                calenders_other = time_definition.get('calenders_other', [])
-                if time.calendar not in calenders_other:
-                    file.warn('"calendar" attribute for "time" is "%s". Should be one of %s', time.calendar, calenders_other, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, 'time', 'calendar', '360_day')
-                    })
-                else:
-                    file.info('Valid calendar found (%s)', time.calendar)
-            except AttributeError:
-                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_other, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'calendar', '360_day')
-                })
+        # check calendars
+        try:
+            calendars = time_definition.get('calenders_daily', [])
+            if time.calendar not in calendars:
+                file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', time.calendar, calendars)
+            else:
+                file.info('Valid calendar found (%s)', time.calendar)
+        except AttributeError:
+            file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calendars)
 
 def check_time_span_periods(file):
 

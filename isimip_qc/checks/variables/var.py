@@ -156,15 +156,14 @@ def check_variable(file):
                 try:
                     time_units = time.units
                 except AttributeError:
-                    pass
+                    file.warn('Can\'t check for valid ranges because of missing units attribute in time variable')
+                    return
 
-                if time_resolution == 'daily':
-                    try:
-                        time_calendar = time.calendar
-                    except AttributeError:
-                        pass
-                if time_resolution in ['monthly', 'annual']:
-                    time_calendar = '360_day'
+                try:
+                    time_calendar = time.calendar
+                except AttributeError:
+                    file.warn('Can\'t check for valid ranges because of missing calendar attribute in time variable')
+                    return
 
                 if too_low.size:
                     file.warn('%i values are lower than the valid minimum (%.2E %s).', too_low.shape[0], valid_min, units)
