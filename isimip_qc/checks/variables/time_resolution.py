@@ -34,18 +34,16 @@ def check_time_resolution(file):
             # number of time steps must match those expected from the time axis
             time_steps = time.shape[0]
 
-            if time_resolution in ['daily', 'monthly']:
-                firstdate_nc = netCDF4.num2date(time[0], time_units, time_calendar)
-                lastdate_nc = netCDF4.num2date(time[time_steps-1], time_units, time_calendar)
-                startyear_nc = firstdate_nc.year
-                endyear_nc = lastdate_nc.year
-            elif time_resolution == 'annual':
-                if settings.SECTOR == 'agriculture':
+            if time_resolution in ['daily', 'monthly', 'annual']:
+                if settings.SECTOR == 'agriculture' and time_resolution == 'annual':
                     ref_year = int(time.units.split()[3].split("-")[0])
+                    startyear_nc = ref_year + int(time[0])
+                    endyear_nc = ref_year + int(time[-1])
                 else:
-                    ref_year = int(time.units.split()[2].split("-")[0])
-                startyear_nc = ref_year + int(time[0])
-                endyear_nc = ref_year + int(time[-1])
+                    firstdate_nc = netCDF4.num2date(time[0], time_units, time_calendar)
+                    lastdate_nc = netCDF4.num2date(time[time_steps-1], time_units, time_calendar)
+                    startyear_nc = firstdate_nc.year
+                    endyear_nc = lastdate_nc.year
 
             startyear_file = int(file.specifiers.get('start_year'))
             endyear_file = int(file.specifiers.get('end_year'))
