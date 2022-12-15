@@ -39,13 +39,9 @@ def get_parser():
                         help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
-    # parser.add_argument('--include', dest='variables_include',
-    #                     help='include only this comma-separated list of variables')
-    # parser.add_argument('--exclude', dest='variables_exclude',
-    #                     help='exclude this comma-separated list of variables')
-    parser.add_argument('--include', dest='include_glob', action='append',
+    parser.add_argument('--include', dest='include_glob',
                         help='Glob-style pattern of files to include')
-    parser.add_argument('--exclude', dest='exclude_glob', action='append',
+    parser.add_argument('--exclude', dest='exclude_glob',
                         help='Glob-style pattern of files to exclude')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
@@ -94,17 +90,18 @@ def main():
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
         logger.log(CHECKING, file_path)
+
+        if settings.INCLUDE_GLOB:
+            if not any([glob in str(file_path) for glob in settings.INCLUDE_GLOB.split(',')]):
+                logger.log(CHECKING, ' skipped by include option')
+                continue
+
+        if settings.EXCLUDE_GLOB:
+            if any([glob in str(file_path) for glob in settings.EXCLUDE_GLOB.split(',')]):
+                logger.log(CHECKING, ' skipped by exclude option')
+                continue
+
         if file_path.suffix in settings.PATTERN['suffix']:
-
-            if settings.INCLUDE_GLOB:
-                if not all([file_path.match(glob) for glob in settings.INCLUDE_GLOB]):
-                    logger.info('skipped by include option')
-                    continue
-
-            if settings.EXCLUDE_GLOB:
-                if any([file_path.match(glob) for glob in settings.EXCLUDE_GLOB]):
-                    logger.info('skipped by exclude option')
-                    continue
 
             file = File(file_path)
             file.open_log()
@@ -114,17 +111,6 @@ def main():
             file.match()
 
             if file.matched:
-                # if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
-                #     logger.info('skipped by include option')
-                #     file.close_log()
-                #     file.close_dataset()
-                #     continue
-
-                # if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
-                #     logger.info('skipped by exclude option')
-                #     file.close_log()
-                #     file.close_dataset()
-                #     continue
 
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
