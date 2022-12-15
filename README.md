@@ -120,10 +120,10 @@ optional arguments:
   --log-level LOG_LEVEL
                         Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)
   --log-path LOG_PATH   base path for the individual log files
-  --include INCLUDE
-                        only include files that match any element of this comma-separated list
-  --exclude EXCLUDE
-                        exclude files that match any element of this comma-separated list
+  --include INCLUDE_LIST
+                        Patterns of files to include. Exclude those that don't match any.
+  --exclude EXCLUDE_LIST
+                        Patterns of files to exclude. Include only those that don't match any.
   -f, --first-file      only process first file found in UNCHECKED_PATH
   -w, --stop-on-warnings
                         stop execution on warnings
@@ -167,8 +167,8 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 `INFO`: includes `SUMMARY` and details for successful checks<br>
 `DEBUG`: all the above plus details for some debugging cases.
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
-* `--include INCLUDE` : Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
-* `--exclude EXCLUDE` : Provide a comma-separated list of strings to exclude from the checks if any of them matches the file path or name, e.g. 'monthly,histsoc' will skip any `*monthly*` or `*histsoc*` files.
+* `--include INCLUDE_LIST` : Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
+* `--exclude EXCLUDE_LIST` : Provide a comma-separated list of strings to exclude from the checks if any of them matches the file path or name, e.g. 'monthly,histsoc' will skip any `*monthly*` or `*histsoc*` files.
 * `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Useful for revealing issues that may occur on all your files.
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.

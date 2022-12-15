@@ -39,10 +39,10 @@ def get_parser():
                         help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
-    parser.add_argument('--include', dest='include_glob',
-                        help='Glob-style pattern of files to include')
-    parser.add_argument('--exclude', dest='exclude_glob',
-                        help='Glob-style pattern of files to exclude')
+    parser.add_argument('--include', dest='include_list',
+                        help='Patterns of files to include. Exclude those that don\'t match any.')
+    parser.add_argument('--exclude', dest='exclude_list',
+                        help='Patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
     parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
@@ -91,13 +91,13 @@ def main():
     for file_path in walk_files(settings.UNCHECKED_PATH):
         logger.log(CHECKING, file_path)
 
-        if settings.INCLUDE_GLOB:
-            if not any([glob in str(file_path) for glob in settings.INCLUDE_GLOB.split(',')]):
+        if settings.INCLUDE_LIST:
+            if not any([string in str(file_path) for string in settings.INCLUDE_LIST.split(',')]):
                 logger.log(CHECKING, ' skipped by include option')
                 continue
 
-        if settings.EXCLUDE_GLOB:
-            if any([glob in str(file_path) for glob in settings.EXCLUDE_GLOB.split(',')]):
+        if settings.EXCLUDE_LIST:
+            if any([string in str(file_path) for string in settings.EXCLUDE_LIST.split(',')]):
                 logger.log(CHECKING, ' skipped by exclude option')
                 continue
 
