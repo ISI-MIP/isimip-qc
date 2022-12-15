@@ -23,7 +23,6 @@ def get_parser():
     # optional
     parser.add_argument('--config-file', dest='config_file',
                         help='File path of the config file')
-
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
                         help='Copy checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
@@ -40,10 +39,10 @@ def get_parser():
                         help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
-    parser.add_argument('--include', dest='variables_include',
-                        help='include only this comma-separated list of variables')
-    parser.add_argument('--exclude', dest='variables_exclude',
-                        help='exclude this comma-separated list of variables')
+    parser.add_argument('--include', dest='include_list',
+                        help='Patterns of files to include. Exclude those that don\'t match any.')
+    parser.add_argument('--exclude', dest='exclude_list',
+                        help='Patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
     parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
@@ -91,7 +90,19 @@ def main():
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
         logger.log(CHECKING, file_path)
+
+        if settings.INCLUDE_LIST:
+            if not any([string in str(file_path) for string in settings.INCLUDE_LIST.split(',')]):
+                logger.log(CHECKING, ' skipped by include option')
+                continue
+
+        if settings.EXCLUDE_LIST:
+            if any([string in str(file_path) for string in settings.EXCLUDE_LIST.split(',')]):
+                logger.log(CHECKING, ' skipped by exclude option')
+                continue
+
         if file_path.suffix in settings.PATTERN['suffix']:
+
             file = File(file_path)
             file.open_log()
 
@@ -100,18 +111,6 @@ def main():
             file.match()
 
             if file.matched:
-
-                if settings.VARIABLES_INCLUDE is not None and file.specifiers['variable'] not in settings.VARIABLES_INCLUDE.split(sep=','):
-                    logger.info('skipped by include option')
-                    file.close_log()
-                    file.close_dataset()
-                    continue
-
-                if settings.VARIABLES_EXCLUDE is not None and file.specifiers['variable'] in settings.VARIABLES_EXCLUDE.split(sep=','):
-                    logger.info('skipped by exclude option')
-                    file.close_log()
-                    file.close_dataset()
-                    continue
 
                 for check in checks:
                     if not settings.CHECK or check.__name__ == settings.CHECK:
