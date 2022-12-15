@@ -89,6 +89,9 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
+        if path.islink(file_path):
+            continue
+
         logger.log(CHECKING, file_path)
 
         if settings.INCLUDE_LIST:
