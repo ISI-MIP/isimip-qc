@@ -3,6 +3,9 @@ from ..config import settings
 
 def check_lon_dimension(file):
     model = file.specifiers.get('model')
+    climate_forcing = file.specifiers.get('climate_forcing')
+    sens_scenario = file.specifiers.get('sens_scenario')
+
     if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
         if file.dataset.dimensions.get('lon') is None:
@@ -13,6 +16,14 @@ def check_lon_dimension(file):
             else:
                 lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
 
+            # pick longitude size if available from data set definition
+            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+                grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']['lon_size']
+                try:
+                    lon_size = grid_info[sens_scenario]
+                except:
+                    lon_size = grid_info['default']
+
             if lon_size != file.dataset.dimensions.get('lon').size:
                 file.warn('Unexpected number of longitudes found (%s). Should be %s', file.dataset.dimensions.get('lon').size, lon_size)
             else:
@@ -21,6 +32,9 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     model = file.specifiers.get('model')
+    climate_forcing = file.specifiers.get('climate_forcing')
+    sens_scenario = file.specifiers.get('sens_scenario')
+
     if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
         if file.dataset.dimensions.get('lat') is None:
@@ -30,6 +44,14 @@ def check_lat_dimension(file):
                 lat_size = 360
             else:
                 lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+
+            # pick latitude size if available from data set definition
+            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+                grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']['lat_size']
+                try:
+                    lat_size = grid_info[sens_scenario]
+                except:
+                    lat_size = grid_info['default']
 
             if lat_size != file.dataset.dimensions.get('lat').size:
                 file.warn('Unexpected number of latitudes found (%s). Should be %s', file.dataset.dimensions.get('lat').size, lat_size)

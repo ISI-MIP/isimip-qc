@@ -10,6 +10,8 @@ def check_variable(file):
     variable = file.dataset.variables.get(file.variable_name)
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
     model = file.specifiers.get('model')
+    climate_forcing = file.specifiers.get('climate_forcing')
+    sens_scenario = file.specifiers.get('sens_scenario')
 
     if not variable:
         file.error('Variable %s is missing.', file.variable_name)
@@ -27,16 +29,28 @@ def check_variable(file):
         # check chunking
         chunking = variable.chunking()
         if chunking:
+            # pick lat/lon sizes from dimensions definition
             if settings.SECTOR in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
                 lat_size = file.dataset.variables.get('lat').shape[0]
                 lon_size = file.dataset.variables.get('lon').shape[0]
             else:
-                if model == 'dbem':
-                    lat_size = 360
-                    lon_size = 720
-                else:
-                    lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
-                    lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
+                lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+                lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
+
+            # overwrite lat/lon ranges if available from climate forcing definition
+            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+                grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
+                try:
+                    lat_size = grid_info['lat_size'][sens_scenario]
+                    lon_size = grid_info['lon_size'][sens_scenario]
+                except:
+                    lat_size = grid_info['lat_size']['default']
+                    lon_size = grid_info['lon_size']['default']
+
+            # overwrite for special cases not defined in the protocol
+            if model == 'dbem':
+                lat_size = 360
+                lon_size = 720
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:

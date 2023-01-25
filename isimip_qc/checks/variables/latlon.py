@@ -6,6 +6,7 @@ from isimip_qc.fixes import fix_set_variable_attr
 def check_latlon_variable(file):
     model = file.specifiers.get('model')
     climate_forcing = file.specifiers.get('climate_forcing')
+    sens_scenario = file.specifiers.get('sens_scenario')
 
     for variable in  ['lat', 'lon']:
         var = file.dataset.variables.get(variable)
@@ -79,10 +80,29 @@ def check_latlon_variable(file):
 
             if settings.SECTOR not in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
 
-                # check minimum and maximum
+                # pick lat/lon ranges if available from dimensions definition
                 minimum = var_definition.get('minimum')
                 maximum = var_definition.get('maximum')
 
+                # overwrite lat/lon ranges if available from climate forcing definition
+                if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+                    grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
+                    try:
+                        if var.name == 'lat':
+                            minimum = grid_info['lat_min'][sens_scenario]
+                            maximum = grid_info['lat_max'][sens_scenario]
+                        elif var.name == 'lon':
+                            minimum = grid_info['lon_min'][sens_scenario]
+                            maximum = grid_info['lon_max'][sens_scenario]
+                    except:
+                        if var.name == 'lat':
+                            minimum = grid_info['lat_min']['default']
+                            maximum = grid_info['lat_max']['default']
+                        elif var.name == 'lon':
+                            minimum = grid_info['lon_min']['default']
+                            maximum = grid_info['lon_max']['default']
+
+                # overwrite for special cases not defined in the protocol
                 if model == 'dbem':
                     if var.name == 'lat':
                         minimum = -89.75
