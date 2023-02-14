@@ -16,7 +16,7 @@ class Settings(ISIMIPSettings):
     def setup(self, parser):
         super().setup(parser)
 
-        self.NOW = datetime.utcnow().strftime("%Y%m%dZ%H%M")
+        self.NOW = datetime.utcnow().strftime("%Y%m%dT%H%MZ")
 
         # set create pathes and set default values
         if self.UNCHECKED_PATH is not None:
