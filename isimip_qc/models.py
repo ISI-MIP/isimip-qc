@@ -6,12 +6,15 @@ import colorlog
 import jsonschema
 from prettytable.colortable import PrettyTable
 
+from isimip_utils.netcdf import (get_dimensions, get_global_attributes,
+                                 get_variables, open_dataset_read,
+                                 open_dataset_write)
+from isimip_utils.patterns import match_file
+from isimip_utils.exceptions import DidNotMatch
+
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.files import copy_file, move_file
-from .utils.netcdf import (get_dimensions, get_global_attributes,
-                           get_variables, open_dataset_read,
-                           open_dataset_write)
 from .utils.logging import SUMMARY
 
 
@@ -152,6 +155,7 @@ class File(object):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
         logger = colorlog.getLogger(logger_name)
+        logger.setLevel(settings.LOG_PATH_LEVEL)
 
         # do not propagate messages to the root logger,
         # which is configured in settings.setup()
@@ -182,25 +186,19 @@ class File(object):
         formatter = logging.Formatter(' %(levelname)-9s: %(message)s')
 
         handler = logging.FileHandler(log_path, 'w')
-        handler.setLevel(logging.INFO)
+        handler.setLevel(settings.LOG_PATH_LEVEL)
         handler.setFormatter(formatter)
 
         return handler
 
     def match(self):
-        match = settings.PATTERN['file'].match(self.path.name)
-        if match:
-            for key, value in match.groupdict().items():
-                if value is not None:
-                    if value.isdigit():
-                        self.specifiers[key] = int(value)
-                    else:
-                        self.specifiers[key] = value
-
+        try:
+            path, self.specifiers = match_file(settings.PATTERN, self.path)
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
-        else:
+        except DidNotMatch as e:
             self.error('File did not match naming scheme.')
+            self.debug(e)
             self.matched = False
 
     def validate(self):

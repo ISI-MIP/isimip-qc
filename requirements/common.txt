@@ -1,6 +1,0 @@
-netCDF4
-requests
-jsonschema
-colorlog
-python-dotenv
-prettytable
