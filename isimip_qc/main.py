@@ -22,13 +22,13 @@ def get_parser():
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
     parser.add_argument('--config-file', dest='config_file',
-                        help='File path of the config file')
+                        help='file path of the config file')
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
-                        help='Copy checked files to CHECKED_PATH if no warnings or errors were found')
+                        help='copy checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
-                        help='Move checked files to CHECKED_PATH if no warnings or errors were found')
+                        help='move checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
-                        help='Overwrite files in CHECKED_PATH if present. Default is False.')
+                        help='overwrite files in CHECKED_PATH if present. Default is False.')
     parser.add_argument('--unchecked-path', dest='unchecked_path',
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path',
@@ -37,13 +37,15 @@ def get_parser():
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
-                        help='Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)')
+                        help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG) [default: CHECKING]')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
+    parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
+                        help='log level for the individual log files [default: WARN]')
     parser.add_argument('--include', dest='include_list',
-                        help='Patterns of files to include. Exclude those that don\'t match any.')
+                        help='patterns of files to include. Exclude those that don\'t match any.')
     parser.add_argument('--exclude', dest='exclude_list',
-                        help='Patterns of files to exclude. Include only those that don\'t match any.')
+                        help='patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
     parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
