@@ -49,8 +49,12 @@ Usage
 The tool has several options which can be inspected using the help option `-h, --help`:
 
 ```plain
-usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m] [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH] [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL] [--log-path LOG_PATH] [-f] [-w] [-e]
-                 [-r [MINMAX]] [--fix] [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK]
+usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m] [-O]
+                 [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH]
+                 [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL]
+                 [--log-path LOG_PATH] [--log-path-level LOG_PATH_LEVEL] [--include INCLUDE_LIST]
+                 [--exclude EXCLUDE_LIST] [-f] [-w] [-e] [-r [MINMAX]] [-nt] [--fix]
+                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [-V]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
@@ -61,10 +65,10 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --config-file CONFIG_FILE
-                        File path of the config file
-  -c, --copy            Copy checked files to CHECKED_PATH if no warnings or errors were found
-  -m, --move            Move checked files to CHECKED_PATH if no warnings or errors were found
-  -O, --overwrite       Overwrite files in CHECKED_PATH if present. Default is False
+                        file path of the config file
+  -c, --copy            copy checked files to CHECKED_PATH if no warnings or errors were found
+  -m, --move            move checked files to CHECKED_PATH if no warnings or errors were found
+  -O, --overwrite       overwrite files in CHECKED_PATH if present. Default is False.
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
   --checked-path CHECKED_PATH
@@ -72,23 +76,28 @@ optional arguments:
   --protocol-location PROTOCOL_LOCATIONS
                         URL or file path to the protocol when different from official repository
   --log-level LOG_LEVEL
-                        Log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or DEBUG)
+                        log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or
+                        DEBUG) [default: CHECKING]
   --log-path LOG_PATH   base path for the individual log files
+  --log-path-level LOG_PATH_LEVEL
+                        log level for the individual log files [default: WARN]
   --include INCLUDE_LIST
-                        Patterns of files to include. Exclude those that don't match any.
+                        patterns of files to include. Exclude those that don't match any.
   --exclude EXCLUDE_LIST
-                        Patterns of files to exclude. Include only those that don't match any.
+                        patterns of files to exclude. Include only those that don't match any.
   -f, --first-file      only process first file found in UNCHECKED_PATH
   -w, --stop-on-warnings
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
   -r [MINMAX], --minmax [MINMAX]
-                        test values for valid range (slow, argument MINMAX defaults to show the top 10 values)
+                        test values for valid range (slow, argument MINMAX defaults to show the
+                        top 10 values)
   -nt, --skip-time-span-check
                         skip check for simulated time period
   --fix                 try to fix warnings detected on the original files
   --fix-datamodel [FIX_DATAMODEL]
-                        also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.
+                        also fix warnings on data model found using NCCOPY or CDO (slow). Choose
+                        preferred tool per lower case argument.
   --check CHECK         perform only one particular check
   -V, --version         show program's version number and exit
 ```
@@ -121,6 +130,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 `INFO`: includes `SUMMARY` and details for successful checks<br>
 `DEBUG`: all the above plus details for some debugging cases.
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
+* `--log-path-level LOG_PATH_LEVEL`: The log level used for the file specific logs below `LOG_PATH`. The default is `WARN` and should suffice for most cases.
 * `--include INCLUDE_LIST` : Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
 * `--exclude EXCLUDE_LIST` : Provide a comma-separated list of strings to exclude from the checks if any of them matches the file path or name, e.g. 'monthly,histsoc' will skip any `*monthly*` or `*histsoc*` files.
 * `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Useful for revealing issues that may occur on all your files.
