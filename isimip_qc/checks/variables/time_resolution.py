@@ -27,6 +27,10 @@ def check_time_resolution(file):
         file.error('360_day calendar is not allowed for monthly and annual data anymore. Use one of ["standard", "proleptic_gregorian", "365_day", "366_day"]')
         return
 
+    if 'days' not in time_units:
+        file.error('time index has to be in daily increments for all calendars used (time.unit to be like "days since ...".')
+        return
+
     if file.dataset.data_model in ['NETCDF4', 'NETCDF4_CLASSIC']:
 
         if all([time, time_definition, time_resolution, time_units, time_calendar]):
