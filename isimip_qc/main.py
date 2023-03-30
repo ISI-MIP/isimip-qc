@@ -98,12 +98,12 @@ def main():
 
         if settings.INCLUDE_LIST:
             if not any([string in str(file_path) for string in settings.INCLUDE_LIST.split(',')]):
-                logger.log(CHECKING, ' skipped by include option')
+                logger.log(CHECKING, ' skipped by include option.')
                 continue
 
         if settings.EXCLUDE_LIST:
             if any([string in str(file_path) for string in settings.EXCLUDE_LIST.split(',')]):
-                logger.log(CHECKING, ' skipped by exclude option')
+                logger.log(CHECKING, ' skipped by exclude option.')
                 continue
 
         if file_path.suffix in settings.PATTERN['suffix']:
@@ -112,7 +112,12 @@ def main():
             file.open_log()
 
             # 1st pass: perform checks
-            file.open_dataset()
+            try:
+                file.open_dataset()
+            except OSError:
+                logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
+                continue
+
             file.match()
 
             if file.matched:
@@ -133,18 +138,18 @@ def main():
 
                 # log result of checks, stop if flags are set
                 if file.is_clean:
-                    logger.info('File has successfully passed all checks')
+                    logger.info('File has successfully passed all checks.')
                 elif file.has_warnings and not file.has_errors:
                     logger.info('File passed all checks without unfixable issues.')
                 elif file.has_errors:
                     logger.critical('File did not pass all checks. Unfixable issues detected.')
 
                 if file.has_warnings and settings.STOP_WARN:
-                    logger.warn('Warnings found. Exiting per -w option')
+                    logger.warn('Warnings found. Exiting per -w option.')
                     sys.exit(1)
 
                 if file.has_errors and settings.STOP_ERR:
-                    logger.error('Errors found. Exiting per -e option')
+                    logger.error('Errors found. Exiting per -e option.')
                     sys.exit(1)
 
                 # 2nd pass: fix warnings and fixable infos
@@ -183,7 +188,7 @@ def main():
             # close the log for this file
             file.close_log()
         else:
-            logger.error('File has wrong suffix. Use "%s" for this simulation round', settings.PATTERN['suffix'][0])
+            logger.error('File has wrong suffix. Use "%s" for this simulation round.', settings.PATTERN['suffix'][0])
 
         # stop if flag is set
         if settings.FIRST_FILE:
