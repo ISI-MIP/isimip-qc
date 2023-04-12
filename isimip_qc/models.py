@@ -156,7 +156,7 @@ class File(object):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
         logger = colorlog.getLogger(logger_name)
-        logger.setLevel(settings.LOG_PATH_LEVEL)
+        logger.setLevel(settings.LOG_LEVEL)
 
         # do not propagate messages to the root logger,
         # which is configured in settings.setup()

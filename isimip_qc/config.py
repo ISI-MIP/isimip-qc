@@ -28,6 +28,7 @@ class Settings(ISIMIPSettings):
             self.CHECKED_PATH = Path(self.CHECKED_PATH).expanduser()
 
         self.LOG_LEVEL = self.LOG_LEVEL.upper()
+        self.LOG_PATH_LEVEL = self.LOG_PATH_LEVEL.upper()
         if self.LOG_PATH is not None:
             self.LOG_PATH = Path(self.LOG_PATH).expanduser()
 
