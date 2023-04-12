@@ -180,7 +180,8 @@ def main():
 
                 # collect stats about the file
                 summary.update_specifiers(file.specifiers)
-                summary.update_variables(file.specifiers.get('variable'))
+                summary.update_variables(file.specifiers)
+                summary.update_experiments(file.specifiers)
 
             else:
                 file.close_dataset()
