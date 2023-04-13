@@ -10,9 +10,10 @@ def get_experiment(specifiers):
         for period in settings.DEFINITIONS.get('period', []):
             experiment_period = experiment.get(period, {})
 
-            if experiment_period.get('climate') == climate_scenario and \
-                    experiment_period.get('soc') == soc_scenario:
-                if sens_scenario == 'default' or \
-                        experiment_period.get('climate_sens') == sens_scenario or \
-                        experiment_period.get('soc_sens') == sens_scenario:
-                    return specifier
+            if (isinstance(experiment_period, dict) and
+                    experiment_period.get('climate') == climate_scenario and
+                    experiment_period.get('soc') == soc_scenario and
+                    (sens_scenario == 'default' or
+                        experiment_period.get('climate_sens') == sens_scenario or
+                        experiment_period.get('soc_sens') == sens_scenario)):
+                return specifier
