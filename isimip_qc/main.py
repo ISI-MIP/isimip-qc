@@ -62,6 +62,8 @@ def get_parser():
                         help='also fix warnings on data model found using NCCOPY or CDO (slow). Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
+    parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
+                        help='Copy or move files despite errors')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
     return parser
@@ -170,7 +172,7 @@ def main():
 
                 # copy/move files to checked_path
                 if settings.MOVE or settings.COPY:
-                    if file.is_clean:
+                    if file.is_clean or settings.FORCE_COPY_MOVE:
                         if settings.MOVE:
                             file.move()
                         elif settings.COPY:

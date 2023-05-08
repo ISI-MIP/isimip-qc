@@ -54,7 +54,7 @@ usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m] [-O]
                  [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL]
                  [--log-path LOG_PATH] [--log-path-level LOG_PATH_LEVEL] [--include INCLUDE_LIST]
                  [--exclude EXCLUDE_LIST] [-f] [-w] [-e] [-r [MINMAX]] [-nt] [--fix]
-                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [-V]
+                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
@@ -99,6 +99,7 @@ optional arguments:
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose
                         preferred tool per lower case argument.
   --check CHECK         perform only one particular check
+  --force-copy-move     copy or move files despite errors
   -V, --version         show program's version number and exit
 ```
 
@@ -141,4 +142,4 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the funtions defined in the `isimip_qc/checks/*.py` files.
-
+* `--force-copy-move`: Copy or move files despite errors found during checks.
