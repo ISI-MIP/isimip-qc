@@ -113,14 +113,18 @@ def main():
             file = File(file_path)
             file.open_log()
 
+            file.match()
+
+            # skip opening non-NetCDF files
+            if file_path.suffix not in ['.nc', '.nc4']:
+                continue
+
             # 1st pass: perform checks
             try:
                 file.open_dataset()
             except OSError:
                 logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
                 continue
-
-            file.match()
 
             if file.matched:
 
