@@ -1,11 +1,11 @@
-import argparse
 from os import path
 import sys
 
-from isimip_qc import VERSION
-
 import colorlog
 
+from isimip_utils.parser import ArgumentParser
+
+from . import VERSION
 from .checks import checks
 from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
@@ -17,7 +17,7 @@ logger = colorlog.getLogger(__name__)
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(description='Check ISIMIP files for matching protocol definitions')
+    parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     # optional
@@ -71,7 +71,8 @@ def get_parser():
 
 def main():
     parser = get_parser()
-    settings.setup(parser)
+    args = vars(parser.parse_args())
+    settings.setup(args)
     summary = Summary()
 
     if settings.DEFINITIONS is None:
