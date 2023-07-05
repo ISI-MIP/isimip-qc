@@ -69,6 +69,14 @@ def get_parser():
     return parser
 
 
+def init_settings(**kwargs):
+    parser = get_parser()
+    args = parser.get_defaults()
+    args.update(kwargs)
+    settings.setup(args)
+    return settings
+
+
 def main():
     parser = get_parser()
     args = vars(parser.parse_args())
