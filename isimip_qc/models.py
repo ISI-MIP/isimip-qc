@@ -1,5 +1,6 @@
 import logging
 import shutil
+from pathlib import Path
 from collections import Counter
 
 import colorlog
@@ -21,6 +22,7 @@ from .utils.logging import SUMMARY
 class File(object):
 
     def __init__(self, file_path):
+        file_path = Path(file_path).expanduser()
         self.path = file_path.relative_to(settings.UNCHECKED_PATH)
         self.abs_path = file_path
 
@@ -66,22 +68,27 @@ class File(object):
         self.dataset.close()
 
     def debug(self, message, *args):
-        self.logger.debug(message, *args)
+        if self.logger is not None:
+            self.logger.debug(message, *args)
 
     def info(self, message, *args, fix=None):
-        self.logger.info(message, *args)
+        if self.logger is not None:
+            self.logger.info(message, *args)
         self.infos.append((message % args, fix))
 
     def warn(self, message, *args, fix=None, fix_datamodel=None):
-        self.logger.warn(message, *args)
+        if self.logger is not None:
+            self.logger.warn(message, *args)
         self.warnings.append((message % args, fix, fix_datamodel))
 
     def error(self, message, *args):
-        self.logger.error(message, *args)
+        if self.logger is not None:
+            self.logger.error(message, *args)
         self.errors.append((message % args))
 
     def critical(self, message, *args):
-        self.logger.critical(message, *args)
+        if self.logger is not None:
+            self.logger.critical(message, *args)
         self.criticals.append((message % args))
 
     def fix_infos(self):
