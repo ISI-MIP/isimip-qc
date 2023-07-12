@@ -64,8 +64,6 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --config-file CONFIG_FILE
-                        file path of the config file
   -c, --copy            copy checked files to CHECKED_PATH if no warnings or errors were found
   -m, --move            move checked files to CHECKED_PATH if no warnings or errors were found
   -O, --overwrite       overwrite files in CHECKED_PATH if present. Default is False.
