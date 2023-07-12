@@ -143,3 +143,32 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the funtions defined in the `isimip_qc/checks/*.py` files.
 * `--force-copy-move`: Copy or move files despite errors found during checks.
+
+
+Scripts/Notebooks
+-----------------
+
+The different functions of the tool can also be used in Python scripts or Jupyter Notebooks. Before any functions are called, the global settings object needs to be initialized using the `init_settings` function, e.g.:
+
+```python
+from isimip_qc.checks import checks
+from isimip_qc.main import init_settings
+from isimip_qc.models import File
+
+settings = init_settings(
+    schema_path='ISIMIP3b/OutputData/water_global',
+    config_file='~/data/isimip/isimip.conf'
+)
+
+file_path = '~/data/isimip/qc/unchecked/h08_ipsl-cm6a-lr_w5e5_ssp585_2015soc_default_dis_global_monthly_2015_2100.nc'
+
+file = File(file_path)
+file.open_log()
+file.match()
+file.open_dataset()
+
+for check in checks:
+    check(file)
+
+file.close_dataset()
+```

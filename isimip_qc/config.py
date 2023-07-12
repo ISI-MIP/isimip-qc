@@ -2,7 +2,7 @@ from pathlib import Path
 
 import colorlog
 
-from isimip_utils.config import ISIMIPSettings
+from isimip_utils.config import Settings as BaseSettings
 from isimip_utils.decorators import cached_property
 from isimip_utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
 
@@ -11,10 +11,10 @@ from datetime import datetime
 logger = colorlog.getLogger(__name__)
 
 
-class Settings(ISIMIPSettings):
+class Settings(BaseSettings):
 
-    def setup(self, parser):
-        super().setup(parser)
+    def setup(self, args):
+        super().setup(args)
 
         self.NOW = datetime.utcnow().strftime("%Y%m%dT%H%MZ")
 
