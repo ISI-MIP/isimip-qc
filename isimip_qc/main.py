@@ -18,11 +18,11 @@ logger = colorlog.getLogger(__name__)
 
 def get_parser():
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
+
     # mandatory
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
+
     # optional
-    parser.add_argument('--config-file', dest='config_file',
-                        help='file path of the config file')
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
                         help='copy checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
