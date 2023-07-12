@@ -14,6 +14,7 @@ from isimip_utils.exceptions import DidNotMatch
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
+from .utils.experiments import get_experiment
 from .utils.files import copy_file, move_file
 from .utils.logging import SUMMARY
 
@@ -155,7 +156,7 @@ class File(object):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
         logger = colorlog.getLogger(logger_name)
-        logger.setLevel(settings.LOG_PATH_LEVEL)
+        logger.setLevel(settings.LOG_LEVEL)
 
         # do not propagate messages to the root logger,
         # which is configured in settings.setup()
@@ -219,6 +220,7 @@ class Summary(object):
     def __init__(self):
         self.specifiers = {}
         self.variables = {}
+        self.experiments = Counter()
 
     def update_specifiers(self, specifiers):
         for identifier, specifier in specifiers.items():
@@ -226,7 +228,8 @@ class Summary(object):
                 self.specifiers[identifier] = Counter()
             self.specifiers[identifier][specifier] += 1
 
-    def update_variables(self, variable):
+    def update_variables(self, specifiers):
+        variable = specifiers.get('variable')
         if variable is not None:
             if variable not in self.variables:
                 definition = settings.DEFINITIONS['variable'].get(variable)
@@ -237,6 +240,11 @@ class Summary(object):
                 }
             else:
                 self.variables[variable]['count'] += 1
+
+    def update_experiments(self, specifiers):
+        experiment = get_experiment(specifiers)
+        if experiment is not None:
+            self.experiments[experiment] += 1
 
     def log_specifiers(self):
         table = PrettyTable()
@@ -266,6 +274,19 @@ class Summary(object):
         for line in table.get_string().splitlines():
             colorlog.log(SUMMARY, line)
 
+    def log_experiments(self):
+        table = PrettyTable()
+        table.field_names = ['Experiment', 'Count']
+        table.align['Experiment'] = 'l'
+        table.align['Count'] = 'r'
+
+        for experiment, count in self.experiments.items():
+            table.add_row([experiment, count])
+
+        for line in table.get_string().splitlines():
+            colorlog.log(SUMMARY, line)
+
     def log(self):
         self.log_specifiers()
         self.log_variables()
+        self.log_experiments()
