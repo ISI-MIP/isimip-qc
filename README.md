@@ -1,7 +1,8 @@
 ISIMIP quality control
 ======================
 
-[![Latest Release](https://img.shields.io/pypi/v/isimip-qc)](https://pypi.org/project/isimip-qc/)
+[![Latest release](https://shields.io/github/v/release/ISI-MIP/isimip-qc)](https://github.com/ISI-MIP/isimip-qc/releases)
+[![PyPI Release](https://img.shields.io/pypi/v/isimip-qc)](https://pypi.org/project/isimip-qc/)
 [![Python Version](https://img.shields.io/badge/python->=3.8-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/ISI-MIP/django-datacite/blob/master/LICENSE)
 
