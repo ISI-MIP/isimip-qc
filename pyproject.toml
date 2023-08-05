@@ -1,0 +1,43 @@
+[project]
+name = "isimip-qc"
+authors = [
+    { name = "Matthias Büchner", email = "buechner@pik-potsdam.de"},
+    { name = "Jochen Klar", email = "jochen.klar@pik-potsdam.de" },
+]
+maintainers = [
+    { name = "Matthias Büchner", email = "buechner@pik-potsdam.de"},
+]
+description = "A command line tool for the quality control of climate impact data of the ISIMIP project."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+classifiers = [
+    'Operating System :: OS Independent',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+]
+dependencies = [
+    "colorlog",
+    "isimip-utils>=1.2",
+    "jsonschema",
+    "netCDF4",
+    "prettytable",
+    "python-dotenv",
+    "requests"
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/ISI-MIP/isimip-qc"
+
+[project.scripts]
+isimip-qc = "isimip_qc.main:main"
+
+[tool.setuptools]
+packages = ["isimip_qc"]
+
+[tool.setuptools.dynamic]
+version = { attr = "isimip_qc.__version__" }
