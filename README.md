@@ -36,7 +36,7 @@ call env\Scripts\activate.bat
 pip install isimip-qc
 
 # update from PyPI
-pip install --upgrade rdmo
+pip install --upgrade isimip-qc
 
 # install directly from GitHub
 pip install git+https://github.com/ISI-MIP/isimip-qc
