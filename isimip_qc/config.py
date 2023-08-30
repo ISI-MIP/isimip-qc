@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import colorlog
@@ -5,8 +6,6 @@ import colorlog
 from isimip_utils.config import Settings as BaseSettings
 from isimip_utils.decorators import cached_property
 from isimip_utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
-
-from datetime import datetime
 
 logger = colorlog.getLogger(__name__)
 

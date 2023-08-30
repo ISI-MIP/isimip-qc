@@ -1,9 +1,10 @@
 import os
 import shutil
 from pathlib import Path
-from ..config import settings
 
 import colorlog
+
+from ..config import settings
 
 logger = colorlog.getLogger(__name__)
 
@@ -25,7 +26,8 @@ def move_file(source_path, target_path, overwrite=False):
         logger.info('Copy file')
         shutil.move(source_path, target_path)
     else:
-        logger.warn('Skip moving because target file is present and overwriting not allowed. Use -O to allow overwriting.')
+        logger.warn('Skip moving because target file is present and overwriting not allowed.'
+                    ' Use -O to allow overwriting.')
 
 
 def copy_file(source_path, target_path):
@@ -35,4 +37,5 @@ def copy_file(source_path, target_path):
         logger.info('Copy file')
         shutil.copy(source_path, target_path)
     else:
-        logger.warn('Skip copying because target file is present and overwriting not allowed. Use -O to allow overwriting.')
+        logger.warn('Skip copying because target file is present and overwriting not allowed.'
+                    ' Use -O to allow overwriting.')

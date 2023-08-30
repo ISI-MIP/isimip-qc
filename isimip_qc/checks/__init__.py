@@ -15,7 +15,7 @@ for root, dirs, files in os.walk(checks_dir):
             parts = file_path.relative_to(checks_dir).with_suffix('').parts
             module_name = 'isimip_qc.checks.{}'.format('.'.join(parts))
             module = importlib.import_module(module_name)
-            functions += [function for function in inspect.getmembers(module, inspect.isfunction)]
+            functions += list(inspect.getmembers(module, inspect.isfunction))
 
 # find checks
 checks = [function[1] for function in functions if function[0].startswith('check_')]
