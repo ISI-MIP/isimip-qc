@@ -36,8 +36,5 @@ Repository = "https://github.com/ISI-MIP/isimip-qc"
 [project.scripts]
 isimip-qc = "isimip_qc.main:main"
 
-[tool.setuptools]
-packages = ["isimip_qc"]
-
 [tool.setuptools.dynamic]
 version = { attr = "isimip_qc.__version__" }
