@@ -138,6 +138,7 @@ def main():
             if file.matched:
 
                 for check in checks:
+                    skip = False
                     if not settings.CHECK or check.__name__ == settings.CHECK:
                         try:
                             check(file)
@@ -146,10 +147,15 @@ def main():
                         except FileError:
                             pass
                         except FileCritical:
-                            pass
+                            skip = True
+                            break
 
-                file.validate()
-                file.close_dataset()
+                if skip:
+                    file.close_dataset()
+                    continue
+                else:
+                    file.validate()
+                    file.close_dataset()
 
                 # log result of checks, stop if flags are set
                 if file.is_clean:

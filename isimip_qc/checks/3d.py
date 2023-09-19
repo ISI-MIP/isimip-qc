@@ -1,4 +1,5 @@
 from isimip_qc.config import settings
+from ..exceptions import FileCritical
 
 def check_3d(file):
     crop = file.specifiers.get('crop')
@@ -33,6 +34,8 @@ def check_3d(file):
         raise SystemExit(1)
 
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
+    if definition is None:
+        raise FileCritical(file,'Variable %s not defined for sector %s. skipping...', file.variable_name, settings.SECTOR)
 
     # check for number of variable dependencies
 
