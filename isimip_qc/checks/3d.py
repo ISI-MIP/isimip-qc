@@ -1,5 +1,7 @@
 from isimip_qc.config import settings
+
 from ..exceptions import FileCritical
+
 
 def check_3d(file):
     crop = file.specifiers.get('crop')
@@ -27,15 +29,18 @@ def check_3d(file):
     try:
         variable = file.dataset.variables.get(file.variable_name)
         if variable is None:
-            file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!', file.variable_name)
+            file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!',
+                          file.variable_name)
             raise SystemExit(1)
-    except AttributeError:
-        file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!', file.variable_name)
-        raise SystemExit(1)
+    except AttributeError as e:
+        file.critical('Variable "%s" from file name not found inside the file! Check NetCDF header. Stopping tool!',
+                      file.variable_name)
+        raise SystemExit(1) from e
 
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
     if definition is None:
-        raise FileCritical(file,'Variable %s not defined for sector %s. skipping...', file.variable_name, settings.SECTOR)
+        raise FileCritical(file, 'Variable %s not defined for sector %s. skipping...',
+                           file.variable_name, settings.SECTOR)
 
     # check for number of variable dependencies
 
@@ -47,8 +52,10 @@ def check_3d(file):
         settings_dim_len = 3
 
     if file_dim_len != settings_dim_len:
-        file.critical('Dimension missing (%s found, %s expected). Declare as %s%s. ',
-                      file_dim_len, settings_dim_len, file.variable_name, str(definition['dimensions']).replace('\'',''))
+        file.critical(
+            'Dimension missing (%s found, %s expected). Declare as %s%s. ',
+            file_dim_len, settings_dim_len, file.variable_name, str(definition['dimensions']).replace('\'', '')
+        )
 
     # detect 2d or 3d data
     file.is_time_fixed = False
@@ -66,7 +73,9 @@ def check_3d(file):
             for pos in range(0, file_dim_len):
                 if variable.dimensions[pos] not in ['time', 'lat', 'lon']:
                     break
-            file.critical('Variable "%s" has "time", "lat" or "lon" as second dependeny. Depencency order must be [time, %s, lat, lon]. "time" is first always.', file.variable_name, variable.dimensions[pos])
+            file.critical('Variable "%s" has "time", "lat" or "lon" as second dependeny.'
+                          ' Depencency order must be [time, %s, lat, lon]. "time" is first always.',
+                          file.variable_name, variable.dimensions[pos])
             file.dim_vertical = variable.dimensions[pos]
         else:
             file.dim_vertical = variable.dimensions[1]

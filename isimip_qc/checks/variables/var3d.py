@@ -1,4 +1,3 @@
-import numpy as np
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
@@ -26,7 +25,8 @@ def check_3d_variable(file):
 
         # check if vertical dimension ha a variable associated
         if var3d is None and file.dim_vertical:
-            file.error('Found dimension (%s) but no variable linked to it. Introduce "%s" as variable also.', file.dim_vertical, file.dim_vertical)
+            file.error('Found dimension (%s) but no variable linked to it. Introduce "%s" as variable also.',
+                       file.dim_vertical, file.dim_vertical)
 
         # check for definition in protocol for 3d variable
         if not var3d_definition:
@@ -52,7 +52,8 @@ def check_3d_variable(file):
                 depth_last = file.dataset.variables.get(file.dim_vertical)[-1]
 
                 if depth_first > depth_last:
-                    file.warn('Depths in wrong order. Should increase with depth . (found %s to %s)', depth_first, depth_last)
+                    file.warn('Depths in wrong order. Should increase with depth . (found %s to %s)',
+                              depth_first, depth_last)
                 else:
                     file.info('Depths order looks good (positive down).')
 
@@ -63,7 +64,8 @@ def check_3d_variable(file):
                     levlak_last = file.dataset.variables.get(file.dim_vertical)[-1]
 
                     if levlak_first > levlak_last:
-                        file.warn('"levlak" in wrong order. Should increase with depth . (found %s to %s)', levlak_first, levlak_last)
+                        file.warn('"levlak" in wrong order. Should increase with depth . (found %s to %s)',
+                                  levlak_first, levlak_last)
                     else:
                         file.info('"levlak" order looks good (positive down).')
 
@@ -72,24 +74,29 @@ def check_3d_variable(file):
                     depth_file = file.dataset.variables.get('depth')
 
                     if depth_file is None:
-                        file.warn('Variable "depth" not found. Introduce layer vertical center depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
+                        file.warn('Variable "depth" not found. Introduce layer vertical center'
+                                  ' depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
                     else:
                         if len(depth_file.dimensions) == 4:
                             if depth_file.dimensions[1] != 'levlak':
-                                file.error('Time varying "depth" variable has no dependency for "levlak" level index. Expecting: depth(time,levlak,lat,lon)')
+                                file.error('Time varying "depth" variable has no dependency for "levlak"'
+                                           ' level index. Expecting: depth(time,levlak,lat,lon)')
                         elif len(depth_file.dimensions) == 3:
                             if depth_file.dimensions[0] != 'levlak':
-                                file.error('Fixed-time "depth" variable has no dependency for "levlak" level index. Expecting: depth(levlak,lat,lon)')
+                                file.error('Fixed-time "depth" variable has no dependency for "levlak"'
+                                           ' level index. Expecting: depth(levlak,lat,lon)')
                         elif len(depth_file.dimensions) == 1:
                             if depth_file.dimensions[0] != 'levlak':
-                                file.error('Globally fixed "depth" variable has no dependency for "levlak" level index. Expecting: depth(levlak)')
+                                file.error('Globally fixed "depth" variable has no dependency for "levlak"'
+                                           ' level index. Expecting: depth(levlak)')
                         else:
                             file.error('No proper "levlak" dependency found in "depth" variable.')
 
                         depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
                         if depth_definition is None:
-                            file.warn('Dimension "depth" is not yet defined in protocol. Skipping attribute checks for "depth".')
+                            file.warn('Dimension "depth" is not yet defined in protocol. Skipping'
+                                      ' attribute checks for "depth".')
                         else:
                             for attribute in ['axis', 'standard_name', 'long_name', 'units']:
                                 attr_definition = depth_definition.get(attribute)

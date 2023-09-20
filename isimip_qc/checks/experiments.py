@@ -1,5 +1,6 @@
-from ..utils.experiments import get_experiment
 from ..exceptions import FileCritical
+from ..utils.experiments import get_experiment
+
 
 def check_experiment(file):
     if file.specifiers.get("time_step") == "fixed":

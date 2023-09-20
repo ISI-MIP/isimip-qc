@@ -1,17 +1,21 @@
 import logging
 import shutil
-from pathlib import Path
 from collections import Counter
+from pathlib import Path
 
 import colorlog
 import jsonschema
 from prettytable.colortable import PrettyTable
 
-from isimip_utils.netcdf import (get_dimensions, get_global_attributes,
-                                 get_variables, open_dataset_read,
-                                 open_dataset_write)
-from isimip_utils.patterns import match_file
 from isimip_utils.exceptions import DidNotMatch
+from isimip_utils.netcdf import (
+    get_dimensions,
+    get_global_attributes,
+    get_variables,
+    open_dataset_read,
+    open_dataset_write,
+)
+from isimip_utils.patterns import match_file
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -20,7 +24,7 @@ from .utils.files import copy_file, move_file
 from .utils.logging import SUMMARY
 
 
-class File(object):
+class File:
 
     def __init__(self, file_path):
         file_path = Path(file_path).expanduser()
@@ -85,12 +89,12 @@ class File(object):
     def error(self, message, *args):
         if self.logger is not None:
             self.logger.error(message, *args)
-        self.errors.append((message % args))
+        self.errors.append(message % args)
 
     def critical(self, message, *args):
         if self.logger is not None:
             self.logger.critical(message, *args)
-        self.criticals.append((message % args))
+        self.criticals.append(message % args)
 
     def fix_infos(self):
         for info in self.infos[:]:
@@ -108,13 +112,14 @@ class File(object):
 
     def fix_datamodel(self):
         # check if we need to fix using cdu
-        if any([fix_datamodel for _, _, fix_datamodel in self.warnings]):
+        if any(fix_datamodel for _, _, fix_datamodel in self.warnings):
             # fix using tmpfile
             tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
             if settings.FIX_DATAMODEL == 'cdo':
                 if shutil.which('cdo'):
                     self.info('Rewriting file with fixed data model using "cdo"')
-                    call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'], self.abs_path, tmp_abs_path)
+                    call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'],
+                             self.abs_path, tmp_abs_path)
                 else:
                     self.error('"cdo" is not available for execution. Please install before.')
             elif settings.FIX_DATAMODEL == 'nccopy':
@@ -124,7 +129,8 @@ class File(object):
                 else:
                     self.error('"nccopy" is not available for execution. Please install before.')
             else:
-                self.error('"' + settings.FIX_DATAMODEL + '" is not a valid argument for --fix-datamodel option. Chose "nccopy" or "cdo"')
+                self.error(f'"{settings.FIX_DATAMODEL}" is not a valid argument for --fix-datamodel option.'
+                           ' Chose "nccopy" or "cdo"')
 
             if settings.FIX_DATAMODEL in ['nccopy', 'cdo']:
                 # move tmp file to original file
@@ -222,7 +228,7 @@ class File(object):
         move_file(self.abs_path, settings.CHECKED_PATH / self.path)
 
 
-class Summary(object):
+class Summary:
 
     def __init__(self):
         self.specifiers = {}

@@ -1,6 +1,4 @@
-import calendar
 
-import netCDF4
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
@@ -39,10 +37,13 @@ def check_time_variable(file):
         standard_name = time_definition.get('standard_name')
         try:
             if time.standard_name != standard_name:
-                file.warn('"standard_name" attribute of "time" is "%s". Should be "%s".', time.standard_name, standard_name, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'standard_name', standard_name)
-                })
+                file.warn(
+                    '"standard_name" attribute of "time" is "%s". Should be "%s".',
+                    time.standard_name, standard_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, 'time', 'standard_name', standard_name)
+                    }
+                )
         except AttributeError:
             file.warn('"standard_name" attribute of "time" is missing. Should be "%s".', standard_name, fix={
                 'func': fix_set_variable_attr,
@@ -118,7 +119,8 @@ def check_time_span_periods(file):
         definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
         definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
     else:
-        file.warn('Skipping check for simulation period as the period itself could not be determined from the file path (pre-industrial, historical or future).')
+        file.warn('Skipping check for simulation period as the period itself could not be'
+                  ' determined from the file path (pre-industrial, historical or future).')
         return
 
     file_startyear = file.specifiers.get('start_year')
@@ -128,7 +130,8 @@ def check_time_span_periods(file):
 
     if time_resolution not in ['daily', 'fixed']:
         if definition_startyear != file_startyear or definition_endyear != file_endyear:
-            file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s). Ensure to prepare the full period for all variables using the latest input data set.',
+            file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s).'
+                      ' Ensure to prepare the full period for all variables using the latest input data set.',
                       file_startyear, file_endyear, definition_startyear, definition_endyear)
         else:
             file.info('File is covering the full simulation period (by file name)')
@@ -140,6 +143,8 @@ def check_time_span_periods(file):
                 last_file_startyear = 2011
 
             if file_startyear == last_file_startyear:
-                if  definition_endyear != file_endyear:
-                    file.warn('Last year of time period covered by file (%s) does not match end of input data time span (%s). Ensure to prepare the full period for all variables using the latest input data set.',
+                if definition_endyear != file_endyear:
+                    file.warn('Last year of time period covered by file (%s) does not match end of input'
+                              ' data time span (%s). Ensure to prepare the full period for all variables'
+                              ' using the latest input data set.',
                               file_endyear, definition_endyear)
