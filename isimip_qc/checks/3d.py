@@ -1,5 +1,7 @@
 from isimip_qc.config import settings
+
 from ..exceptions import FileCritical
+
 
 def check_3d(file):
     crop = file.specifiers.get('crop')
@@ -37,7 +39,8 @@ def check_3d(file):
 
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
     if definition is None:
-        raise FileCritical(file,'Variable %s not defined for sector %s. skipping...', file.variable_name, settings.SECTOR)
+        raise FileCritical(file, 'Variable %s not defined for sector %s. skipping...',
+                           file.variable_name, settings.SECTOR)
 
     # check for number of variable dependencies
 
@@ -49,8 +52,10 @@ def check_3d(file):
         settings_dim_len = 3
 
     if file_dim_len != settings_dim_len:
-        file.critical('Dimension missing (%s found, %s expected). Declare as %s%s. ',
-                      file_dim_len, settings_dim_len, file.variable_name, str(definition['dimensions']).replace('\'',''))
+        file.critical(
+            'Dimension missing (%s found, %s expected). Declare as %s%s. ',
+            file_dim_len, settings_dim_len, file.variable_name, str(definition['dimensions']).replace('\'', '')
+        )
 
     # detect 2d or 3d data
     file.is_time_fixed = False

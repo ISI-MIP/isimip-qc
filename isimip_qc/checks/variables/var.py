@@ -26,7 +26,8 @@ def check_variable(file):
 
         # check dtype
         if variable.dtype != 'float32':
-            file.warn('%s data type is "%s" should be "float32".', file.variable_name, variable.dtype, fix_datamodel=True)
+            file.warn('%s data type is "%s" should be "float32".',
+                      file.variable_name, variable.dtype, fix_datamodel=True)
 
         # check chunking
         chunking = variable.chunking()
@@ -163,20 +164,26 @@ def check_variable(file):
             try:
                 attr = variable.getncattr(name)
                 if attr.dtype != variable.dtype:
-                    file.error('%s data type (%s) differs from %s data type (%s).', name, attr.dtype, file.variable_name, variable.dtype)
+                    file.error('%s data type (%s) differs from %s data type (%s).',
+                               name, attr.dtype, file.variable_name, variable.dtype)
                 else:
                     if not math.isclose(attr, 1e+20, rel_tol=1e-6):
-                        file.error('Missing values for variable "%s": %s=%s but should be 1e+20.', file.variable_name, name, attr)
+                        file.error('Missing values for variable "%s": %s=%s but should be 1e+20.',
+                                   file.variable_name, name, attr)
                     else:
                         file.info('Missing value attribute "%s" is properly set.', name)
             except AttributeError:
                 if name == 'missing_value':
-                    file.warn('"%s" attribute for variable "%s" is missing. Should be set to 1e+20f.', name, file.variable_name, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'missing_value', 1e+20)
-                    })
+                    file.warn(
+                        '"%s" attribute for variable "%s" is missing. Should be set to 1e+20f.',
+                        name, file.variable_name, fix={
+                            'func': fix_set_variable_attr,
+                            'args': (file, file.variable_name, 'missing_value', 1e+20)
+                        }
+                    )
                 else:
-                    file.error('"%s" attribute for variable "%s" is missing. Should be set to 1e+20f and must be set when variable is created.', name, file.variable_name)
+                    file.error('"%s" attribute for variable "%s" is missing. Should be set to 1e+20f and must be set'
+                               ' when variable is created.', name, file.variable_name)
 
         # check valid range
         if settings.MINMAX:
