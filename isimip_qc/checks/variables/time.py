@@ -66,25 +66,15 @@ def check_time_variable(file):
 
         # check units
         time_step = file.specifiers.get('time_step')
-        if settings.SECTOR == 'agriculture' and file.specifiers.get('time_step') == 'annual':
-            increment = 'growing seasons'
-        else:
-            increment = settings.DEFINITIONS['time_step'][time_step]['increment']
+        increment = settings.DEFINITIONS['time_step'][time_step]['increment']
         minimum = settings.DEFINITIONS['time_span']['minimum']['value']
 
-        if settings.SECTOR == 'agriculture' and time_step == "annual":
-            increment = 'growing seasons'
-            units_templates = [
-                "%s since %i-01-01 00:00:00",
-                "%s since %i-1-1 00:00:00"
-            ]
-        else:
-            units_templates = [
-                "%s since %i-01-01",
-                "%s since %i-01-01 00:00:00",
-                "%s since %i-1-1",
-                "%s since %i-1-1 00:00:00"
-            ]
+        units_templates = [
+            "%s since %i-01-01",
+            "%s since %i-01-01 00:00:00",
+            "%s since %i-1-1",
+            "%s since %i-1-1 00:00:00"
+        ]
 
         units = [template % (increment, minimum) for template in units_templates]
 
