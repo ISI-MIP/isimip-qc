@@ -1,11 +1,11 @@
-import calendar
 
-import netCDF4
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
 
 def check_time_variable(file):
+    if file.is_time_fixed:
+        return
     time = file.dataset.variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
 
@@ -37,10 +37,13 @@ def check_time_variable(file):
         standard_name = time_definition.get('standard_name')
         try:
             if time.standard_name != standard_name:
-                file.warn('"standard_name" attribute of "time" is "%s". Should be "%s".', time.standard_name, standard_name, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'standard_name', standard_name)
-                })
+                file.warn(
+                    '"standard_name" attribute of "time" is "%s". Should be "%s".',
+                    time.standard_name, standard_name, fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, 'time', 'standard_name', standard_name)
+                    }
+                )
         except AttributeError:
             file.warn('"standard_name" attribute of "time" is missing. Should be "%s".', standard_name, fix={
                 'func': fix_set_variable_attr,
@@ -63,7 +66,10 @@ def check_time_variable(file):
 
         # check units
         time_step = file.specifiers.get('time_step')
-        increment = settings.DEFINITIONS['time_step'][time_step]['increment']
+        if settings.SECTOR == 'agriculture' and file.specifiers.get('time_step') == 'annual':
+            increment = 'growing seasons'
+        else:
+            increment = settings.DEFINITIONS['time_step'][time_step]['increment']
         minimum = settings.DEFINITIONS['time_span']['minimum']['value']
 
         if settings.SECTOR == 'agriculture' and time_step == "annual":
@@ -90,28 +96,64 @@ def check_time_variable(file):
         except AttributeError:
             file.error('Attribute time.units is missing. Should be "%s".', units)
 
-        # check calenders
-        if time_step == 'daily':
-            try:
-                calenders_daily = time_definition.get('calenders_daily', [])
-                if time.calendar not in calenders_daily:
-                    file.error('"calendar" attribute for "time" is "%s". Should be "%s".', time.calendar, calenders_daily)
-                else:
-                    file.info('Valid calendar found (%s)', time.calendar)
-            except AttributeError:
-                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_daily)
+        # check calendars
+        try:
+            calendars = time_definition.get('calenders_daily', [])
+            if time.calendar not in calendars:
+                file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', time.calendar, calendars)
+            else:
+                file.info('Valid calendar found (%s)', time.calendar)
+        except AttributeError:
+            file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calendars)
+
+def check_time_span_periods(file):
+
+    if settings.TIME_SPAN:
+        file.info('skipping test of covered simulation period per option')
+        return
+
+    climate_forcing = file.specifiers.get('climate_forcing')
+
+    if 'pre-industrial' in str(file.abs_path):
+        definition_startyear = settings.DEFINITIONS['time_span'].get('start_pre-ind')['value']
+        definition_endyear = settings.DEFINITIONS['time_span'].get('end_pre-ind')['value']
+    elif 'historical' in str(file.abs_path):
+        if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a']:
+            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value'][climate_forcing]
+            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value'][climate_forcing]
+        elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b']:
+            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value']
+            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value']
+    elif 'future' in str(file.abs_path):
+        definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
+        definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
+    else:
+        file.warn('Skipping check for simulation period as the period itself could not be'
+                  ' determined from the file path (pre-industrial, historical or future).')
+        return
+
+    file_startyear = file.specifiers.get('start_year')
+    file_endyear = file.specifiers.get('end_year')
+
+    time_resolution = file.specifiers.get('time_step')
+
+    if time_resolution not in ['daily', 'fixed']:
+        if definition_startyear != file_startyear or definition_endyear != file_endyear:
+            file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s).'
+                      ' Ensure to prepare the full period for all variables using the latest input data set.',
+                      file_startyear, file_endyear, definition_startyear, definition_endyear)
         else:
-            try:
-                calenders_other = time_definition.get('calenders_other', [])
-                if time.calendar not in calenders_other:
-                    file.warn('"calendar" attribute for "time" is "%s". Should be one of %s', time.calendar, calenders_other, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, 'time', 'calendar', '360_day')
-                    })
-                else:
-                    file.info('Valid calendar found (%s)', time.calendar)
-            except AttributeError:
-                file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calenders_other, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'calendar', '360_day')
-                })
+            file.info('File is covering the full simulation period (by file name)')
+    else:
+        if 'historical' in str(file.abs_path):
+            if settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5':
+                last_file_startyear = 2021
+            else:
+                last_file_startyear = 2011
+
+            if file_startyear == last_file_startyear:
+                if definition_endyear != file_endyear:
+                    file.warn('Last year of time period covered by file (%s) does not match end of input'
+                              ' data time span (%s). Ensure to prepare the full period for all variables'
+                              ' using the latest input data set.',
+                              file_endyear, definition_endyear)

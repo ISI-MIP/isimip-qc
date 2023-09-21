@@ -7,12 +7,11 @@ __pycache__/
 *.save
 .DS_Store
 
+/env
 /build
 /dist
 /*.egg-info
 /.pytest_cache
-/.coverage*
-/htmlcov
-/env
 /.env
+
 /log

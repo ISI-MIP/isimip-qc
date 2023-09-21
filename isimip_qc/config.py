@@ -1,45 +1,21 @@
-import configparser
-import os
+from datetime import datetime
 from pathlib import Path
 
 import colorlog
-from dotenv import load_dotenv
 
-from .utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
+from isimip_utils.config import Settings as BaseSettings
+from isimip_utils.decorators import cached_property
+from isimip_utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
 
 logger = colorlog.getLogger(__name__)
 
 
-class Settings(object):
-
-    _shared_state = {}
-
-    CONFIG_FILES = [
-        'isimip.conf',
-        '~/.isimip.conf',
-        '/etc/isimip.conf'
-    ]
-
-    DEFAULTS = {
-        'LOG_LEVEL': 'WARN',
-        'PROTOCOL_LOCATIONS': 'https://protocol.isimip.org https://protocol2.isimip.org'
-    }
-
-    def __init__(self):
-        self.__dict__ = self._shared_state
-
-    def __str__(self):
-        return str(vars(self))
+class Settings(BaseSettings):
 
     def setup(self, args):
-        # setup env from .env file
-        load_dotenv(Path().cwd() / '.env')
+        super().setup(args)
 
-        # read config file
-        config = self.read_config(args.config_file)
-
-        # combine settings from args, os.environ, and config
-        self.build_settings(args, os.environ, config)
+        self.NOW = datetime.utcnow().strftime("%Y%m%dT%H%MZ")
 
         # set create pathes and set default values
         if self.UNCHECKED_PATH is not None:
@@ -51,6 +27,7 @@ class Settings(object):
             self.CHECKED_PATH = Path(self.CHECKED_PATH).expanduser()
 
         self.LOG_LEVEL = self.LOG_LEVEL.upper()
+        self.LOG_PATH_LEVEL = self.LOG_PATH_LEVEL.upper()
         if self.LOG_PATH is not None:
             self.LOG_PATH = Path(self.LOG_PATH).expanduser()
 
@@ -58,42 +35,26 @@ class Settings(object):
         colorlog.basicConfig(level=self.LOG_LEVEL,
                              format=' %(log_color)s%(levelname)-8s : %(message)s%(reset)s')
 
-        # set the path
-        self.SCHEMA_PATH = Path(args.schema_path)
-        self.SIMULATION_ROUND, self.PRODUCT, self.SECTOR = self.SCHEMA_PATH.parts[0:3]
-
-        # fetch definitions pattern and schema
-        self.DEFINITIONS = fetch_definitions(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
-        self.PATTERN = fetch_pattern(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
-        self.SCHEMA = fetch_schema(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
+        # set the simulation_round, product and sector
+        self.SIMULATION_ROUND, self.PRODUCT, self.SECTOR = Path(self.SCHEMA_PATH).parts[0:3]
 
         # log settings
         colorlog.debug(self)
 
-    def read_config(self, config_file_arg):
-        config_files = [config_file_arg] + self.CONFIG_FILES
-        for config_file in config_files:
-            if config_file:
-                config = configparser.ConfigParser()
-                config.read(config_file)
-                if 'isimip-qc' in config:
-                    return config['isimip-qc']
+    @cached_property
+    def DEFINITIONS(self):
+        assert self.PROTOCOL_LOCATIONS is not None, 'PROTOCOL_LOCATIONS is not set'
+        return fetch_definitions(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
 
-    def build_settings(self, args, environ, config):
-        args_dict = vars(args)
-        for key, value in args_dict.items():
-            if key not in ['config_file']:
-                attr = key.upper()
-                if value is not None:
-                    attr_value = value
-                elif environ.get(attr):
-                    attr_value = environ.get(attr)
-                elif config and config.get(key):
-                    attr_value = config.get(key)
-                else:
-                    attr_value = self.DEFAULTS.get(attr)
+    @cached_property
+    def PATTERN(self):
+        assert self.PROTOCOL_LOCATIONS is not None, 'PROTOCOL_LOCATIONS is not set'
+        return fetch_pattern(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
 
-                setattr(self, attr, attr_value)
+    @cached_property
+    def SCHEMA(self):
+        assert self.PROTOCOL_LOCATIONS is not None, 'PROTOCOL_LOCATIONS is not set'
+        return fetch_schema(self.PROTOCOL_LOCATIONS.split(), self.SCHEMA_PATH)
 
 
 settings = Settings()

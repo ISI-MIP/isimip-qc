@@ -1,10 +1,10 @@
 import uuid
-from email.utils import parseaddr
 from datetime import datetime
+from email.utils import parseaddr
 
 from .. import __version__
 from ..config import settings
-from ..fixes import fix_set_global_attr
+from ..fixes import fix_remove_global_attr, fix_set_global_attr
 
 
 def check_isimip_id(file):
@@ -47,11 +47,13 @@ def check_isimip_protocol_version(file):
             file.info('Global attribute "isimip_protocol_version" matches current protocol version (%s).',
                       version)
         else:
-            file.info('Global attribute "isimip_protocol_version" (%s) does not match tool current protocol version (%s).',
-                      version, protocol_version, fix={
-                          'func': fix_set_global_attr,
-                          'args': (file, 'isimip_protocol_version', protocol_version)
-                      })
+            file.info(
+                'Global attribute "isimip_protocol_version" (%s) does not match tool current protocol version (%s).',
+                version, protocol_version, fix={
+                    'func': fix_set_global_attr,
+                    'args': (file, 'isimip_protocol_version', protocol_version)
+                }
+            )
     except AttributeError:
         file.info('Global attribute "isimip_protocol_version" not yet set.',
                   fix={
@@ -95,3 +97,15 @@ def check_isimip_qc_date(file):
                       'func': fix_set_global_attr,
                       'args': (file, 'isimip_qc_pass_date', datetime_now)
                   })
+
+
+def check_history(file):
+    try:
+        file.dataset.getncattr('history')
+        file.warn('Global attribute "history" is set and will get removed.',
+                  fix={
+                      'func': fix_remove_global_attr,
+                      'args': (file, 'history')
+                  })
+    except AttributeError:
+        pass

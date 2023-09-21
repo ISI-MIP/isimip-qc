@@ -1,5 +1,4 @@
-from ..fixes import (fix_remove_variable_attr, fix_rename_dimension,
-                     fix_rename_variable, fix_rename_variable_attr)
+from ..fixes import fix_remove_variable_attr, fix_rename_dimension, fix_rename_variable, fix_rename_variable_attr
 
 
 def check_data_model(file):
@@ -24,7 +23,8 @@ def check_zip(file):
         if zlib:
             complevel = variable.filters().get('complevel')
             if complevel < 4:
-                file.warn('Variable "%s" compression level is "%s". Should be > 4.', file.variable_name, complevel, fix_datamodel=True)
+                file.warn('Variable "%s" compression level is "%s". Should be >= 5.',
+                          file.variable_name, complevel, fix_datamodel=True)
             else:
                 file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
         else:
@@ -54,7 +54,9 @@ def check_lower_case(file):
 
         for attr in variable.__dict__:
             if attr not in ['_FillValue']:
-                if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value', 'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info', 'positive']:
+                if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value',
+                                'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info',
+                                'positive', 'bounds', 'classes']:
                     file.warn('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
                         'func': fix_remove_variable_attr,
                         'args': (file, variable_name, attr)

@@ -1,5 +1,0 @@
--r common.txt
-
-pytest~=5.2
-pytest-console-scripts~=0.1
-pytest-cov~=2.8
