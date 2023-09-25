@@ -1,6 +1,6 @@
 from isimip_qc.config import settings
 
-from ..exceptions import FileCritical, FileWarning
+from ..exceptions import FileCritical
 
 
 def check_3d(file):
@@ -93,13 +93,3 @@ def check_3d(file):
             file.dim_vertical = variable.dimensions[pos]
         else:
             file.dim_vertical = variable.dimensions[1]
-
-    # check if vertical bounds were defined
-    if file.is_3d:
-        if variable.dimensions[1] in ['depth', 'levlak']:
-            if definition.get('bounds') is None:
-                raise FileWarning(file,
-                                  'No vertical boundaries defined for %s dimension. ' +
-                                  'Consider adding depth_bnds(depth, bnds). ' +
-                                  'See examples at https://bit.ly/ncdf-bounds', variable.dimensions[1]
-                )
