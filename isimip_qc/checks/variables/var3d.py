@@ -107,11 +107,11 @@ def check_3d_variable(file):
             # check if vertical bounds were defined
             if file.dim_vertical in ['depth', 'levlak']:
                 try:
-                    var3d_bnds = file.dataset.variables.get(var3d.bounds)
-                    file.info('Vertical bounds %s found for %s variable', var3d_bnds, var3d)
+                    var3d_bnds = file.dataset.variables.get('depth').bounds
+                    file.info('Vertical bounds "%s" found for "depth" variable', var3d_bnds)
                 except AttributeError:
                     raise FileWarning(file,
-                                      'No vertical boundaries defined for %s dimension. ' +
-                                      'Consider adding depth_bnds(depth, bnds). ' +
-                                      'See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
+                                      'No vertical boundaries defined for "depth" variable.'
+                                      ' Consider adding depth_bnds(%s, bnds). '
+                                      ' See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
                     ) from None
