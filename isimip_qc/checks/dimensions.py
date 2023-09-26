@@ -77,7 +77,6 @@ def check_dimensions(file):
     # check dimension order
     variable = file.dataset.variables.get(file.variable_name)
 
-    dim_len = len(variable.dimensions)
     if file.is_time_fixed:
         if variable.dimensions[0] != 'lat' or variable.dimensions[1] != 'lon':
             file.error('Dimension order for variable "%s" is %s. Should be ["lat", "lon"].',
@@ -99,7 +98,7 @@ def check_dimensions(file):
         else:
             file.info('Dimensions for variable "%s" look good.', file.variable_name)
     else:
-        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', dim_len)
+        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
 
     for dimension_name, dimension in file.dataset.dimensions.items():
         dimension_definition = settings.DEFINITIONS['dimensions'].get(dimension_name)
