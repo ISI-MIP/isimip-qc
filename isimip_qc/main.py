@@ -152,10 +152,12 @@ def main():
                             pass
                         except FileCritical:
                             skip = True
-                            break
+                            if not settings.IGNORE_CRIT:
+                                logger.info('Skip further checks.'
+                                            ' Try to repair the file first before checking it again.')
+                                break
 
-                if skip and not settings.IGNORE_CRIT:
-                    logger.info('Skip further checks. Try to repair the file first before checking it again.')
+                if skip:
                     file.close_dataset()
                     file.close_log()
                     continue
