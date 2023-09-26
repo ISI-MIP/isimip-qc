@@ -53,6 +53,8 @@ def get_parser():
                         help='stop execution on warnings')
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
+    parser.add_argument('--ignore-critical', dest='ignore_crit', action='store_true', default=False,
+                        help='allow fixing and copy/move files with critical issues found')
     parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
                         help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
@@ -152,8 +154,10 @@ def main():
                             skip = True
                             break
 
-                if skip:
+                if skip and not settings.IGNORE_CRIT:
+                    logger.info('Skip further checks. Try to repair the file first before checking it again.')
                     file.close_dataset()
+                    file.close_log()
                     continue
                 else:
                     file.validate()

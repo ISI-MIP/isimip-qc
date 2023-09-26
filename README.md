@@ -89,6 +89,7 @@ optional arguments:
   -w, --stop-on-warnings
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
+  --ignore-critical     allow fixing and copy/move files with critical issues found
   -r [MINMAX], --minmax [MINMAX]
                         test values for valid range (slow, argument MINMAX defaults to show the
                         top 10 values)
@@ -122,7 +123,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
 * `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories folder). Omit option for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3). An internet connection is required for reading the online protocols.
 * `--log-level LOG_LEVEL`: Set the detail level of log output. Default is `CHECKING`. Log levels from `CRITICAL` to `VRDETAIL` will not show the file currently checked in the terminal but write all of them to the data file specific log file.<br>
-`CRITICAL` : only very severe errors<br>
+`CRITICAL`: only very severe errors<br>
 `ERROR`: all errors<br>
 `WARN`: warnings and all errors<br>
 `VRDETAIL`: same as CHECKING but with details on time and location of valid ranges violations when invoked with `--minmax` option. Very slow when violations are detected.<br>
@@ -132,11 +133,12 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 `DEBUG`: all the above plus details for some debugging cases.
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
 * `--log-path-level LOG_PATH_LEVEL`: The log level used for the file specific logs below `LOG_PATH`. The default is `WARN` and should suffice for most cases.
-* `--include INCLUDE_LIST` : Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
-* `--exclude EXCLUDE_LIST` : Provide a comma-separated list of strings to exclude from the checks if any of them matches the file path or name, e.g. 'monthly,histsoc' will skip any `*monthly*` or `*histsoc*` files.
+* `--include INCLUDE_LIST`: Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
+* `--exclude EXCLUDE_LIST`: Provide a comma-separated list of strings to exclude from the checks if any of them matches the file path or name, e.g. 'monthly,histsoc' will skip any `*monthly*` or `*histsoc*` files.
 * `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Useful for revealing issues that may occur on all your files.
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
+* `--ignore-critical`: allow fixing and copy/move files although critical issues were found. Caution, this might lead to unexpected behaviour.
 * `-r [MINMAX], --minmax [MINMAX]`: Test the data for valid ranges when defined in the protocol. Per default and when violations are detected the top 20 minimum and maximum values along with their time and geographic location will be logged as well. MINMAX is optional and defines how many values should be reported instead of 20. This test drastically slows down the run time of the tool.
 * -nt, --skip-time-span-check: Skip checking non-dialy data for proper coverage of simulation periods.
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
