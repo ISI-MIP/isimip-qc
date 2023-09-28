@@ -33,14 +33,14 @@ def check_3d(file):
                                'Variable "%s" from file name not found inside the file!'
                                ' Check NetCDF header. Stopping tool!',
                                file.variable_name
-            )
+                               )
             raise SystemExit(1)
     except AttributeError as e:
         raise FileCritical(file,
                            'Variable "%s" from file name not found inside the file!'
                            ' Check NetCDF header. Stopping tool!',
                            file.variable_name
-        ) from e
+                           ) from e
         raise SystemExit(1) from e
 
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
@@ -48,7 +48,7 @@ def check_3d(file):
         raise FileCritical(file,
                            'Variable %s not defined for sector %s. skipping...',
                            file.variable_name, settings.SECTOR
-        )
+                           )
 
     # check for number of variable dependencies
 
@@ -67,7 +67,7 @@ def check_3d(file):
         if file.dim_len > 2:
             raise FileCritical(file,
                                'File has fixed data but more than 2 dimensions. Remove "time" dimension if present.'
-            )
+                               )
             return
     elif file.dim_len == 3:
         file.is_2d = True
@@ -77,12 +77,14 @@ def check_3d(file):
             for pos in range(0, file.dim_len):
                 if variable.dimensions[pos] not in ['time', 'lat', 'lon']:
                     break
+
+            file.dim_vertical = variable.dimensions[pos]
+
             raise FileCritical(file,
                                'Variable "%s" has "time", "lat" or "lon" as second dependeny.'
                                ' Depencency order must be [time, %s, lat, lon]. "time" is first always.',
                                file.variable_name, variable.dimensions[pos]
-            )
-            file.dim_vertical = variable.dimensions[pos]
+                               )
         else:
             file.dim_vertical = variable.dimensions[1]
 
@@ -90,4 +92,4 @@ def check_3d(file):
         raise FileCritical(file,
                            'Dimension missing (%s found, %s expected). Declare variable as %s%s.',
                            file.dim_len, definition_dim_len, file.variable_name, dims_expected
-        )
+                           )

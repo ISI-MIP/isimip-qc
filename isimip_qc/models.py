@@ -79,21 +79,25 @@ class File:
     def info(self, message, *args, fix=None):
         if self.logger is not None:
             self.logger.info(message, *args)
+
         self.infos.append((message % args, fix))
 
     def warn(self, message, *args, fix=None, fix_datamodel=None):
         if self.logger is not None:
             self.logger.warn(message, *args)
+
         self.warnings.append((message % args, fix, fix_datamodel))
 
     def error(self, message, *args):
         if self.logger is not None:
             self.logger.error(message, *args)
+
         self.errors.append(message % args)
 
     def critical(self, message, *args):
         if self.logger is not None:
             self.logger.critical(message, *args)
+
         self.criticals.append(message % args)
 
     def fix_infos(self):
@@ -239,6 +243,7 @@ class Summary:
         for identifier, specifier in specifiers.items():
             if identifier not in self.specifiers:
                 self.specifiers[identifier] = Counter()
+
             self.specifiers[identifier][specifier] += 1
 
     def update_variables(self, specifiers):

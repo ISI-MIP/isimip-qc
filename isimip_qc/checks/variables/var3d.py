@@ -114,4 +114,4 @@ def check_3d_variable(file):
                                       'No vertical boundaries defined for "depth" variable.'
                                       ' Consider adding depth_bnds(%s, bnds). '
                                       ' See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
-                    ) from None
+                                      ) from None

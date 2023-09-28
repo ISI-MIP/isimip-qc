@@ -38,7 +38,7 @@ def get_parser():
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
                         help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY,'
-                             ' INFO, or DEBUG) [default: CHECKING]')
+                        ' INFO, or DEBUG) [default: CHECKING]')
     parser.add_argument('--log-path', dest='log_path',
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
@@ -63,7 +63,7 @@ def get_parser():
                         help='try to fix warnings detected on the original files')
     parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store', nargs='?', const='nccopy', type=str,
                         help='also fix warnings on data model found using NCCOPY or CDO (slow).'
-                             ' Choose preferred tool per lower case argument.')
+                        ' Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
@@ -190,6 +190,7 @@ def main():
                     if file.has_warnings:
                         logger.info('Fix WARNINGs...')
                         file.fix_warnings()
+
                     file.close_dataset()
 
                 # 2nd pass: fix warnings

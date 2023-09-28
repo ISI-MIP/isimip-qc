@@ -63,12 +63,10 @@ def check_variable(file):
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
             if file.is_3d:
                 var3d_size = file.dataset.dimensions.get(file.dim_vertical).size
-                if (
-                    chunking[0] != 1
+                if (chunking[0] != 1
                     or (chunking[1] != 1 and chunking[1] != var3d_size)
                     or chunking[2] != lat_size
-                    or chunking[3] != lon_size
-                ):
+                    or chunking[3] != lon_size):
                     file.warn('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
                               ' (with proper depencency order).',
                               file.variable_name, chunking, var3d_size, lat_size, lon_size,
@@ -230,6 +228,7 @@ def check_variable(file):
                         too_low_list = []
                         for index in too_low[0:too_low.shape[0]]:
                             too_low_list.append([tuple(index), variable[tuple(index)].data.tolist()])
+
                         too_low_sorted = sorted(too_low_list, key=lambda value: value[1], reverse=False)
                         for i in range(0, min(settings.MINMAX, too_low.shape[0])):
                             if file.is_2d:
@@ -255,6 +254,7 @@ def check_variable(file):
                         too_high_list = []
                         for index in too_high[0:too_high.shape[0]]:
                             too_high_list.append([tuple(index), variable[tuple(index)].data.tolist()])
+
                         too_high_sorted = sorted(too_high_list, key=lambda value: value[1], reverse=True)
                         for i in range(0, min(settings.MINMAX, too_high.shape[0])):
                             if file.is_2d:

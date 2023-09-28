@@ -11,7 +11,7 @@ def check_experiment(file):
         raise FileCritical(file, "No valid experiment found for this sector and {climate_scenario}, "\
                            "{soc_scenario}, {sens_scenario} between {start_year} and {end_year}. skipping..."\
                            .format(**file.specifiers)
-        )
+                           )
 
     else:
         file.info("Experiment looks good (%s).", experiment)
