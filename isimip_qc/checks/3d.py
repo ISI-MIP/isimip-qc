@@ -88,7 +88,7 @@ def check_3d(file):
         else:
             file.dim_vertical = variable.dimensions[1]
 
-    if file.dim_len != definition_dim_len:
+    if file.dim_len != definition_dim_len and file.specifiers.get('time_step') != 'fixed':
         raise FileCritical(file,
                            'Dimension missing (%s found, %s expected). Declare variable as %s%s.',
                            file.dim_len, definition_dim_len, file.variable_name, dims_expected
