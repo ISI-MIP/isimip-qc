@@ -52,8 +52,7 @@ def check_3d_variable(file):
                 # check direction of depth dimension
                 depth_first = file.dataset.variables.get(file.dim_vertical)[0]
                 depth_last = file.dataset.variables.get(file.dim_vertical)[-1]
-
-                if depth_first > depth_last:
+                if len(depth_first) == 1 and depth_first > depth_last:
                     file.warn('Depths in wrong order. Should increase with depth . (found %s to %s)',
                               depth_first, depth_last)
                 else:
