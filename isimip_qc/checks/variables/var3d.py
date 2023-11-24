@@ -48,60 +48,47 @@ def check_3d_variable(file):
                 attr_definition = var3d_definition.get(attribute)
                 check_attribute(var3d, attribute, attr_definition)
 
-            if file.dim_vertical == 'depth':
-                # check direction of depth dimension
-                depth_first = file.dataset.variables.get(file.dim_vertical)[0]
-                depth_last = file.dataset.variables.get(file.dim_vertical)[-1]
-                if len(depth_first) == 1 and depth_first > depth_last:
-                    file.warn('Depths in wrong order. Should increase with depth . (found %s to %s)',
-                              depth_first, depth_last)
+            # check direction of depth dimension
+            depth_first = var3d[0]
+            depth_last = var3d[-1]
+            if var3d.shape[0] > 1 and depth_first > depth_last:
+                file.warn('"%s" in wrong order. Should increase with depth . (found %s to %s)',
+                          file.dim_vertical, depth_first, depth_last)
+            else:
+                file.info('Depths or layers order looks good (positive down).')
+
+            if file.dim_vertical == 'levlak' and settings.SIMULATION_ROUND not in ['ISIMIP2a', 'ISIMIP2b']:
+
+                depth_file = file.dataset.variables.get('depth')
+
+                if depth_file is None:
+                    file.warn('Variable "depth" not found. Introduce layer vertical center'
+                              ' depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
                 else:
-                    file.info('Depths order looks good (positive down).')
-
-            # for lakes sector
-            if file.dim_vertical == 'levlak':
-                if len(file.dataset.variables.get(file.dim_vertical).shape) == 1:
-                    levlak_first = file.dataset.variables.get(file.dim_vertical)[0]
-                    levlak_last = file.dataset.variables.get(file.dim_vertical)[-1]
-
-                    if levlak_first > levlak_last:
-                        file.warn('"levlak" in wrong order. Should increase with depth . (found %s to %s)',
-                                  levlak_first, levlak_last)
+                    if len(depth_file.dimensions) == 4:
+                        if depth_file.dimensions[1] != 'levlak':
+                            file.error('Time varying "depth" variable has no dependency for "levlak"'
+                                       ' level index. Expecting: depth(time,levlak,lat,lon)')
+                    elif len(depth_file.dimensions) == 3:
+                        if depth_file.dimensions[0] != 'levlak':
+                            file.error('Fixed-time "depth" variable has no dependency for "levlak"'
+                                       ' level index. Expecting: depth(levlak,lat,lon)')
+                    elif len(depth_file.dimensions) == 1:
+                        if depth_file.dimensions[0] != 'levlak':
+                            file.error('Globally fixed "depth" variable has no dependency for "levlak"'
+                                       ' level index. Expecting: depth(levlak)')
                     else:
-                        file.info('"levlak" order looks good (positive down).')
+                        file.error('No proper "levlak" dependency found in "depth" variable.')
 
-                if settings.SIMULATION_ROUND not in ['ISIMIP2a', 'ISIMIP2b']:
+                    depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
-                    depth_file = file.dataset.variables.get('depth')
-
-                    if depth_file is None:
-                        file.warn('Variable "depth" not found. Introduce layer vertical center'
-                                  ' depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)')
+                    if depth_definition is None:
+                        file.warn('Dimension "depth" is not yet defined in protocol. Skipping'
+                                  ' attribute checks for "depth".')
                     else:
-                        if len(depth_file.dimensions) == 4:
-                            if depth_file.dimensions[1] != 'levlak':
-                                file.error('Time varying "depth" variable has no dependency for "levlak"'
-                                           ' level index. Expecting: depth(time,levlak,lat,lon)')
-                        elif len(depth_file.dimensions) == 3:
-                            if depth_file.dimensions[0] != 'levlak':
-                                file.error('Fixed-time "depth" variable has no dependency for "levlak"'
-                                           ' level index. Expecting: depth(levlak,lat,lon)')
-                        elif len(depth_file.dimensions) == 1:
-                            if depth_file.dimensions[0] != 'levlak':
-                                file.error('Globally fixed "depth" variable has no dependency for "levlak"'
-                                           ' level index. Expecting: depth(levlak)')
-                        else:
-                            file.error('No proper "levlak" dependency found in "depth" variable.')
-
-                        depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
-
-                        if depth_definition is None:
-                            file.warn('Dimension "depth" is not yet defined in protocol. Skipping'
-                                      ' attribute checks for "depth".')
-                        else:
-                            for attribute in ['axis', 'standard_name', 'long_name', 'units']:
-                                attr_definition = depth_definition.get(attribute)
-                                check_attribute(depth_file, attribute, attr_definition)
+                        for attribute in ['axis', 'standard_name', 'long_name', 'units']:
+                            attr_definition = depth_definition.get(attribute)
+                            check_attribute(depth_file, attribute, attr_definition)
 
             # check if vertical bounds were defined
             if file.dim_vertical in ['depth', 'levlak']:
