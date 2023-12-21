@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: ISIMIP quality control
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: Büchner
+    given-names: Matthias
+    orcid: 'https://orcid.org/0000-0002-1382-7424'
+  - family-names: Klar
+    given-names: Jochen
+    orcid: 'https://orcid.org/0000-0002-5883-4273'
+  - family-names: Mengel
+    given-names: Matthias
+    orcid: 'https://orcid.org/0000-0001-6724-9685'
+repository-code: 'https://github.com/ISI-MIP/isimip-qc'
+license: MIT
