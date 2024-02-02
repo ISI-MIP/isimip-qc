@@ -40,6 +40,8 @@ def check_variable(file):
                 lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
                 lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
 
+            print(settings.DEFINITIONS['climate_forcing'])
+            quit()
             # overwrite lat/lon ranges if available from climate forcing definition
             if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
                 grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']

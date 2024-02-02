@@ -56,7 +56,7 @@ def check_lower_case(file):
             if attr not in ['_FillValue']:
                 if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value',
                                 'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info',
-                                'positive', 'bounds', 'classes', 'pft']:
+                                'positive', 'bounds', 'classes', 'pft', 'fuelclass']:
                     file.warn('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
                         'func': fix_remove_variable_attr,
                         'args': (file, variable_name, attr)
