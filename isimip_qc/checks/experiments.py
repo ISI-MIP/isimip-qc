@@ -1,8 +1,13 @@
+from isimip_qc.config import settings
+
 from ..exceptions import FileCritical
 from ..utils.experiments import get_experiment
 
 
 def check_experiment(file):
+    if settings.SKIP_EXP:
+        return
+
     if file.specifiers.get("time_step") == "fixed":
         return
 

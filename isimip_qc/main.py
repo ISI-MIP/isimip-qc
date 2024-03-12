@@ -55,6 +55,8 @@ def get_parser():
                         help='stop execution on errors')
     parser.add_argument('--ignore-critical', dest='ignore_crit', action='store_true', default=False,
                         help='allow fixing and copy/move files with critical issues found')
+    parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
+                        help='skip test for valid experiment combination')
     parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
                         help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,

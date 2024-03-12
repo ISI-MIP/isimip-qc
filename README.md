@@ -51,12 +51,12 @@ Usage
 The tool has several options which can be inspected using the help option `-h, --help`:
 
 ```plain
-usage: isimip-qc [-h] [--config-file CONFIG_FILE] [-c] [-m] [-O]
-                 [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH]
+usage: isimip-qc [-h] [-c] [-m] [-O] [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH]
                  [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL]
-                 [--log-path LOG_PATH] [--log-path-level LOG_PATH_LEVEL] [--include INCLUDE_LIST]
-                 [--exclude EXCLUDE_LIST] [-f] [-w] [-e] [-r [MINMAX]] [-nt] [--fix]
-                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
+		 [--log-path LOG_PATH] [--log-path-level LOG_PATH_LEVEL]
+                 [--include INCLUDE_LIST] [--exclude EXCLUDE_LIST] [-f] [-w] [-e]
+		 [--ignore-critical] [--skip-exp] [-r [MINMAX]] [-nt] [--fix]
+		 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
@@ -90,6 +90,7 @@ optional arguments:
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
   --ignore-critical     allow fixing and copy/move files with critical issues found
+  --skip-exp            skip test for valid experiment combination
   -r [MINMAX], --minmax [MINMAX]
                         test values for valid range (slow, argument MINMAX defaults to show the
                         top 10 values)
@@ -139,6 +140,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
 * `--ignore-critical`: allow fixing and copy/move files although critical issues were found. Caution, this might lead to unexpected behaviour.
+* `--skip-exp`: Skip test for valid experiment combination validation, e.g for secondary outputs.
 * `-r [MINMAX], --minmax [MINMAX]`: Test the data for valid ranges when defined in the protocol. Per default and when violations are detected the top 20 minimum and maximum values along with their time and geographic location will be logged as well. MINMAX is optional and defines how many values should be reported instead of 20. This test drastically slows down the run time of the tool.
 * -nt, --skip-time-span-check: Skip checking non-dialy data for proper coverage of simulation periods.
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
