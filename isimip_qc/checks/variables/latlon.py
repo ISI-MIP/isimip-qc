@@ -130,10 +130,6 @@ def check_latlon_variable(file):
                     elif var.name == 'lon':
                         minimum = -179.75
                         maximum = 179.75
-                elif model == 'dbpm' or model == 'zoomss':
-                    if climate_forcing == 'ipsl-cm6a-lr' and var.name == 'lon':
-                        minimum = -180.
-                        maximum = 179.
 
                 if np.min(var) != minimum:
                     file.error('First value of variable "%s" is %s. Must be %s.', variable, np.min(var), minimum)
