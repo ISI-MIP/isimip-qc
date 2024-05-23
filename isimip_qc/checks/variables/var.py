@@ -31,24 +31,24 @@ def check_variable(file):
 
         # check chunking
         chunking = variable.chunking()
+
         if chunking:
             # pick lat/lon sizes from dimensions definition
             if settings.SECTOR in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
-                lat_size = file.dataset.variables.get('lat').shape[0]
-                lon_size = file.dataset.variables.get('lon').shape[0]
+                lat_size = file.dataset.variables.get('lat').size
+                lon_size = file.dataset.variables.get('lon').size
             else:
                 lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
                 lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
-
-            # overwrite lat/lon ranges if available from climate forcing definition
-            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
-                grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
-                try:
-                    lat_size = grid_info['lat_size'][sens_scenario]
-                    lon_size = grid_info['lon_size'][sens_scenario]
-                except KeyError:
-                    lat_size = grid_info['lat_size']['default']
-                    lon_size = grid_info['lon_size']['default']
+                # overwrite lat/lon ranges if available from climate forcing definition
+                if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+                    grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
+                    try:
+                        lat_size = grid_info['lat_size'][sens_scenario]
+                        lon_size = grid_info['lon_size'][sens_scenario]
+                    except KeyError:
+                        lat_size = grid_info['lat_size']['default']
+                        lon_size = grid_info['lon_size']['default']
 
             # overwrite for special cases not defined in the protocol
             if model == 'dbem':
@@ -61,6 +61,7 @@ def check_variable(file):
                               file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
+
             if file.is_3d:
                 var3d_size = file.dataset.dimensions.get(file.dim_vertical).size
                 if (chunking[0] != 1
