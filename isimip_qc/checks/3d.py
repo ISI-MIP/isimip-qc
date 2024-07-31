@@ -46,7 +46,7 @@ def check_3d(file):
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
     if definition is None:
         raise FileCritical(file,
-                           'Variable %s not defined for sector %s. skipping...',
+                           'Variable %s not defined for sector %s. Skipping...',
                            file.variable_name, settings.SECTOR
                            )
 

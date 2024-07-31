@@ -261,7 +261,7 @@ class Summary:
 
     def update_experiments(self, specifiers):
         experiment = get_experiment(specifiers)
-        if experiment is not None:
+        if experiment:
             self.experiments[experiment] += 1
 
     def log_specifiers(self):

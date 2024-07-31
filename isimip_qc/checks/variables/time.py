@@ -99,7 +99,7 @@ def check_time_variable(file):
 def check_time_span_periods(file):
 
     if settings.TIME_SPAN:
-        file.info('skipping test of covered simulation period per option')
+        file.info('Skipping test of covered simulation period per option.')
         return
 
     climate_forcing = file.specifiers.get('climate_forcing')
