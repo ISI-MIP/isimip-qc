@@ -12,9 +12,12 @@ def check_experiment(file):
         return
 
     experiment = get_experiment(file.specifiers)
-    if experiment is None:
+    if experiment is False:
+        file.warn("No experiment information found in the protocol. Skipping...")
+
+    elif experiment is None:
         raise FileCritical(file, "No valid experiment found for this sector and {climate_scenario}, "\
-                           "{soc_scenario}, {sens_scenario} between {start_year} and {end_year}. skipping..."\
+                           "{soc_scenario}, {sens_scenario} between {start_year} and {end_year}. Skipping..."\
                            .format(**file.specifiers)
                            )
 

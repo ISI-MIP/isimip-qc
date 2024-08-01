@@ -6,7 +6,12 @@ def get_experiment(specifiers):
     soc_scenario = specifiers.get('soc_scenario')
     sens_scenario = specifiers.get('sens_scenario')
 
-    for experiment_specifier, experiment_values in settings.DEFINITIONS.get('experiments').items():
+    experiments = settings.DEFINITIONS.get('experiments')
+    if experiments is None:
+        # no experiments information is available
+        return False
+
+    for experiment_specifier, experiment_values in experiments.items():
         for period_specifier, period_values in settings.DEFINITIONS.get('period', []).items():
             if (period_values.get('start_year') <= specifiers.get('start_year') and
                 period_values.get('end_year') >= specifiers.get('end_year')):
