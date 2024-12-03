@@ -28,6 +28,7 @@ def check_3d(file):
 
     try:
         variable = file.dataset.variables.get(file.variable_name)
+        file.dim_len = len(variable.dimensions)
         if variable is None:
             raise FileCritical(file,
                                'Variable "%s" from file name not found inside the file!'
@@ -51,8 +52,6 @@ def check_3d(file):
                            )
 
     # check for number of variable dependencies
-
-    file.dim_len = len(variable.dimensions)
 
     if 'dimensions' in definition:
         definition_dim_len = len(definition['dimensions'])
