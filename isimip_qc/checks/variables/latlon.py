@@ -131,10 +131,10 @@ def check_latlon_variable(file):
                         minimum = -179.75
                         maximum = 179.75
 
-                if np.min(var) != minimum:
+                if round(np.min(var), 7) != minimum:
                     file.error('First value of variable "%s" is %s. Must be %s.', variable, np.min(var), minimum)
 
-                if np.max(var) != maximum:
+                if round(np.max(var), 7) != maximum:
                     file.error('Last value of variable "%s" is %s. Must be %s.', variable, np.max(var), maximum)
 
                 # check latitude order
