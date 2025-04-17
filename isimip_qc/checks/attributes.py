@@ -76,7 +76,7 @@ def check_contact(file):
         if not address:
             file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
         else:
-            file.info('Global attribute "contact" looks good.')
+            file.info('Global attribute "contact" looks good. (%s <%s>)', name, address)
     except AttributeError:
         file.error('Global attribute "contact" is missing.')
 
