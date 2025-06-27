@@ -17,7 +17,7 @@ def check_lon_dimension(file):
                 lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
 
             # pick longitude size if available from data set definition
-            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing, []):
                 grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']['lon_size']
                 try:
                     lon_size = grid_info[sens_scenario]
@@ -47,7 +47,7 @@ def check_lat_dimension(file):
                 lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
 
             # pick latitude size if available from data set definition
-            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
+            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing, []):
                 grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']['lat_size']
                 try:
                     lat_size = grid_info[sens_scenario]
