@@ -3,9 +3,9 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-import colorlog
 import jsonschema
 from prettytable.colortable import PrettyTable
+from rich.logging import RichHandler
 
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
@@ -22,6 +22,8 @@ from .utils.datamodel import call_cdo, call_nccopy
 from .utils.experiments import get_experiment
 from .utils.files import copy_file, move_file
 from .utils.logging import SUMMARY
+
+logger = logging.getLogger(__name__)
 
 
 class File:
@@ -172,29 +174,23 @@ class File:
     def get_logger(self):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
-        logger = colorlog.getLogger(logger_name)
+
+        logger = logging.getLogger(logger_name)
         logger.setLevel(settings.LOG_LEVEL)
 
         # do not propagate messages to the root logger,
-        # which is configured in settings.setup()
+        # which is configured in main()
         logger.propagate = False
 
-        # add handlers
-        logger.addHandler(self.get_stream_handler())
+        # add rich handler
+        logger.addHandler(RichHandler())
+
+        # add file handler
         if settings.LOG_PATH:
             self.handler = self.get_file_handler()
             logger.addHandler(self.handler)
 
         return logger
-
-    def get_stream_handler(self):
-        formatter = colorlog.ColoredFormatter(' %(log_color)s%(levelname)-9s: %(message)s%(reset)s')
-
-        handler = colorlog.StreamHandler()
-        handler.setLevel(settings.LOG_LEVEL)
-        handler.setFormatter(formatter)
-
-        return handler
 
     def get_file_handler(self):
         log_name = self.path.name.split('.')[0] + '_' + settings.NOW
@@ -276,7 +272,7 @@ class Summary:
                 table.add_row([identifier if i == 0 else '', specifier, count])
 
         for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+            logger.log(SUMMARY, line)
 
     def log_variables(self):
         table = PrettyTable()
@@ -290,7 +286,7 @@ class Summary:
             table.add_row([specifier, ', '.join(variable.get('sectors')), variable.get('count')])
 
         for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+            logger.log(SUMMARY, line)
 
     def log_experiments(self):
         table = PrettyTable()
@@ -302,7 +298,7 @@ class Summary:
             table.add_row([experiment, count])
 
         for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+            logger.log(SUMMARY, line)
 
     def log(self):
         self.log_specifiers()

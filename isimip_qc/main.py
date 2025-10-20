@@ -1,9 +1,9 @@
+import logging
 import sys
-from os import path
+from pathlib import Path
 
-import colorlog
-
-from isimip_utils.parser import ArgumentParser
+from isimip_utils.cli import ArgumentParser, parse_path, setup_logs
+from isimip_utils.exceptions import NotFound
 
 from . import VERSION
 from .checks import checks
@@ -13,10 +13,10 @@ from .models import File, Summary
 from .utils.files import walk_files
 from .utils.logging import CHECKING
 
-logger = colorlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-def get_parser():
+def main():
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
 
     # mandatory
@@ -29,9 +29,9 @@ def get_parser():
                         help='move checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
                         help='overwrite files in CHECKED_PATH if present. Default is False.')
-    parser.add_argument('--unchecked-path', dest='unchecked_path',
+    parser.add_argument('--unchecked-path', dest='unchecked_path', type=parse_path, default=Path().cwd(),
                         help='base path of the unchecked files')
-    parser.add_argument('--checked-path', dest='checked_path',
+    parser.add_argument('--checked-path', dest='checked_path', type=parse_path, default=Path().cwd(),
                         help='base path for the checked files')
     parser.add_argument('--protocol-location', dest='protocol_locations',
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
@@ -39,7 +39,7 @@ def get_parser():
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
                         help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY,'
                         ' INFO, or DEBUG) [default: CHECKING]')
-    parser.add_argument('--log-path', dest='log_path',
+    parser.add_argument('--log-path', dest='log_path', type=parse_path,
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
                         help='log level for the individual log files [default: WARN]')
@@ -72,43 +72,31 @@ def get_parser():
                         help='Copy or move files despite errors')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
-    return parser
 
+    args = parser.parse_args()
 
-def init_settings(**kwargs):
-    parser = get_parser()
-    args = parser.get_defaults()
-    args.update(kwargs)
-    settings.setup(args)
-    return settings
+    setup_logs(log_level=args.log_level)
 
+    settings.from_dict(vars(args))
 
-def main():
-    parser = get_parser()
-    args = vars(parser.parse_args())
-    settings.setup(args)
     summary = Summary()
 
-    if settings.DEFINITIONS is None:
-        parser.error('no definitions could be found. Check schema_path argument.')
-    if settings.PATTERN is None:
-        parser.error('no pattern could be found. Check schema_path argument.')
-    if settings.SCHEMA is None:
-        parser.error('no schema could be found. Check schema_path argument.')
+    try:
+        settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA
+    except NotFound as e:
+        parser.error(f'{e} Check schema_path argument.')
 
     if settings.UNCHECKED_PATH:
-        if not path.exists(settings.UNCHECKED_PATH):
-            logger.error('UNCHECKED_PATH does not exist:', settings.UNCHECKED_PATH)
-            quit()
+        if not settings.UNCHECKED_PATH.exists():
+            parser.error(f'UNCHECKED_PATH does not exist: {settings.UNCHECKED_PATH}')
 
     if settings.CHECKED_PATH:
-        if not path.exists(settings.CHECKED_PATH):
-            logger.error('CHECKED_PATH does not exist:', settings.CHECKED_PATH)
-            quit()
+        if not settings.UNCHECKED_PATH.exists():
+            parser.error(f'CHECKED_PATH does not exist: {settings.CHECKED_PATH}')
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        if path.islink(file_path):
+        if file_path.is_symlink():
             continue
 
         logger.log(CHECKING, file_path)

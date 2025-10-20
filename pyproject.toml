@@ -21,7 +21,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "colorlog",
     "isimip-utils>=1.2",
     "jsonschema",
     "netCDF4",
