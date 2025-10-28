@@ -183,7 +183,7 @@ class File:
         logger.propagate = False
 
         # add rich handler
-        logger.addHandler(RichHandler())
+        logger.addHandler(RichHandler(show_time=settings.SHOW_TIME, show_path=settings.SHOW_PATH))
 
         # add file handler
         if settings.LOG_PATH:

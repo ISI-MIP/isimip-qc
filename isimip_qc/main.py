@@ -39,6 +39,10 @@ def main():
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
                         help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY,'
                         ' INFO, or DEBUG) [default: CHECKING]')
+    parser.add_argument('--show-time', dest='show_time', action='store_true', default=False,
+                        help='show time in console logs')
+    parser.add_argument('--show-path', dest='show_path', action='store_true', default=False,
+                        help='show path in console logs')
     parser.add_argument('--log-path', dest='log_path', type=parse_path,
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
@@ -75,7 +79,7 @@ def main():
 
     args = parser.parse_args()
 
-    setup_logs(log_level=args.log_level)
+    setup_logs(log_level=args.log_level, show_time=args.show_time, show_path=args.show_path)
 
     settings.from_dict(vars(args))
 
