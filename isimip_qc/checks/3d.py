@@ -60,7 +60,7 @@ def check_3d(file):
         definition_dim_len = 3
         dims_expected = '[time, lat, lon]'
 
-    # detect 2d or 3d data
+    # detect 1d, 2d or 3d data
     if file.specifiers.get('time_step') == 'fixed':
         file.is_time_fixed = True
         if file.dim_len > 2:
@@ -68,6 +68,8 @@ def check_3d(file):
                                'File has fixed data but more than 2 dimensions. Remove "time" dimension if present.'
                                )
             return
+    elif file.dim_len == 1:
+        file.is_1d = True
     elif file.dim_len == 3:
         file.is_2d = True
     elif file.dim_len == 4:

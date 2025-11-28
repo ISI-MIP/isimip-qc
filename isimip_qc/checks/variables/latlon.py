@@ -9,6 +9,9 @@ def check_latlon_variable(file):
     climate_forcing = file.specifiers.get('climate_forcing')
     sens_scenario = file.specifiers.get('sens_scenario')
 
+    if file.is_1d:
+        return
+
     for variable in  ['lat', 'lon']:
         var = file.dataset.variables.get(variable)
         var_definition = settings.DEFINITIONS['dimensions'].get(variable)

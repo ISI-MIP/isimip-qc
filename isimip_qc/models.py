@@ -43,6 +43,7 @@ class File:
         self.dataset = None
         self.specifiers = {}
 
+        self.is_1d = False
         self.is_2d = False
         self.is_3d = False
         self.is_time_fixed = False
