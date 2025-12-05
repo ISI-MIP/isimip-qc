@@ -38,8 +38,13 @@ def check_3d_variable(file):
         if var3d and var3d_definition:
             # check dtype
             dtypes = ['float32', 'float64']
-            if var3d.dtype not in dtypes:
-                file.warn('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, dtypes)
+            if var3d.name in ['bins']:
+                dtypes = [dtypes, 'int16', 'int32']
+                if var3d.dtype not in dtypes:
+                    file.warn('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, dtypes)
+            else:
+                if var3d.dtype not in dtypes:
+                    file.warn('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, dtypes)
 
             # check attributes
             for attribute in ['axis', 'standard_name', 'long_name', 'units']:
