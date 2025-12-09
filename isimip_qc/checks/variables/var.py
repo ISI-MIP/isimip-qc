@@ -56,7 +56,9 @@ def check_variable(file):
                 lon_size = 720
 
             if file.is_2d:
-                if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
+                if variable.dimensions[1] == 'plot':
+                    file.info('Skipping checks for chunking in forestry sector')
+                elif chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
                     file.warn('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).',
                               file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
@@ -83,7 +85,10 @@ def check_variable(file):
         if file.is_time_fixed:
             default_dimensions = ('lat', 'lon')
         if file.is_2d:
-            default_dimensions = ('time', 'lat', 'lon')
+            if variable.dimensions[1] == 'plot':
+                default_dimensions = ('time', 'plot')
+            else:
+                default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
             default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
 

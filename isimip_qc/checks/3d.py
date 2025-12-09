@@ -61,6 +61,11 @@ def check_3d(file):
         dims_expected = '[time, lat, lon]'
 
     # detect 2d or 3d data
+    # workaround for foresty data
+    if variable.dimensions[1] == 'plot':
+        file.is_2d = True
+        return
+
     if file.specifiers.get('time_step') == 'fixed':
         file.is_time_fixed = True
         if file.dim_len > 2:
