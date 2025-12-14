@@ -2,7 +2,7 @@ from datetime import datetime
 from pathlib import Path
 
 from isimip_utils.config import Settings as BaseSettings
-from isimip_utils.fetch import fetch_definitions, fetch_pattern, fetch_schema
+from isimip_utils.protocol import fetch_definitions, fetch_pattern, fetch_schema
 from isimip_utils.utils import cached_property
 
 
@@ -28,19 +28,19 @@ class Settings(BaseSettings):
     def DEFINITIONS(self):
         if self.PROTOCOL_LOCATIONS is None:
             raise RuntimeError('PROTOCOL_LOCATIONS is not set')
-        return fetch_definitions(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS.split())
+        return fetch_definitions(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS)
 
     @cached_property
     def PATTERN(self):
         if self.PROTOCOL_LOCATIONS is None:
             raise RuntimeError('PROTOCOL_LOCATIONS is not set')
-        return fetch_pattern(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS.split())
+        return fetch_pattern(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS)
 
     @cached_property
     def SCHEMA(self):
         if self.PROTOCOL_LOCATIONS is None:
             raise RuntimeError('PROTOCOL_LOCATIONS is not set')
-        return fetch_schema(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS.split())
+        return fetch_schema(self.SCHEMA_PATH, self.PROTOCOL_LOCATIONS)
 
 
 settings = Settings()

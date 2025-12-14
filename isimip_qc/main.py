@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from isimip_utils.cli import ArgumentParser, parse_path, setup_logs
+from isimip_utils.cli import ArgumentParser, parse_locations, parse_path, setup_logs
 from isimip_utils.exceptions import NotFound
 
 from . import VERSION
@@ -33,7 +33,7 @@ def main():
                         help='base path of the unchecked files')
     parser.add_argument('--checked-path', dest='checked_path', type=parse_path, default=Path().cwd(),
                         help='base path for the checked files')
-    parser.add_argument('--protocol-location', dest='protocol_locations',
+    parser.add_argument('--protocol-location', dest='protocol_locations', type=parse_locations,
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
