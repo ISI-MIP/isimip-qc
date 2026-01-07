@@ -101,7 +101,7 @@ def main():
             parser.error(f'UNCHECKED_PATH does not exist: {settings.UNCHECKED_PATH}')
 
     if settings.CHECKED_PATH:
-        if not settings.UNCHECKED_PATH.exists():
+        if not settings.CHECKED_PATH.exists():
             parser.error(f'CHECKED_PATH does not exist: {settings.CHECKED_PATH}')
 
     # walk over unchecked files
