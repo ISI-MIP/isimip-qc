@@ -37,8 +37,7 @@ def main():
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING',
-                        help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY,'
-                        ' INFO, or DEBUG) [default: CHECKING]')
+                        help='log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default: CHECKING]')
     parser.add_argument('--show-time', dest='show_time', action='store_true', default=False,
                         help='show time in console logs')
     parser.add_argument('--show-path', dest='show_path', action='store_true', default=False,
