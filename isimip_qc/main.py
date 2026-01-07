@@ -2,8 +2,9 @@ import logging
 import sys
 from pathlib import Path
 
-from isimip_utils.cli import ArgumentParser, parse_locations, parse_path, setup_logs
+from isimip_utils.cli import ArgumentParser, parse_filelist, parse_locations, parse_path, setup_logs
 from isimip_utils.exceptions import NotFound
+from isimip_utils.utils import exclude_path, include_path
 
 from . import VERSION
 from .checks import checks
@@ -46,9 +47,9 @@ def main():
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
                         help='log level for the individual log files [default: WARN]')
-    parser.add_argument('--include', dest='include_list',
+    parser.add_argument('--include', dest='include', type=parse_filelist,
                         help='patterns of files to include. Exclude those that don\'t match any.')
-    parser.add_argument('--exclude', dest='exclude_list',
+    parser.add_argument('--exclude', dest='exclude', type=parse_filelist,
                         help='patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
@@ -110,13 +111,13 @@ def main():
 
         logger.log(CHECKING, file_path)
 
-        if settings.INCLUDE_LIST:
-            if not any(string in str(file_path) for string in settings.INCLUDE_LIST.split(',')):
+        if settings.INCLUDE:
+            if not include_path(settings.INCLUDE, file_path):
                 logger.log(CHECKING, ' skipped by include option.')
                 continue
 
-        if settings.EXCLUDE_LIST:
-            if any(string in str(file_path) for string in settings.EXCLUDE_LIST.split(',')):
+        if settings.EXCLUDE:
+            if exclude_path(settings.EXCLUDE, file_path):
                 logger.log(CHECKING, ' skipped by exclude option.')
                 continue
 
