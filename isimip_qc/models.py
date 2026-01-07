@@ -4,8 +4,9 @@ from collections import Counter
 from pathlib import Path
 
 import jsonschema
-from prettytable.colortable import PrettyTable
+from rich.console import Console
 from rich.logging import RichHandler
+from rich.table import Table
 
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
@@ -21,10 +22,10 @@ from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.experiments import get_experiment
 from .utils.files import copy_file, move_file
-from .utils.logging import SUMMARY
 
 logger = logging.getLogger(__name__)
 
+console = Console()
 
 class File:
 
@@ -260,47 +261,40 @@ class Summary:
         if experiment:
             self.experiments[experiment] += 1
 
-    def log_specifiers(self):
-        table = PrettyTable()
-        table.field_names = ['Identifier', 'Specifier', 'Count']
-        table.align['Identifier'] = 'l'
-        table.align['Specifier'] = 'l'
-        table.align['Count'] = 'r'
+    def print_specifiers(self):
+        table = Table()
+        table.add_column('Identifier')
+        table.add_column('Specifier', style='magenta')
+        table.add_column('Count', justify='right', style='cyan')
 
         for identifier, counter in self.specifiers.items():
-            for i, (specifier, count) in enumerate(counter.items()):
-                table.add_row([identifier if i == 0 else '', specifier, count])
+            for i, (specifier, count) in enumerate(sorted(counter.items(), key=lambda x: x[1], reverse=True)):
+                table.add_row(identifier if i == 0 else '', str(specifier), str(count))
 
-        for line in table.get_string().splitlines():
-            logger.log(SUMMARY, line)
+        console.print(table)
 
-    def log_variables(self):
-        table = PrettyTable()
-        table.field_names = ['Specifier', 'Sectors', 'Count']
-        table.align['Specifier'] = 'l'
-        table.align['Long name'] = 'l'
-        table.align['Sectors'] = 'l'
-        table.align['Count'] = 'r'
+    def print_variables(self):
+        table = Table()
+        table.add_column('Specifier', style='magenta')
+        table.add_column('Sectors', style='green')
+        table.add_column('Count', justify='right', style='cyan')
 
-        for specifier, variable in self.variables.items():
-            table.add_row([specifier, ', '.join(variable.get('sectors')), variable.get('count')])
+        for specifier, variable in sorted(self.variables.items(), key=lambda x: x[1].get('count'), reverse=True):
+            table.add_row(specifier, ', '.join(variable.get('sectors')), str(variable.get('count')))
 
-        for line in table.get_string().splitlines():
-            logger.log(SUMMARY, line)
+        console.print(table)
 
-    def log_experiments(self):
-        table = PrettyTable()
-        table.field_names = ['Experiment', 'Count']
-        table.align['Experiment'] = 'l'
-        table.align['Count'] = 'r'
+    def print_experiments(self):
+        table = Table()
+        table.add_column('Experiment')
+        table.add_column('Count', justify='right', style='cyan')
 
-        for experiment, count in self.experiments.items():
-            table.add_row([experiment, count])
+        for experiment, count in sorted(self.experiments.items(), key=lambda x: x[1], reverse=True):
+            table.add_row(experiment, str(count))
 
-        for line in table.get_string().splitlines():
-            logger.log(SUMMARY, line)
+        console.print(table)
 
-    def log(self):
-        self.log_specifiers()
-        self.log_variables()
-        self.log_experiments()
+    def print(self):
+        self.print_specifiers()
+        self.print_variables()
+        self.print_experiments()
