@@ -61,8 +61,8 @@ def main():
                         help='allow fixing and copy/move files with critical issues found')
     parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
                         help='skip test for valid experiment combination')
-    parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
-                        help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
+    parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
+                        help='only match the file name and skip all other checks')
     parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
                         help='test values for valid range (slow)')
     parser.add_argument('--minmax-values', dest='minmax_values', type=int, default=0,
@@ -128,18 +128,29 @@ def main():
 
             file.match()
 
-            # skip opening non-NetCDF files
-            if file_path.suffix not in ['.nc', '.nc4']:
-                continue
-
-            # 1st pass: perform checks
-            try:
-                file.open_dataset()
-            except OSError:
-                logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
-                continue
-
             if file.matched:
+                file.validate()
+
+                if settings.SUMMARY:
+                    summary.update_specifiers(file.specifiers)
+                    summary.update_variables(file.specifiers)
+                    summary.update_experiments(file.specifiers)
+
+                if settings.MATCH_ONLY:
+                    file.close_log()
+                    continue
+
+                # skip opening non-NetCDF files
+                if file_path.suffix not in ['.nc', '.nc4']:
+                    file.close_log()
+                    continue
+
+                # 1st pass: perform checks
+                try:
+                    file.open_dataset()
+                except OSError:
+                    logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
+                    continue
 
                 for check in checks:
                     skip = False
@@ -157,13 +168,13 @@ def main():
                                             ' Try to repair the file first before checking it again.')
                                 break
 
+                # close the dataset
+                file.close_dataset()
+
+                # skip further checks for files with critical errors
                 if skip:
-                    file.close_dataset()
                     file.close_log()
                     continue
-                else:
-                    file.validate()
-                    file.close_dataset()
 
                 # log result of checks, stop if flags are set
                 if file.is_clean:
@@ -207,14 +218,6 @@ def main():
                             file.copy()
                     else:
                         logger.warn('File has not been moved or copied due to warnings or erros found.')
-
-                # collect stats about the file
-                summary.update_specifiers(file.specifiers)
-                summary.update_variables(file.specifiers)
-                summary.update_experiments(file.specifiers)
-
-            else:
-                file.close_dataset()
 
             # close the log for this file
             file.close_log()

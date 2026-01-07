@@ -52,12 +52,17 @@ class File:
 
     @property
     def json(self):
-        return {
-            'dimensions': get_dimensions(self.dataset),
-            'variables': get_variables(self.dataset),
-            'global_attributes': get_global_attributes(self.dataset),
-            'specifiers': self.specifiers
-        }
+        if self.dataset is None:
+            return {
+                'specifiers': self.specifiers
+            }
+        else:
+            return {
+                'dimensions': get_dimensions(self.dataset),
+                'variables': get_variables(self.dataset),
+                'global_attributes': get_global_attributes(self.dataset),
+                'specifiers': self.specifiers
+            }
 
     def open_log(self):
         self.logger = self.get_logger()
