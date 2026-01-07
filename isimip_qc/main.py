@@ -63,6 +63,10 @@ def main():
                         help='skip test for valid experiment combination')
     parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
                         help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
+    parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
+                        help='test values for valid range (slow)')
+    parser.add_argument('--minmax-values', dest='minmax_values', type=int, default=0,
+                        help='number of values displayed when checking for valid range')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
                         help='skip check for simulated time period')
     parser.add_argument('--summary', dest='summary', action='store_true', default=False,
