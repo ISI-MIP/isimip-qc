@@ -217,8 +217,7 @@ class File:
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
         except DidNotMatch as e:
-            self.error('File did not match naming scheme.')
-            self.debug(e)
+            self.error(str(e))
             self.matched = False
 
     def validate(self):
