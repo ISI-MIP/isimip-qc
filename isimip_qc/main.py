@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from isimip_utils.cli import ArgumentParser, parse_filelist, parse_locations, parse_path, setup_logs
+from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_logs
 from isimip_utils.exceptions import NotFound
 from isimip_utils.utils import exclude_path, include_path
 
@@ -47,9 +47,9 @@ def main():
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
                         help='log level for the individual log files [default: WARN]')
-    parser.add_argument('--include', dest='include', type=parse_filelist,
+    parser.add_argument('--include', dest='include', type=parse_list,
                         help='patterns of files to include. Exclude those that don\'t match any.')
-    parser.add_argument('--exclude', dest='exclude', type=parse_filelist,
+    parser.add_argument('--exclude', dest='exclude', type=parse_list,
                         help='patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
