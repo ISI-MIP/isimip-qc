@@ -1,100 +1,81 @@
 
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
-
+import numpy as np
 
 def check_time_variable(file):
     if file.is_time_fixed:
         return
-    time = file.dataset.variables.get('time')
+    ds = file.dataset
+    variables = ds.variables
+    time = variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
 
     if time is None:
         file.error('Variable time is missing.')
-    elif not time_definition:
+        return
+    if not time_definition:
         file.error('Definition for variable time is missing.')
+        return
+
+    # check dtype
+    if time.dtype not in (np.dtype('float32'), np.dtype('float64')):
+        file.warn('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, ('float32', 'float64'))
+
+    # check axis
+    axis = time_definition.get('axis')
+    cur_axis = getattr(time, 'axis', None)
+    if cur_axis != axis:
+        file.warn('"axis" attribute of "time" is %s. Should be "%s".', cur_axis, axis, fix={
+            'func': fix_set_variable_attr,
+            'args': (file, 'time', 'axis', axis)
+        })
+
+    # check standard_name
+    standard_name = time_definition.get('standard_name')
+    cur_std = getattr(time, 'standard_name', None)
+    if cur_std != standard_name:
+        file.warn('"standard_name" attribute of "time" is "%s". Should be "%s".', cur_std, standard_name, fix={
+            'func': fix_set_variable_attr,
+            'args': (file, 'time', 'standard_name', standard_name)
+        })
+
+    # check long_name
+    long_names = time_definition.get('long_names', [])
+    if long_names:
+        cur_long = getattr(time, 'long_name', None)
+        default_long = long_names[2] if len(long_names) > 2 else long_names[0]
+        if cur_long not in long_names:
+            file.warn('"long_name" attribute of "time" is %s. Should be in %s.', cur_long, long_names, fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'time', 'long_name', default_long)
+            })
+
+    # check units
+    time_step = file.specifiers.get('time_step')
+    increment = settings.DEFINITIONS['time_step'][time_step]['increment']
+    minimum = settings.DEFINITIONS['time_span']['minimum']['value']
+
+    units = (
+        f"{increment} since {minimum}-01-01",
+        f"{increment} since {minimum}-01-01 00:00:00",
+        f"{increment} since {minimum}-1-1",
+        f"{increment} since {minimum}-1-1 00:00:00",
+    )
+
+    cur_units = getattr(time, 'units', None)
+    if cur_units not in units:
+        file.error('"units" attribute for "time" is "%s". Should be one of "%s".', cur_units, units)
     else:
-        # check dtype
-        dtypes = ['float32', 'float64']
-        if time.dtype not in dtypes:
-            file.warn('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, dtypes)
+        file.info('Valid time unit found (%s)', cur_units)
 
-        # check axis
-        axis = time_definition.get('axis')
-        try:
-            if time.axis != axis:
-                file.warn('"axis" attribute of "time" is %s. Should be "%s".', time.axis, axis, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'axis', axis)
-                })
-        except AttributeError:
-            file.warn('"axis" attribute of "time" is missing. Should be "%s".', axis, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'axis', axis)
-            })
-
-        # check standard_name
-        standard_name = time_definition.get('standard_name')
-        try:
-            if time.standard_name != standard_name:
-                file.warn(
-                    '"standard_name" attribute of "time" is "%s". Should be "%s".',
-                    time.standard_name, standard_name, fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, 'time', 'standard_name', standard_name)
-                    }
-                )
-        except AttributeError:
-            file.warn('"standard_name" attribute of "time" is missing. Should be "%s".', standard_name, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'standard_name', standard_name)
-            })
-
-        # check long_name
-        long_names = time_definition.get('long_names', [])
-        try:
-            if time.long_name not in long_names:
-                file.warn('"long_name" attribute of "time" is %s". Should be in %s.', time.long_name, long_names, fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'long_name', long_names[2])
-                })
-        except AttributeError:
-            file.warn('"long_name" attribute of "time" is missing. Should be "%s".', long_names[2], fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'long_name', long_names[2])
-            })
-
-        # check units
-        time_step = file.specifiers.get('time_step')
-        increment = settings.DEFINITIONS['time_step'][time_step]['increment']
-        minimum = settings.DEFINITIONS['time_span']['minimum']['value']
-
-        units_templates = [
-            "%s since %i-01-01",
-            "%s since %i-01-01 00:00:00",
-            "%s since %i-1-1",
-            "%s since %i-1-1 00:00:00"
-        ]
-
-        units = [template % (increment, minimum) for template in units_templates]
-
-        try:
-            if time.units not in units:
-                file.error('"units" attribute for "time" is "%s". Should be "%s".', time.units, units)
-            else:
-                file.info('Valid time unit found (%s)', time.units)
-        except AttributeError:
-            file.error('Attribute time.units is missing. Should be "%s".', units)
-
-        # check calendars
-        try:
-            calendars = time_definition.get('calenders_daily', [])
-            if time.calendar not in calendars:
-                file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', time.calendar, calendars)
-            else:
-                file.info('Valid calendar found (%s)', time.calendar)
-        except AttributeError:
-            file.warn('"calendar" attribute for "time" is missing. Should be in "%s".', calendars)
+    # check calendars
+    calendars = time_definition.get('calenders_daily', [])
+    cur_cal = getattr(time, 'calendar', None)
+    if cur_cal not in calendars:
+        file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', cur_cal, calendars)
+    else:
+        file.info('Valid calendar found (%s)', cur_cal)
 
 def check_time_span_periods(file):
 

@@ -1,5 +1,15 @@
 from ..fixes import fix_remove_variable_attr, fix_rename_dimension, fix_rename_variable, fix_rename_variable_attr
 
+# Attributes allowed by the protocol (kept as a set for fast membership tests)
+_ALLOWED_VARIABLE_ATTRS = {
+    'axis', 'standard_name', 'long_name', 'calendar', 'missing_value',
+    'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info',
+    'positive', 'bounds', 'classes', 'pft', 'fuelclass'
+}
+
+# Attributes that should be ignored from removal checks
+_ATTR_EXCEPTIONS = {'_FillValue'}
+
 
 def check_data_model(file):
     '''
@@ -17,19 +27,28 @@ def check_zip(file):
     '''
 
     variable = file.dataset.variables.get(file.variable_name)
+    if variable is None:
+        file.warn('Variable "%s" not found for compression check.', file.variable_name)
+        return
 
     try:
-        zlib = variable.filters().get('zlib')
-        if zlib:
-            complevel = variable.filters().get('complevel')
-            if complevel < 4:
-                file.warn('Variable "%s" compression level is "%s". Should be >= 5.',
-                          file.variable_name, complevel, fix_datamodel=True)
-            else:
-                file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
-        else:
-            file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
+        filters = variable.filters()
     except AttributeError:
+        filters = None
+
+    if not filters:
+        file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
+        return
+
+    zlib = filters.get('zlib')
+    complevel = filters.get('complevel')
+    if zlib:
+        if complevel < 4:
+            file.warn('Variable "%s" compression level is "%s". Should be >= 5.',
+                      file.variable_name, complevel, fix_datamodel=True)
+        else:
+            file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
+    else:
         file.warn('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
 
 
@@ -52,16 +71,24 @@ def check_lower_case(file):
                 'args': (file, variable_name)
             })
 
-        for attr in variable.__dict__:
-            if attr not in ['_FillValue']:
-                if attr not in ['axis', 'standard_name', 'long_name', 'calendar', 'missing_value',
-                                'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info',
-                                'positive', 'bounds', 'classes', 'pft', 'fuelclass']:
-                    file.warn('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
-                        'func': fix_remove_variable_attr,
-                        'args': (file, variable_name, attr)
-                    })
-                elif not attr.islower():
+        # Use NetCDF4's ncattrs() to get user-defined attribute names reliably
+        try:
+            attrs = variable.ncattrs()
+        except Exception:
+            # Fallback to __dict__ if ncattrs isn't available
+            attrs = list(variable.__dict__.keys())
+
+        for attr in attrs:
+            if attr in _ATTR_EXCEPTIONS:
+                continue
+
+            if attr not in _ALLOWED_VARIABLE_ATTRS:
+                file.warn('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
+                    'func': fix_remove_variable_attr,
+                    'args': (file, variable_name, attr)
+                })
+            else:
+                if not attr.islower():
                     file.warn('Attribute "%s" for variable "%s" is not lower case.', attr, variable_name, fix={
                         'func': fix_rename_variable_attr,
                         'args': (file, variable_name, attr)

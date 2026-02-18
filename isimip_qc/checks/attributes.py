@@ -8,10 +8,17 @@ from ..fixes import fix_remove_global_attr, fix_set_global_attr
 
 
 def check_isimip_id(file):
+    ds = file.dataset
+    attrs = set()
     try:
-        isimip_id = file.dataset.getncattr('isimip_id')
+        attrs = set(ds.ncattrs())
+    except Exception:
+        pass
+
+    if 'isimip_id' in attrs:
+        isimip_id = ds.getncattr('isimip_id')
         file.info('Global attribute "isimip_id" found (%s).', isimip_id)
-    except AttributeError:
+    else:
         file.info('Global attribute "isimip_id" not yet set.', fix={
             'func': fix_set_global_attr,
             'args': (file, 'isimip_id', str(uuid.uuid4()))
@@ -19,18 +26,24 @@ def check_isimip_id(file):
 
 
 def check_isimip_qc_version(file):
+    ds = file.dataset
+    attrs = set()
     try:
-        version = file.dataset.getncattr('isimip_qc_version')
+        attrs = set(ds.ncattrs())
+    except Exception:
+        pass
+
+    if 'isimip_qc_version' in attrs:
+        version = ds.getncattr('isimip_qc_version')
         if version == __version__:
-            file.info('Global attribute "isimip_qc_version" matches current tool version (%s).',
-                      version)
+            file.info('Global attribute "isimip_qc_version" matches current tool version (%s).', version)
         else:
             file.info('Global attribute "isimip_qc_version" (%s) does not match tool current tool version (%s).',
                       version, __version__, fix={
                           'func': fix_set_global_attr,
                           'args': (file, 'isimip_qc_version', __version__)
                       })
-    except AttributeError:
+    else:
         file.info('Global attribute "isimip_qc_version" not yet set.',
                   fix={
                       'func': fix_set_global_attr,
@@ -40,9 +53,15 @@ def check_isimip_qc_version(file):
 
 def check_isimip_protocol_version(file):
     protocol_version = settings.DEFINITIONS['commit']
-
+    ds = file.dataset
+    attrs = set()
     try:
-        version = file.dataset.getncattr('isimip_protocol_version')
+        attrs = set(ds.ncattrs())
+    except Exception:
+        pass
+
+    if 'isimip_protocol_version' in attrs:
+        version = ds.getncattr('isimip_protocol_version')
         if version == protocol_version:
             file.info('Global attribute "isimip_protocol_version" matches current protocol version (%s).',
                       version)
@@ -54,7 +73,7 @@ def check_isimip_protocol_version(file):
                     'args': (file, 'isimip_protocol_version', protocol_version)
                 }
             )
-    except AttributeError:
+    else:
         file.info('Global attribute "isimip_protocol_version" not yet set.',
                   fix={
                       'func': fix_set_global_attr,
@@ -63,35 +82,52 @@ def check_isimip_protocol_version(file):
 
 
 def check_institution(file):
+    ds = file.dataset
     try:
-        file.dataset.getncattr('institution')
-    except AttributeError:
+        attrs = set(ds.ncattrs())
+    except Exception:
+        attrs = set()
+
+    if 'institution' not in attrs:
         file.error('Global attribute "institution" is missing.')
 
 
 def check_contact(file):
+    ds = file.dataset
     try:
-        contact = file.dataset.getncattr('contact')
-        name, address = parseaddr(contact, strict=False)
-        if not address:
-            file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
-        else:
-            file.info('Global attribute "contact" looks good. (%s <%s>)', name, address)
-    except AttributeError:
+        attrs = set(ds.ncattrs())
+    except Exception:
+        attrs = set()
+
+    if 'contact' not in attrs:
         file.error('Global attribute "contact" is missing.')
+        return
+
+    contact = ds.getncattr('contact')
+    name, address = parseaddr(contact)
+    if not address:
+        file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
+    else:
+        file.info('Global attribute "contact" looks good. (%s <%s>)', name, address)
 
 
 def check_isimip_qc_date(file):
     datetime_now = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+    ds = file.dataset
     try:
-        date = file.dataset.getncattr('isimip_qc_pass_date')
+        attrs = set(ds.ncattrs())
+    except Exception:
+        attrs = set()
+
+    if 'isimip_qc_pass_date' in attrs:
+        date = ds.getncattr('isimip_qc_pass_date')
         if date is not None:
             file.info('Global attribute "isimip_qc_pass_date" is set to "%s".',
                       date, fix={
                           'func': fix_set_global_attr,
                           'args': (file, 'isimip_qc_pass_date', datetime_now)
                       })
-    except AttributeError:
+    else:
         file.info('Global attribute "isimip_qc_pass_date" not yet set.',
                   fix={
                       'func': fix_set_global_attr,
@@ -100,12 +136,15 @@ def check_isimip_qc_date(file):
 
 
 def check_history(file):
+    ds = file.dataset
     try:
-        file.dataset.getncattr('history')
+        attrs = set(ds.ncattrs())
+    except Exception:
+        attrs = set()
+
+    if 'history' in attrs:
         file.warn('Global attribute "history" is set and will get removed.',
                   fix={
                       'func': fix_remove_global_attr,
                       'args': (file, 'history')
                   })
-    except AttributeError:
-        pass

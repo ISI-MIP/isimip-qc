@@ -10,10 +10,21 @@ logger = colorlog.getLogger(__name__)
 
 
 def walk_files(path):
-    for root, dirs, file_names in sorted(os.walk(path)):
-        for file_name in sorted(file_names):
-            file_path = Path(root) / file_name
-            yield file_path
+    # Use os.scandir recursively to avoid creating large lists returned by os.walk
+    stack = [Path(path)]
+    while stack:
+        current = stack.pop()
+        try:
+            with os.scandir(current) as it:
+                entries = sorted(it, key=lambda e: e.name)
+                for entry in entries:
+                    if entry.is_dir():
+                        stack.append(Path(entry.path))
+                    elif entry.is_file():
+                        yield Path(entry.path)
+        except PermissionError:
+            # skip directories we cannot access
+            continue
 
 
 def move_file(source_path, target_path, overwrite=False):
