@@ -212,8 +212,7 @@ def check_variable(file):
                     file.warn('Can\'t check for valid ranges because of missing calendar attribute in time variable')
                     return
 
-                file.info('Checking values for valid minimum and maximum range defined in'
-                          ' the protocol. Scanning in streaming mode to limit memory usage...')
+                file.info('Scanning in streaming mode to limit memory usage...')
 
                 lat_var = file.dataset.variables.get('lat')
                 lon_var = file.dataset.variables.get('lon')
