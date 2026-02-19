@@ -1,9 +1,10 @@
+import logging
 import sys
-from os import path
+from pathlib import Path
 
-import colorlog
-
-from isimip_utils.parser import ArgumentParser
+from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_logs
+from isimip_utils.exceptions import NotFound
+from isimip_utils.utils import exclude_path, include_path
 
 from . import VERSION
 from .checks import checks
@@ -13,10 +14,10 @@ from .models import File, Summary
 from .utils.files import walk_files
 from .utils.logging import CHECKING
 
-logger = colorlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
-def get_parser():
+def main():
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
 
     # mandatory
@@ -29,23 +30,26 @@ def get_parser():
                         help='move checked files to CHECKED_PATH if no warnings or errors were found')
     parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
                         help='overwrite files in CHECKED_PATH if present. Default is False.')
-    parser.add_argument('--unchecked-path', dest='unchecked_path',
+    parser.add_argument('--unchecked-path', dest='unchecked_path', type=parse_path, default=Path().cwd(),
                         help='base path of the unchecked files')
-    parser.add_argument('--checked-path', dest='checked_path',
+    parser.add_argument('--checked-path', dest='checked_path', type=parse_path, default=Path().cwd(),
                         help='base path for the checked files')
-    parser.add_argument('--protocol-location', dest='protocol_locations',
+    parser.add_argument('--protocol-location', dest='protocol_locations', type=parse_locations,
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
-    parser.add_argument('--log-level', dest='log_level', default='CHECKING',
-                        help='log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY,'
-                        ' INFO, or DEBUG) [default: CHECKING]')
-    parser.add_argument('--log-path', dest='log_path',
+    parser.add_argument('--log-level', dest='log_level', default='CHECKING', type=lambda s: s.upper(),
+                        help='log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default: CHECKING]')
+    parser.add_argument('--show-time', dest='show_time', action='store_true', default=False,
+                        help='show time in console logs')
+    parser.add_argument('--show-path', dest='show_path', action='store_true', default=False,
+                        help='show path in console logs')
+    parser.add_argument('--log-path', dest='log_path', type=parse_path,
                         help='base path for the individual log files')
     parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
                         help='log level for the individual log files [default: WARN]')
-    parser.add_argument('--include', dest='include_list',
+    parser.add_argument('--include', dest='include', type=parse_list,
                         help='patterns of files to include. Exclude those that don\'t match any.')
-    parser.add_argument('--exclude', dest='exclude_list',
+    parser.add_argument('--exclude', dest='exclude', type=parse_list,
                         help='patterns of files to exclude. Include only those that don\'t match any.')
     parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
                         help='only process first file found in UNCHECKED_PATH')
@@ -57,10 +61,16 @@ def get_parser():
                         help='allow fixing and copy/move files with critical issues found')
     parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
                         help='skip test for valid experiment combination')
-    parser.add_argument('-r', '--minmax', dest='minmax', action='store', nargs='?', const=10, type=int,
-                        help='test values for valid range (slow, argument MINMAX defaults to show the top 10 values)')
+    parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
+                        help='only match the file name and skip all other checks')
+    parser.add_argument('-r', '--minmax', dest='minmax', action='store_true', default=False,
+                        help='test values for valid range (slow)')
+    parser.add_argument('--minmax-values', dest='minmax_values', type=int, default=0,
+                        help='number of values displayed when checking for valid range')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
                         help='skip check for simulated time period')
+    parser.add_argument('--summary', dest='summary', action='store_true', default=False,
+                        help='append a summary with statistics about experiments and specifiers to the output')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected on the original files')
     parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store', nargs='?', const='nccopy', type=str,
@@ -72,54 +82,42 @@ def get_parser():
                         help='Copy or move files despite errors')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
-    return parser
 
+    args = parser.parse_args()
 
-def init_settings(**kwargs):
-    parser = get_parser()
-    args = parser.get_defaults()
-    args.update(kwargs)
-    settings.setup(args)
-    return settings
+    setup_logs(log_level=args.log_level, show_time=args.show_time, show_path=args.show_path)
 
+    settings.from_dict(vars(args))
 
-def main():
-    parser = get_parser()
-    args = vars(parser.parse_args())
-    settings.setup(args)
     summary = Summary()
 
-    if settings.DEFINITIONS is None:
-        parser.error('no definitions could be found. Check schema_path argument.')
-    if settings.PATTERN is None:
-        parser.error('no pattern could be found. Check schema_path argument.')
-    if settings.SCHEMA is None:
-        parser.error('no schema could be found. Check schema_path argument.')
+    try:
+        settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA
+    except NotFound as e:
+        parser.error(f'{e} Check schema_path argument.')
 
     if settings.UNCHECKED_PATH:
-        if not path.exists(settings.UNCHECKED_PATH):
-            logger.error('UNCHECKED_PATH does not exist:', settings.UNCHECKED_PATH)
-            quit()
+        if not settings.UNCHECKED_PATH.exists():
+            parser.error(f'UNCHECKED_PATH does not exist: {settings.UNCHECKED_PATH}')
 
     if settings.CHECKED_PATH:
-        if not path.exists(settings.CHECKED_PATH):
-            logger.error('CHECKED_PATH does not exist:', settings.CHECKED_PATH)
-            quit()
+        if not settings.CHECKED_PATH.exists():
+            parser.error(f'CHECKED_PATH does not exist: {settings.CHECKED_PATH}')
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        if path.islink(file_path):
+        if file_path.is_symlink():
             continue
 
         logger.log(CHECKING, file_path)
 
-        if settings.INCLUDE_LIST:
-            if not any(string in str(file_path) for string in settings.INCLUDE_LIST.split(',')):
+        if settings.INCLUDE:
+            if not include_path(settings.INCLUDE, file_path):
                 logger.log(CHECKING, ' skipped by include option.')
                 continue
 
-        if settings.EXCLUDE_LIST:
-            if any(string in str(file_path) for string in settings.EXCLUDE_LIST.split(',')):
+        if settings.EXCLUDE:
+            if exclude_path(settings.EXCLUDE, file_path):
                 logger.log(CHECKING, ' skipped by exclude option.')
                 continue
 
@@ -130,18 +128,29 @@ def main():
 
             file.match()
 
-            # skip opening non-NetCDF files
-            if file_path.suffix not in ['.nc', '.nc4']:
-                continue
-
-            # 1st pass: perform checks
-            try:
-                file.open_dataset()
-            except OSError:
-                logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
-                continue
-
             if file.matched:
+                file.validate()
+
+                if settings.SUMMARY:
+                    summary.update_specifiers(file.specifiers)
+                    summary.update_variables(file.specifiers)
+                    summary.update_experiments(file.specifiers)
+
+                if settings.MATCH_ONLY:
+                    file.close_log()
+                    continue
+
+                # skip opening non-NetCDF files
+                if file_path.suffix not in ['.nc', '.nc4']:
+                    file.close_log()
+                    continue
+
+                # 1st pass: perform checks
+                try:
+                    file.open_dataset()
+                except OSError:
+                    logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
+                    continue
 
                 for check in checks:
                     skip = False
@@ -159,13 +168,13 @@ def main():
                                             ' Try to repair the file first before checking it again.')
                                 break
 
+                # close the dataset
+                file.close_dataset()
+
+                # skip further checks for files with critical errors
                 if skip:
-                    file.close_dataset()
                     file.close_log()
                     continue
-                else:
-                    file.validate()
-                    file.close_dataset()
 
                 # log result of checks, stop if flags are set
                 if file.is_clean:
@@ -210,14 +219,6 @@ def main():
                     else:
                         logger.warn('File has not been moved or copied due to warnings or erros found.')
 
-                # collect stats about the file
-                summary.update_specifiers(file.specifiers)
-                summary.update_variables(file.specifiers)
-                summary.update_experiments(file.specifiers)
-
-            else:
-                file.close_dataset()
-
             # close the log for this file
             file.close_log()
         else:
@@ -227,4 +228,5 @@ def main():
         if settings.FIRST_FILE:
             break
 
-    summary.log()
+    if settings.SUMMARY:
+        summary.print()
