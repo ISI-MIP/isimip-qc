@@ -145,7 +145,7 @@ def check_variable(file):
         ncattrs = []
         try:
             ncattrs = variable.ncattrs()
-        except Exception:
+        except AttributeError:
             ncattrs = list(variable.__dict__.keys())
 
         for name in ['_FillValue', 'missing_value']:
@@ -153,7 +153,7 @@ def check_variable(file):
                 attr = variable.getncattr(name)
                 try:
                     attr_dtype = np.asarray(attr).dtype
-                except Exception:
+                except AttributeError:
                     attr_dtype = None
 
                 if attr_dtype is not None and attr_dtype != variable.dtype:
@@ -167,7 +167,7 @@ def check_variable(file):
                                        file.variable_name, name, attr)
                         else:
                             file.info('Missing value attribute "%s" is properly set.', name)
-                    except Exception:
+                    except AttributeError:
                         file.error('Could not interpret %s attribute for variable "%s" as numeric.', name, file.variable_name)
             else:
                 if name == 'missing_value':
@@ -221,7 +221,7 @@ def check_variable(file):
                 try:
                     lat_vals = lat_var[:]
                     lon_vals = lon_var[:]
-                except Exception:
+                except AttributeError:
                     lat_vals = None
                     lon_vals = None
 
@@ -238,7 +238,7 @@ def check_variable(file):
                 for t in range(nt):
                     try:
                         slice_arr = variable[t]
-                    except Exception:
+                    except AttributeError:
                         # If time is not first dim, attempt generic slicing
                         slice_arr = variable[(t, ...)]
 

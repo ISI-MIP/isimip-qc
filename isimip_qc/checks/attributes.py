@@ -12,7 +12,7 @@ def check_isimip_id(file):
     attrs = set()
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         pass
 
     if 'isimip_id' in attrs:
@@ -30,7 +30,7 @@ def check_isimip_qc_version(file):
     attrs = set()
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         pass
 
     if 'isimip_qc_version' in attrs:
@@ -57,7 +57,7 @@ def check_isimip_protocol_version(file):
     attrs = set()
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         pass
 
     if 'isimip_protocol_version' in attrs:
@@ -85,7 +85,7 @@ def check_institution(file):
     ds = file.dataset
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         attrs = set()
 
     if 'institution' not in attrs:
@@ -96,7 +96,7 @@ def check_contact(file):
     ds = file.dataset
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         attrs = set()
 
     if 'contact' not in attrs:
@@ -116,7 +116,7 @@ def check_isimip_qc_date(file):
     ds = file.dataset
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         attrs = set()
 
     if 'isimip_qc_pass_date' in attrs:
@@ -139,7 +139,7 @@ def check_history(file):
     ds = file.dataset
     try:
         attrs = set(ds.ncattrs())
-    except Exception:
+    except AttributeError:
         attrs = set()
 
     if 'history' in attrs:

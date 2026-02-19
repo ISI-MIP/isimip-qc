@@ -35,7 +35,7 @@ def fix_rename_variable(file, variable_name, new_variable_name):
     # use the dataset-level helper if available
     try:
         ds.renameVariable(variable_name, new_variable_name)
-    except Exception:
+    except AttributeError:
         # fallback to variable-level if dataset helper missing
         v.renameVariable(variable_name, new_variable_name)
 
@@ -57,14 +57,14 @@ def fix_rename_variable_attr(file, variable_name, attr_name, new_attr_name):
         return
     try:
         v.renameAttribute(attr_name, new_attr_name)
-    except Exception:
+    except AttributeError:
         # emulate rename by copying and deleting
         if hasattr(v, 'getncattr'):
             try:
                 val = v.getncattr(attr_name)
                 v.setncattr(new_attr_name, val)
                 v.delncattr(attr_name)
-            except Exception:
+            except AttributeError:
                 file.error('Failed to rename attribute %s on %s', attr_name, variable_name)
 
 
@@ -76,7 +76,7 @@ def fix_remove_variable_attr(file, variable_name, attr_name):
         return
     try:
         v.delncattr(attr_name)
-    except Exception:
+    except AttributeError:
         file.error('Failed to remove attribute %s on %s', attr_name, variable_name)
 
 
@@ -91,13 +91,13 @@ def fix_rename_global_attr(file, attr_name, new_attr_name):
     ds = _ds(file)
     try:
         ds.renameAttribute(attr_name, new_attr_name)
-    except Exception:
+    except AttributeError:
         # emulate via get/set/del
         try:
             val = ds.getncattr(attr_name)
             ds.setncattr(new_attr_name, val)
             ds.delncattr(attr_name)
-        except Exception:
+        except AttributeError:
             file.error('Failed to rename global attribute %s', attr_name)
 
 
@@ -106,5 +106,5 @@ def fix_remove_global_attr(file, attr_name):
     ds = _ds(file)
     try:
         ds.delncattr(attr_name)
-    except Exception:
+    except AttributeError:
         file.error('Failed to remove global attribute %s', attr_name)

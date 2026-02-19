@@ -58,7 +58,7 @@ def check_time_resolution(file):
                             try:
                                 ref_year = int(tok.split('-')[0])
                                 break
-                            except Exception:
+                            except AttributeError:
                                 continue
                     if ref_year is None:
                         file.error('Could not determine reference year from time.units: %s', time_units)

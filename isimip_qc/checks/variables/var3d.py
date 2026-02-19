@@ -64,7 +64,7 @@ def check_3d_variable(file):
             try:
                 depth_first = var3d[0].item()
                 depth_last = var3d[-1].item()
-            except Exception:
+            except AttributeError:
                 # fallback to reading full array if slicing fails
                 vals = var3d[:]
                 depth_first = vals[0]

@@ -74,7 +74,7 @@ def check_lower_case(file):
         # Use NetCDF4's ncattrs() to get user-defined attribute names reliably
         try:
             attrs = variable.ncattrs()
-        except Exception:
+        except AttributeError:
             # Fallback to __dict__ if ncattrs isn't available
             attrs = list(variable.__dict__.keys())
 

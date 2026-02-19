@@ -100,7 +100,7 @@ def check_latlon_variable(file):
         try:
             first_val = var[0].item()
             last_val = var[-1].item()
-        except Exception:
+        except AttributeError:
             # fallback to full-array min/max if needed
             arr = np.asarray(var[:])
             first_val = float(np.min(arr))
