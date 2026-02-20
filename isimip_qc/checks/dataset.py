@@ -61,14 +61,14 @@ def check_lower_case(file):
         if not dimension_name.islower():
             file.warn('Dimension "%s" is not lower case.', dimension_name, fix={
                 'func': fix_rename_dimension,
-                'args': (file, dimension_name)
+                'args': (file, dimension_name, dimension_name.lower())
             })
 
     for variable_name, variable in file.dataset.variables.items():
         if not variable_name.islower():
             file.warn('Variable "%s" is not lower case.', variable_name, fix={
                 'func': fix_rename_variable,
-                'args': (file, variable_name)
+                'args': (file, variable_name, variable_name.lower())
             })
 
         # Use NetCDF4's ncattrs() to get user-defined attribute names reliably
