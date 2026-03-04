@@ -17,9 +17,13 @@ def walk_files(path):
             with os.scandir(current) as it:
                 entries = sorted(it, key=lambda e: e.name)
                 for entry in entries:
-                    if entry.is_dir():
+                    # skip symlinks to avoid repeated or unexpected traversal
+                    if entry.is_symlink():
+                        continue
+                    # prefer non-following-symlink checks
+                    if entry.is_dir(follow_symlinks=False):
                         stack.append(Path(entry.path))
-                    elif entry.is_file():
+                    elif entry.is_file(follow_symlinks=False):
                         yield Path(entry.path)
         except PermissionError:
             # skip directories we cannot access
@@ -33,7 +37,7 @@ def move_file(source_path, target_path, overwrite=False):
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
     target_path.parent.mkdir(parents=True, exist_ok=True)
     if not target_path.is_file() or overwrite:
-        logger.info('Copy file')
+        logger.info('Move file')
         shutil.move(source_path, target_path)
     else:
         logger.warn('Skip moving because target file is present and overwriting not allowed.'

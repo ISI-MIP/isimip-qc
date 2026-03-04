@@ -91,6 +91,9 @@ def main():
 
     summary = Summary()
 
+    # normalize allowed suffixes for case-insensitive comparisons
+    allowed_suffixes = {s.lower() for s in settings.PATTERN.get('suffix', [])}
+
     try:
         settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA
     except NotFound as e:
@@ -103,6 +106,12 @@ def main():
     if settings.CHECKED_PATH:
         if not settings.CHECKED_PATH.exists():
             parser.error(f'CHECKED_PATH does not exist: {settings.CHECKED_PATH}')
+
+    # determine checks to run and walk over unchecked files
+    if settings.CHECK:
+        checks_to_run = [c for c in checks if c.__name__ == settings.CHECK]
+    else:
+        checks_to_run = list(checks)
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
@@ -121,7 +130,7 @@ def main():
                 logger.log(CHECKING, ' skipped by exclude option.')
                 continue
 
-        if file_path.suffix in settings.PATTERN['suffix']:
+        if file_path.suffix.lower() in allowed_suffixes:
 
             file = File(file_path)
             file.open_log()
@@ -152,21 +161,20 @@ def main():
                     logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
                     continue
 
-                for check in checks:
+                for check in checks_to_run:
                     skip = False
-                    if not settings.CHECK or check.__name__ == settings.CHECK:
-                        try:
-                            check(file)
-                        except FileWarning:
-                            pass
-                        except FileError:
-                            pass
-                        except FileCritical:
-                            skip = True
-                            if not settings.IGNORE_CRIT:
-                                logger.info('Skip further checks.'
-                                            ' Try to repair the file first before checking it again.')
-                                break
+                    try:
+                        check(file)
+                    except FileWarning:
+                        pass
+                    except FileError:
+                        pass
+                    except FileCritical:
+                        skip = True
+                        if not settings.IGNORE_CRIT:
+                            logger.info('Skip further checks.'
+                                        ' Try to repair the file first before checking it again.')
+                            break
 
                 # close the dataset
                 file.close_dataset()
