@@ -20,13 +20,13 @@ def check_time_variable(file):
 
     # check dtype
     if time.dtype not in (np.dtype('float32'), np.dtype('float64')):
-        file.warn('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, ('float32', 'float64'))
+        file.warning('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, ('float32', 'float64'))
 
     # check axis
     axis = time_definition.get('axis')
     cur_axis = getattr(time, 'axis', None)
     if cur_axis != axis:
-        file.warn('"axis" attribute of "time" is %s. Should be "%s".', cur_axis, axis, fix={
+        file.warning('"axis" attribute of "time" is %s. Should be "%s".', cur_axis, axis, fix={
             'func': fix_set_variable_attr,
             'args': (file, 'time', 'axis', axis)
         })
@@ -35,7 +35,7 @@ def check_time_variable(file):
     standard_name = time_definition.get('standard_name')
     cur_std = getattr(time, 'standard_name', None)
     if cur_std != standard_name:
-        file.warn('"standard_name" attribute of "time" is "%s". Should be "%s".', cur_std, standard_name, fix={
+        file.warning('"standard_name" attribute of "time" is "%s". Should be "%s".', cur_std, standard_name, fix={
             'func': fix_set_variable_attr,
             'args': (file, 'time', 'standard_name', standard_name)
         })
@@ -46,7 +46,7 @@ def check_time_variable(file):
         cur_long = getattr(time, 'long_name', None)
         default_long = long_names[2] if len(long_names) > 2 else long_names[0]
         if cur_long not in long_names:
-            file.warn('"long_name" attribute of "time" is %s. Should be in %s.', cur_long, long_names, fix={
+            file.warning('"long_name" attribute of "time" is %s. Should be in %s.', cur_long, long_names, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, 'time', 'long_name', default_long)
             })
@@ -99,7 +99,7 @@ def check_time_span_periods(file):
         definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
         definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
     else:
-        file.warn('Skipping check for simulation period as the period itself could not be'
+        file.warning('Skipping check for simulation period as the period itself could not be'
                   ' determined from the file path (pre-industrial, historical or future).')
         return
 
@@ -110,7 +110,7 @@ def check_time_span_periods(file):
 
     if time_resolution not in ['daily', 'fixed']:
         if definition_startyear != file_startyear or definition_endyear != file_endyear:
-            file.warn('time period covered by file (%s-%s) does not match input data time span (%s-%s).'
+            file.warning('time period covered by file (%s-%s) does not match input data time span (%s-%s).'
                       ' Ensure to prepare the full period for all variables using the latest input data set.',
                       file_startyear, file_endyear, definition_startyear, definition_endyear)
         else:
@@ -124,7 +124,7 @@ def check_time_span_periods(file):
 
             if file_startyear == last_file_startyear:
                 if definition_endyear != file_endyear:
-                    file.warn('Last year of time period covered by file (%s) does not match end of input'
+                    file.warning('Last year of time period covered by file (%s) does not match end of input'
                               ' data time span (%s). Ensure to prepare the full period for all variables'
                               ' using the latest input data set.',
                               file_endyear, definition_endyear)

@@ -29,7 +29,7 @@ def check_lon_dimension(file):
 
     actual = lon_dim.size
     if lon_size != actual:
-        file.warn('Unexpected number of longitudes found (%s). Should be %s', actual, lon_size)
+        file.warning('Unexpected number of longitudes found (%s). Should be %s', actual, lon_size)
     else:
         file.info('%s longitudes defined.', lon_size)
 
@@ -61,7 +61,7 @@ def check_lat_dimension(file):
 
     actual = lat_dim.size
     if lat_size != actual:
-        file.warn('Unexpected number of latitudes found (%s). Should be %s', actual, lat_size)
+        file.warning('Unexpected number of latitudes found (%s). Should be %s', actual, lat_size)
     else:
         file.info('%s latitudes defined.', lat_size)
 

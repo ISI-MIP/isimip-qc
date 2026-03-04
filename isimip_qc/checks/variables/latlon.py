@@ -25,14 +25,14 @@ def check_latlon_variable(file):
 
         # check dtype
         if var.dtype not in (np.dtype('float32'), np.dtype('float64')):
-            file.warn('Data type of "%s" is "%s". Should be float or double (one of %s).',
+            file.warning('Data type of "%s" is "%s". Should be float or double (one of %s).',
                       variable, var.dtype, ('float32', 'float64'))
 
         # check axis
         axis = var_definition.get('axis')
         cur_axis = getattr(var, 'axis', None)
         if cur_axis != axis:
-            file.warn('"axis" attribute of "%s" is %s. Should be "%s".', variable, cur_axis, axis, fix={
+            file.warning('"axis" attribute of "%s" is %s. Should be "%s".', variable, cur_axis, axis, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, variable, 'axis', axis)
             })
@@ -41,7 +41,7 @@ def check_latlon_variable(file):
         standard_name = var_definition.get('standard_name')
         cur_std = getattr(var, 'standard_name', None)
         if cur_std != standard_name:
-            file.warn('"standard_name" attribute of "%s" is "%s". Should be "%s".',
+            file.warning('"standard_name" attribute of "%s" is "%s". Should be "%s".',
                       variable, cur_std, standard_name, fix={
                           'func': fix_set_variable_attr,
                           'args': (file, variable, 'standard_name', standard_name)
@@ -53,7 +53,7 @@ def check_latlon_variable(file):
             cur_long = getattr(var, 'long_name', None)
             default_long = long_names[0]
             if cur_long not in long_names:
-                file.warn('"long_name" attribute of "%s" is %s. Should be in %s.',
+                file.warning('"long_name" attribute of "%s" is %s. Should be in %s.',
                           variable, cur_long, long_names, fix={
                               'func': fix_set_variable_attr,
                               'args': (file, variable, 'long_name', default_long)
@@ -63,7 +63,7 @@ def check_latlon_variable(file):
         units = var_definition.get('units')
         cur_units = getattr(var, 'units', None)
         if cur_units != units:
-            file.warn('"units" attribute for "%s" is "%s". Should be "%s".',
+            file.warning('"units" attribute for "%s" is "%s". Should be "%s".',
                       variable, cur_units, units, fix={
                           'func': fix_set_variable_attr,
                           'args': (file, variable, 'units', units)
@@ -126,13 +126,13 @@ def check_latlon_variable(file):
         # check ordering direction and report helpful messages
         if variable == 'lat':
             if not (first_val > last_val):
-                file.warn('Latitudes in wrong order. Index should range from north to south. (found %s to %s)',
+                file.warning('Latitudes in wrong order. Index should range from north to south. (found %s to %s)',
                           first_val, last_val)
             else:
                 file.info('Latitude index order looks good (N to S).')
         else:  # lon
             if not (first_val < last_val):
-                file.warn('Longitudes in wrong order. Index should range from west to east. (found %s to %s)',
+                file.warning('Longitudes in wrong order. Index should range from west to east. (found %s to %s)',
                           first_val, last_val)
             else:
                 file.info('Longitude index order looks good (W to E).')

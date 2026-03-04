@@ -193,7 +193,7 @@ def main():
                     logger.critical('File did not pass all checks. Unfixable issues detected.')
 
                 if file.has_warnings and settings.STOP_WARN:
-                    logger.warn('Warnings found. Exiting per -w option.')
+                    logger.warning('Warnings found. Exiting per -w option.')
                     sys.exit(1)
 
                 if file.has_errors and settings.STOP_ERR:
@@ -225,7 +225,7 @@ def main():
                         elif settings.COPY:
                             file.copy()
                     else:
-                        logger.warn('File has not been moved or copied due to warnings or erros found.')
+                        logger.warning('File has not been moved or copied due to warnings or erros found.')
 
             # close the log for this file
             file.close_log()

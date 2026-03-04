@@ -90,9 +90,9 @@ class File:
 
         self.infos.append((message % args, fix))
 
-    def warn(self, message, *args, fix=None, fix_datamodel=None):
+    def warning(self, message, *args, fix=None, fix_datamodel=None):
         if self.logger is not None:
-            self.logger.warn(message, *args)
+            self.logger.warning(message, *args)
 
         self.warnings.append((message % args, fix, fix_datamodel))
 

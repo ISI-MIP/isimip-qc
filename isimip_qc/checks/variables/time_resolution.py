@@ -21,12 +21,12 @@ def check_time_resolution(file):
     # get attributes defensively without exception-driven control flow
     time_units = getattr(time, 'units', None)
     if time_units is None:
-        file.warn("Can't check for number of time steps because of missing time.units attribute")
+        file.warning("Can't check for number of time steps because of missing time.units attribute")
         return
 
     time_calendar = getattr(time, 'calendar', None)
     if time_calendar is None:
-        file.warn("Can't check for number of time steps because of missing time.calendar attribute")
+        file.warning("Can't check for number of time steps because of missing time.calendar attribute")
         return
 
     if time_resolution in ['monthly', 'annual'] and time_calendar == '360_day':
@@ -122,5 +122,5 @@ def check_time_resolution(file):
                 else:
                     file.info('Correct number of time steps (%s).', time_steps)
     else:
-        file.warn('Could not check for the correct number of time steps because of wrong'
+        file.warning('Could not check for the correct number of time steps because of wrong'
                   ' data model (%s). Has to be NETCDF4_CLASSIC.', file.dataset.data_model)

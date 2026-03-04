@@ -143,7 +143,7 @@ def check_history(file):
         attrs = set()
 
     if 'history' in attrs:
-        file.warn('Global attribute "history" is set and will get removed.',
+        file.warning('Global attribute "history" is set and will get removed.',
                   fix={
                       'func': fix_remove_global_attr,
                       'args': (file, 'history')

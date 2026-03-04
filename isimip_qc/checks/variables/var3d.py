@@ -9,14 +9,14 @@ def check_3d_variable(file):
         try:
             var3d_attr = getattr(var3d, attr_type)
         except AttributeError:
-            file.warn('Attribute %s.%s is missing. Should be "%s".', var3d.name, attr_type, attribute, fix={
+            file.warning('Attribute %s.%s is missing. Should be "%s".', var3d.name, attr_type, attribute, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, var3d.name, attr_type, attribute)
             })
             return
 
         if var3d_attr != attribute:
-            file.warn('Attribute %s.%s="%s". Should be "%s".', var3d.name, attr_type, var3d_attr, attribute, fix={
+            file.warning('Attribute %s.%s="%s". Should be "%s".', var3d.name, attr_type, var3d_attr, attribute, fix={
                 'func': fix_set_variable_attr,
                 'args': (file, var3d.name, attr_type, attribute)
             })
@@ -46,7 +46,7 @@ def check_3d_variable(file):
                 allowed = dtypes
 
             if var3d.dtype not in allowed:
-                file.warn('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, allowed)
+                file.warning('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, allowed)
 
             # check attributes
             sim_round = settings.SIMULATION_ROUND
@@ -71,7 +71,7 @@ def check_3d_variable(file):
                 depth_last = vals[-1]
 
             if var3d.shape[0] > 1 and depth_first > depth_last:
-                file.warn('"%s" in wrong order. Should increase with depth. (found %s to %s)',
+                file.warning('"%s" in wrong order. Should increase with depth. (found %s to %s)',
                           file.dim_vertical, depth_first, depth_last)
             else:
                 file.info('Depths or layers order looks good (positive down).')
@@ -81,7 +81,7 @@ def check_3d_variable(file):
                 depth_file = file.dataset.variables.get('depth')
 
                 if depth_file is None:
-                    file.warn(
+                    file.warning(
                         'Variable "depth" not found. Introduce layer vertical center'
                         ' depths in [m] as depth(levlak,lat,lon) or depth(time,levlak,lat,lon)'
                     )
@@ -105,7 +105,7 @@ def check_3d_variable(file):
                     depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
                     if depth_definition is None:
-                        file.warn('Dimension "depth" is not yet defined in protocol. Skipping'
+                        file.warning('Dimension "depth" is not yet defined in protocol. Skipping'
                                   ' attribute checks for "depth".')
                     else:
                         for attribute in ('axis', 'standard_name', 'long_name', 'units'):

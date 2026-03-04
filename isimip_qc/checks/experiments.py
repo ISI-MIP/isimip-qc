@@ -13,7 +13,7 @@ def check_experiment(file):
     spec = file.specifiers
     experiment = get_experiment(spec)
     if experiment is False:
-        file.warn("No experiment information found in the protocol. Skipping...")
+        file.warning("No experiment information found in the protocol. Skipping...")
         return
 
     if experiment is None:

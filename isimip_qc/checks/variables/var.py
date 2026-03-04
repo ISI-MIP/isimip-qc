@@ -29,7 +29,7 @@ def check_variable(file):
 
         # check dtype (compare with NumPy dtype object)
         if variable.dtype != np.dtype('float32'):
-            file.warn('%s data type is "%s" should be "float32".',
+            file.warning('%s data type is "%s" should be "float32".',
                       file.variable_name, variable.dtype, fix_datamodel=True)
 
         # check chunking
@@ -56,7 +56,7 @@ def check_variable(file):
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
-                    file.warn('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).',
+                    file.warning('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).',
                               file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
@@ -67,7 +67,7 @@ def check_variable(file):
                     or (chunking[1] != 1 and chunking[1] != var3d_size)
                     or chunking[2] != lat_size
                     or chunking[3] != lon_size):
-                    file.warn('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
+                    file.warning('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
                               ' (with proper depencency order).',
                               file.variable_name, chunking, var3d_size, lat_size, lon_size,
                               lat_size, lon_size, fix_datamodel=True)
@@ -100,7 +100,7 @@ def check_variable(file):
         if standard_name:
             cur = getattr(variable, 'standard_name', None)
             if cur != standard_name:
-                file.warn(
+                file.warning(
                     'Attribute standard_name="%s" for variable "%s". Should be "%s".',
                     cur, file.variable_name, standard_name, fix={
                         'func': fix_set_variable_attr,
@@ -113,7 +113,7 @@ def check_variable(file):
         if long_name:
             cur = getattr(variable, 'long_name', None)
             if cur != long_name:
-                file.warn(
+                file.warning(
                     'Attribute long_name="%s" for variable "%s". Should be "%s".',
                     cur, file.variable_name, long_name, fix={
                         'func': fix_set_variable_attr,
@@ -126,7 +126,7 @@ def check_variable(file):
         if units is not None:
             cur = getattr(variable, 'units', None)
             if cur is None:
-                file.warn(
+                file.warning(
                     'Variable "%s" units attribute is missing. Should be "%s".',
                     file.variable_name, units, fix={
                         'func': fix_set_variable_attr,
@@ -139,7 +139,7 @@ def check_variable(file):
             else:
                 file.info('Variable unit matches protocol definition (%s).', cur)
         else:
-            file.warn('No units information for variable "%s" in definition.', file.variable_name)
+            file.warning('No units information for variable "%s" in definition.', file.variable_name)
 
         # check _FillValue and missing_value using ncattrs to avoid exceptions
         ncattrs = []
@@ -171,7 +171,7 @@ def check_variable(file):
                         file.error('Could not interpret %s attribute for variable "%s" as numeric.', name, file.variable_name)
             else:
                 if name == 'missing_value':
-                    file.warn(
+                    file.warning(
                         '"%s" attribute for variable "%s" is missing. Should be set to 1e+20f.',
                         name, file.variable_name, fix={
                             'func': fix_set_variable_attr,
@@ -188,7 +188,7 @@ def check_variable(file):
 
         if settings.MINMAX:
             if file.is_time_fixed:
-                file.warn('Valid range test for fixed data not yet implemented')
+                file.warning('Valid range test for fixed data not yet implemented')
                 return
 
             valid_min = definition.get('valid_min')
@@ -203,13 +203,13 @@ def check_variable(file):
                 try:
                     time_units = time_var.units
                 except AttributeError:
-                    file.warn('Can\'t check for valid ranges because of missing units attribute in time variable')
+                    file.warning('Can\'t check for valid ranges because of missing units attribute in time variable')
                     return
 
                 try:
                     time_calendar = time_var.calendar
                 except AttributeError:
-                    file.warn('Can\'t check for valid ranges because of missing calendar attribute in time variable')
+                    file.warning('Can\'t check for valid ranges because of missing calendar attribute in time variable')
                     return
 
                 file.info('Scanning in streaming mode to limit memory usage...')
@@ -290,15 +290,15 @@ def check_variable(file):
 
                 # reporting
                 if count_low:
-                    file.warn('%i values are lower than the valid minimum (%.2E %s).',
+                    file.warning('%i values are lower than the valid minimum (%.2E %s).',
                               count_low, valid_min, units)
                 if count_high:
-                    file.warn('%i values are higher than the valid maximum (%.2E %s).',
+                    file.warning('%i values are higher than the valid maximum (%.2E %s).',
                               count_high, valid_max, units)
 
                 if settings.LOG_LEVEL == 'VRDETAIL':
                     if count_low:
-                        file.warn('%i lowest values are :', min(n_keep, count_low))
+                        file.warning('%i lowest values are :', min(n_keep, count_low))
                         # low_heap stores negatives; convert and sort ascending
                         low_items = [(-v, idx) for v, idx in low_heap]
                         low_items.sort(key=lambda x: x[0])
@@ -307,17 +307,17 @@ def check_variable(file):
                             if file.is_2d:
                                 lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
                                 lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           date, lat_val, lon_val, v, units)
                             else:
                                 lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
                                 lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
                                 level = idx[-3] + 1
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           date, lat_val, lon_val, level, v, units)
 
                     if count_high:
-                        file.warn('%i highest values are :', min(n_keep, count_high))
+                        file.warning('%i highest values are :', min(n_keep, count_high))
                         high_items = [(v, idx) for v, idx in high_heap]
                         high_items.sort(key=lambda x: x[0], reverse=True)
                         for v, idx in high_items[:n_keep]:
@@ -325,18 +325,18 @@ def check_variable(file):
                             if file.is_2d:
                                 lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
                                 lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           date, lat_val, lon_val, v, units)
                             else:
                                 lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
                                 lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
                                 level = idx[-3] + 1
-                                file.warn('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           date, lat_val, lon_val, level, v, units)
 
                 if not count_low and not count_high:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
 
             else:
-                file.warn('No min and/or max definition found for variable "%s" in protocol. Skipping test.',
+                file.warning('No min and/or max definition found for variable "%s" in protocol. Skipping test.',
                           file.variable_name)

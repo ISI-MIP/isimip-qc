@@ -40,7 +40,7 @@ def move_file(source_path, target_path, overwrite=False):
         logger.info('Move file')
         shutil.move(source_path, target_path)
     else:
-        logger.warn('Skip moving because target file is present and overwriting not allowed.'
+        logger.warning('Skip moving because target file is present and overwriting not allowed.'
                     ' Use -O to allow overwriting.')
 
 
@@ -51,5 +51,5 @@ def copy_file(source_path, target_path):
         logger.info('Copy file')
         shutil.copy(source_path, target_path)
     else:
-        logger.warn('Skip copying because target file is present and overwriting not allowed.'
+        logger.warning('Skip copying because target file is present and overwriting not allowed.'
                     ' Use -O to allow overwriting.')
