@@ -1,6 +1,7 @@
 import logging
 import sys
 from pathlib import Path
+from typing import Any, List, Set
 
 from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_logs
 from isimip_utils.exceptions import NotFound
@@ -15,6 +16,146 @@ from .utils.files import walk_files
 from .utils.logging import CHECKING
 
 logger = logging.getLogger(__name__)
+
+
+def process_single_file(file_path: Path, checks_to_run: List, summary: Any, allowed_suffixes: Set[str]) -> None:
+    """Process a single file: match, validate, run checks and optionally fix/copy/move.
+
+    Extracted from the main loop to improve readability and testability.
+    """
+    if file_path.is_symlink():
+        return
+
+    # apply include/exclude filters before logging to avoid noisy skipped entries
+    if settings.INCLUDE:
+        if not include_path(settings.INCLUDE, file_path):
+            return
+
+    if settings.EXCLUDE:
+        if exclude_path(settings.EXCLUDE, file_path):
+            return
+
+    logger.log(CHECKING, file_path)
+
+    if file_path.suffix.lower() not in allowed_suffixes:
+        logger.error('File has wrong suffix. Use "%s" for this simulation round.', settings.PATTERN['suffix'][0])
+        return
+
+    file = File(file_path)
+    file.open_log()
+    try:
+        file.match()
+
+        if not file.matched:
+            return
+
+        file.validate()
+
+        if settings.SUMMARY:
+            summary.update_specifiers(file.specifiers)
+            summary.update_variables(file.specifiers)
+            summary.update_experiments(file.specifiers)
+
+        if settings.MATCH_ONLY:
+            return
+
+        # skip opening non-NetCDF files
+        if file_path.suffix not in ['.nc', '.nc4']:
+            return
+
+        # 1st pass: perform checks
+        try:
+            file.open_dataset()
+        except OSError:
+            logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
+            return
+
+        skip = False
+        for check in checks_to_run:
+            try:
+                check(file)
+            except FileWarning:
+                pass
+            except FileError:
+                pass
+            except FileCritical:
+                skip = True
+                if not settings.IGNORE_CRIT:
+                    logger.info('Skip further checks.'
+                                ' Try to repair the file first before checking it again.')
+                    break
+
+        # close the dataset
+        if getattr(file, 'dataset', None):
+            try:
+                file.close_dataset()
+            except Exception:
+                logger.debug('Exception when closing dataset for %s', file_path, exc_info=True)
+
+        # skip further checks for files with critical errors
+        if skip:
+            return
+
+        # log result of checks, stop if flags are set
+        if file.is_clean:
+            logger.info('File has successfully passed all checks.')
+        elif file.has_warnings and not file.has_errors:
+            logger.info('File passed all checks without unfixable issues.')
+        elif file.has_errors:
+            logger.critical('File did not pass all checks. Unfixable issues detected.')
+
+        if file.has_warnings and settings.STOP_WARN:
+            logger.warning('Warnings found. Exiting per -w option.')
+            sys.exit(1)
+
+        if file.has_errors and settings.STOP_ERR:
+            logger.error('Errors found. Exiting per -e option.')
+            sys.exit(1)
+
+        # 2nd pass: fix warnings and fixable infos
+        if settings.FIX:
+            try:
+                file.open_dataset(write=True)
+            except OSError:
+                logger.critical('Could not reopen file for writing to apply fixes.')
+            else:
+                if file.has_infos_fixable:
+                    logger.info('Fix INFOs...')
+                    file.fix_infos()
+                if file.has_warnings:
+                    logger.info('Fix WARNINGs...')
+                    file.fix_warnings()
+
+                if getattr(file, 'dataset', None):
+                    try:
+                        file.close_dataset()
+                    except Exception:
+                        logger.debug('Exception when closing dataset after fixes for %s', file_path, exc_info=True)
+
+        # 2nd pass: fix warnings
+        if file.has_warnings and settings.FIX_DATAMODEL:
+            logger.info('Fix data model...')
+            file.fix_datamodel()
+
+        # copy/move files to checked_path
+        if settings.MOVE or settings.COPY:
+            if file.is_clean or settings.FORCE_COPY_MOVE:
+                if settings.MOVE:
+                    file.move()
+                elif settings.COPY:
+                    file.copy()
+            else:
+                logger.warning('File has not been moved or copied due to warnings or errors found.')
+    finally:
+        try:
+            if getattr(file, 'dataset', None):
+                file.close_dataset()
+        except Exception:
+            logger.debug('Exception when closing dataset in finally for %s', file_path, exc_info=True)
+        try:
+            file.close_log()
+        except Exception:
+            logger.debug('Exception when closing log for %s', file_path, exc_info=True)
 
 
 def main():
@@ -115,137 +256,7 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        if file_path.is_symlink():
-            continue
-
-        # apply include/exclude filters before logging to avoid noisy skipped entries
-        if settings.INCLUDE:
-            if not include_path(settings.INCLUDE, file_path):
-                continue
-
-        if settings.EXCLUDE:
-            if exclude_path(settings.EXCLUDE, file_path):
-                continue
-
-        logger.log(CHECKING, file_path)
-
-        if file_path.suffix.lower() in allowed_suffixes:
-
-            file = File(file_path)
-            file.open_log()
-            try:
-                file.match()
-
-                if file.matched:
-                    file.validate()
-
-                    if settings.SUMMARY:
-                        summary.update_specifiers(file.specifiers)
-                        summary.update_variables(file.specifiers)
-                        summary.update_experiments(file.specifiers)
-
-                    if settings.MATCH_ONLY:
-                        continue
-
-                    # skip opening non-NetCDF files
-                    if file_path.suffix not in ['.nc', '.nc4']:
-                        continue
-
-                    # 1st pass: perform checks
-                    try:
-                        file.open_dataset()
-                    except OSError:
-                        logger.critical('Could not open file, maybe it is corrupted, or not a NetCDF file.')
-                        continue
-
-                    skip = False
-                    for check in checks_to_run:
-                        try:
-                            check(file)
-                        except FileWarning:
-                            pass
-                        except FileError:
-                            pass
-                        except FileCritical:
-                            skip = True
-                            if not settings.IGNORE_CRIT:
-                                logger.info('Skip further checks.'
-                                            ' Try to repair the file first before checking it again.')
-                                break
-
-                    # close the dataset
-                    if getattr(file, 'dataset', None):
-                        try:
-                            file.close_dataset()
-                        except Exception:
-                            logger.debug('Exception when closing dataset for %s', file_path, exc_info=True)
-
-                    # skip further checks for files with critical errors
-                    if skip:
-                        continue
-
-                    # log result of checks, stop if flags are set
-                    if file.is_clean:
-                        logger.info('File has successfully passed all checks.')
-                    elif file.has_warnings and not file.has_errors:
-                        logger.info('File passed all checks without unfixable issues.')
-                    elif file.has_errors:
-                        logger.critical('File did not pass all checks. Unfixable issues detected.')
-
-                    if file.has_warnings and settings.STOP_WARN:
-                        logger.warning('Warnings found. Exiting per -w option.')
-                        sys.exit(1)
-
-                    if file.has_errors and settings.STOP_ERR:
-                        logger.error('Errors found. Exiting per -e option.')
-                        sys.exit(1)
-
-                    # 2nd pass: fix warnings and fixable infos
-                    if settings.FIX:
-                        try:
-                            file.open_dataset(write=True)
-                        except OSError:
-                            logger.critical('Could not reopen file for writing to apply fixes.')
-                        else:
-                            if file.has_infos_fixable:
-                                logger.info('Fix INFOs...')
-                                file.fix_infos()
-                            if file.has_warnings:
-                                logger.info('Fix WARNINGs...')
-                                file.fix_warnings()
-
-                            if getattr(file, 'dataset', None):
-                                try:
-                                    file.close_dataset()
-                                except Exception:
-                                    logger.debug('Exception when closing dataset after fixes for %s', file_path, exc_info=True)
-
-                    # 2nd pass: fix warnings
-                    if file.has_warnings and settings.FIX_DATAMODEL:
-                        logger.info('Fix data model...')
-                        file.fix_datamodel()
-
-                    # copy/move files to checked_path
-                    if settings.MOVE or settings.COPY:
-                        if file.is_clean or settings.FORCE_COPY_MOVE:
-                            if settings.MOVE:
-                                file.move()
-                            elif settings.COPY:
-                                file.copy()
-                        else:
-                            logger.warning('File has not been moved or copied due to warnings or errors found.')
-            finally:
-                try:
-                    if getattr(file, 'dataset', None):
-                        file.close_dataset()
-                except Exception:
-                    logger.debug('Exception when closing dataset in finally for %s', file_path, exc_info=True)
-                try:
-                    file.close_log()
-                except Exception:
-                    logger.debug('Exception when closing log for %s', file_path, exc_info=True)
-        else:
-            logger.error('File has wrong suffix. Use "%s" for this simulation round.', settings.PATTERN['suffix'][0])
+        process_single_file(file_path, checks_to_run, summary, allowed_suffixes)
 
         # stop if flag is set
         if settings.FIRST_FILE:
