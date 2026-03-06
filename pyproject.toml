@@ -71,7 +71,7 @@ ignore = [
     "RUF012", # mutable-class-default
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
     "isimip_qc"
 ]
@@ -86,3 +86,11 @@ section-order = [
 
 [tool.ruff.isort.sections]
 isimip_utils = ["isimip_utils"]
+
+[tool.typos.default.extend-identifiers]
+CHECKs = "CHECKs"
+ERRORs = "ERRORs"
+WARNINGs = "WARNINGs"
+criticals = "criticals"
+has_criticals = "has_criticals"
+calenders_daily = "calenders_daily"  # TODO: remove when isimip-protocol-3 is fixed

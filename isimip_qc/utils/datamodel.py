@@ -1,6 +1,6 @@
 import shutil
 import subprocess
-from typing import Iterable
+from collections.abc import Iterable
 
 
 def _run_tool(tool: str, args: Iterable[str], input_file, output_file) -> None:

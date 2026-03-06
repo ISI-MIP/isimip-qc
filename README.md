@@ -13,13 +13,10 @@ A command line tool for the quality control of climate impact data of the ISIMIP
 - some consistency checks on the NetCDF time axis and
 - if the data is within a valid value range (when defined in the ISIMIP protocol)
 
-**This is still work in progress.**
-
-
 Setup
 -----
 
-The application is written in Python (> 3.6) uses only dependencies, which can be installed without administrator priviledges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different plattforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
+The application is written in Python (> 3.6) uses only dependencies, which can be installed without administrator privileges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different platforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
 
 The tool itself can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
 
@@ -109,7 +106,7 @@ options:
   -V, --version         show program's version number and exit
 ```
 
-The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` seperated by slashes, e.g. `ISIMIP3a/OutputData/water_global`. If the only argument used is `schema_path`, the current user path when calling the tool should be same as the directory of the files to be checked.
+The only mandatory argument is the `schema_path`, which specifies the pattern and schema to use. The `schema_path` consitst of the `simulation_round`, the `product`, and the `sector` separated by slashes, e.g. `ISIMIP3a/OutputData/water_global`. If the only argument used is `schema_path`, the current user path when calling the tool should be same as the directory of the files to be checked.
 
 ### The options in detail
 
@@ -151,7 +148,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * -nt, --skip-time-span-check: Skip checking non-dialy data for proper coverage of simulation periods.
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
-* `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the funtions defined in the `isimip_qc/checks/*.py` files.
+* `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the functions defined in the `isimip_qc/checks/*.py` files.
 * `--force-copy-move`: Copy or move files despite errors found during checks.
 
 

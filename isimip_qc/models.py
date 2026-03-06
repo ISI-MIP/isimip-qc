@@ -4,10 +4,6 @@ from collections import Counter
 from pathlib import Path
 
 import jsonschema
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.table import Table
-
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
     get_dimensions,
@@ -17,6 +13,9 @@ from isimip_utils.netcdf import (
     open_dataset_write,
 )
 from isimip_utils.patterns import match_file
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.table import Table
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
