@@ -78,7 +78,9 @@ class File:
             self.dataset = open_dataset_read(self.abs_path)
 
     def close_dataset(self):
-        self.dataset.close()
+        if self.dataset is not None:
+            self.dataset.close()
+        self.dataset = None
 
     def debug(self, message, *args):
         if self.logger is not None:
