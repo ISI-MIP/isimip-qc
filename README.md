@@ -102,7 +102,7 @@ options:
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose
                         preferred tool per lower case argument.
   --check CHECK         perform only one particular check
-  --force-copy-move     Copy or move files despite errors
+  --force-copy-move     copy or move files despite errors
   -V, --version         show program's version number and exit
 ```
 

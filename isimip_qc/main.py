@@ -79,7 +79,7 @@ def main():
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
-                        help='Copy or move files despite errors')
+                        help='copy or move files despite errors')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
 
