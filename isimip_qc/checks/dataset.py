@@ -36,20 +36,16 @@ def check_zip(file):
     except AttributeError:
         filters = None
 
-    if not filters:
+    if not filters or not filters.get('zlib'):
         file.warning('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
         return
 
-    zlib = filters.get('zlib')
     complevel = filters.get('complevel')
-    if zlib:
-        if complevel < 4:
-            file.warning('Variable "%s" compression level is "%s". Should be >= 5.',
-                      file.variable_name, complevel, fix_datamodel=True)
-        else:
-            file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
+    if complevel < 5:
+        file.warning('Variable "%s" compression level is "%s". Should be >= 5.',
+                  file.variable_name, complevel, fix_datamodel=True)
     else:
-        file.warning('Variable "%s" is not compressed.', file.variable_name, fix_datamodel=True)
+        file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
 
 
 def check_lower_case(file):
