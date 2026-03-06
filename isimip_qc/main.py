@@ -158,7 +158,7 @@ def process_single_file(file_path: Path, checks_to_run: List, summary: Any, allo
             logger.debug('Exception when closing log for %s', file_path, exc_info=True)
 
 
-def main():
+def build_parser() -> ArgumentParser:
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
 
     # mandatory
@@ -224,6 +224,11 @@ def main():
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
 
+    return parser
+
+
+def main():
+    parser = build_parser()
     args = parser.parse_args()
 
     setup_logs(log_level=args.log_level, show_time=args.show_time, show_path=args.show_path)
