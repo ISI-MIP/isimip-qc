@@ -92,7 +92,7 @@ def main():
     summary = Summary()
 
     try:
-        settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA
+        settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA  # noqa: B018
     except NotFound as e:
         parser.error(f'{e} Check schema_path argument.')
 
@@ -112,10 +112,10 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
+        logger.log(CHECKING, file_path)
+
         if not check_file_path(file_path):
             continue
-
-        logger.log(CHECKING, file_path)
 
         file = File(file_path)
         file.open_log()
@@ -136,15 +136,14 @@ def main():
 
 
 def check_file_path(file_path):
-    if file_path.is_symlink():
-        return False
-
     if settings.INCLUDE:
-        if not include_path(settings.INCLUDE, file_path):
+        if not include_path(settings.INCLUDE, file_path, 'all'):
+            logger.log(CHECKING, 'skipped by include option.')
             return False
 
     if settings.EXCLUDE:
         if exclude_path(settings.EXCLUDE, file_path):
+            logger.log(CHECKING, 'skipped by exclude option.')
             return False
 
     if file_path.suffix not in settings.PATTERN.get('suffix', []):
