@@ -70,6 +70,7 @@ class File:
     def close_log(self):
         if self.handler:
             self.handler.close()
+        self.handler = None
 
     def open_dataset(self, write=False):
         if write:

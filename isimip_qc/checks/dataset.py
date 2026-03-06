@@ -9,7 +9,7 @@ _ALLOWED_VARIABLE_ATTRS = {
     'comment',
     'description',
     'enteric_infection',
-    'fuelclass'
+    'fuelclass',
     'long_name',
     'missing_value',
     'pft',
