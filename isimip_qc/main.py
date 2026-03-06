@@ -189,9 +189,9 @@ def check_single_file(file, checks_to_run, summary):
         except FileError:
             pass
         except FileCritical:
-            skip = True
             if not settings.IGNORE_CRIT:
-                logger.info('Skip further checks. Try to repair the file first before checking it again.')
+                logger.info('Skip further checks. Try to repair the file first before checking it again or proceed on own risk with the "--ignore-critical" option.')
+                skip = True
                 break
 
     # close the dataset
