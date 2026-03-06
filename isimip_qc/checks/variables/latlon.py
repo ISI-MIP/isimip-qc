@@ -81,11 +81,23 @@ def check_latlon_variable(file):
         grid_info = cf_def.get('grid', {})
         if grid_info:
             if variable == 'lat':
-                minimum = grid_info.get('lat_min', {}).get(sens_scenario, grid_info.get('lat_min', {}).get('default', minimum))
-                maximum = grid_info.get('lat_max', {}).get(sens_scenario, grid_info.get('lat_max', {}).get('default', maximum))
+                minimum = (
+                    grid_info.get('lat_min', {})
+                             .get(sens_scenario, grid_info.get('lat_min', {}).get('default', minimum))
+                )
+                maximum = (
+                    grid_info.get('lat_max', {})
+                             .get(sens_scenario, grid_info.get('lat_max', {}).get('default', maximum))
+                )
             else:
-                minimum = grid_info.get('lon_min', {}).get(sens_scenario, grid_info.get('lon_min', {}).get('default', minimum))
-                maximum = grid_info.get('lon_max', {}).get(sens_scenario, grid_info.get('lon_max', {}).get('default', maximum))
+                minimum = (
+                    grid_info.get('lon_min', {})
+                             .get(sens_scenario, grid_info.get('lon_min', {}).get('default', minimum))
+                )
+                maximum = (
+                    grid_info.get('lon_max', {})
+                             .get(sens_scenario, grid_info.get('lon_max', {}).get('default', maximum))
+                )
 
         # overwrite for special cases not defined in the protocol
         if model == 'dbem':

@@ -110,14 +110,14 @@ class File:
 
     def fix_infos(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 fix['func'](*fix['args'])
                 self.infos.remove(info)
 
     def fix_warnings(self):
         for warning in self.warnings[:]:
-            message, fix, _ = warning
+            _, fix, _ = warning
             if fix:
                 fix['func'](*fix['args'])
                 self.warnings.remove(warning)
@@ -150,14 +150,14 @@ class File:
 
                 # remove warnings after fix
                 for warning in self.warnings[:]:
-                    message, _, fix_datamodel = warning
+                    _, _, fix_datamodel = warning
                     if fix_datamodel:
                         self.warnings.remove(warning)
 
     @property
     def has_infos_fixable(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 return bool(self.infos)
 
@@ -213,7 +213,7 @@ class File:
 
     def match(self):
         try:
-            path, self.specifiers = match_file(settings.PATTERN, self.path)
+            _, self.specifiers = match_file(settings.PATTERN, self.path)
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
         except DidNotMatch as e:

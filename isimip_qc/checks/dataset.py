@@ -2,13 +2,27 @@ from ..fixes import fix_remove_variable_attr, fix_rename_dimension, fix_rename_v
 
 # Attributes allowed by the protocol (kept as a set for fast membership tests)
 _ALLOWED_VARIABLE_ATTRS = {
-    'axis', 'standard_name', 'long_name', 'calendar', 'missing_value',
-    'units', 'comment', 'enteric_infection', 'description', 'unit_conversion_info',
-    'positive', 'bounds', 'classes', 'pft', 'fuelclass'
+    'axis',
+    'bounds',
+    'calendar',
+    'classes',
+    'comment',
+    'description',
+    'enteric_infection',
+    'fuelclass'
+    'long_name',
+    'missing_value',
+    'pft',
+    'positive',
+    'standard_name',
+    'unit_conversion_info',
+    'units',
 }
 
 # Attributes that should be ignored from removal checks
-_ATTR_EXCEPTIONS = {'_FillValue'}
+_IGNORED_VARIABLE_ATTRS = {
+    '_FillValue'
+}
 
 
 def check_data_model(file):
@@ -75,7 +89,7 @@ def check_lower_case(file):
             attrs = list(variable.__dict__.keys())
 
         for attr in attrs:
-            if attr in _ATTR_EXCEPTIONS:
+            if attr in _IGNORED_VARIABLE_ATTRS:
                 continue
 
             if attr not in _ALLOWED_VARIABLE_ATTRS:

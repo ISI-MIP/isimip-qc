@@ -1,7 +1,8 @@
+import numpy as np
 
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
-import numpy as np
+
 
 def check_time_variable(file):
     if file.is_time_fixed:
@@ -20,7 +21,8 @@ def check_time_variable(file):
 
     # check dtype
     if time.dtype not in (np.dtype('float32'), np.dtype('float64')):
-        file.warning('Data type of "time" is "%s". Should be float or double (one of %s).', time.dtype, ('float32', 'float64'))
+        file.warning('Data type of "time" is "%s". Should be float or double (one of %s).',
+                     time.dtype, ('float32', 'float64'))
 
     # check axis
     axis = time_definition.get('axis')

@@ -10,8 +10,10 @@ def check_experiment(file):
 
     if file.specifiers.get("time_step") == "fixed":
         return
-    spec = file.specifiers
-    experiment = get_experiment(spec)
+
+    specifiers = file.specifiers
+    experiment = get_experiment(specifiers)
+
     if experiment is False:
         file.warning("No experiment information found in the protocol. Skipping...")
         return
@@ -22,11 +24,11 @@ def check_experiment(file):
             "No valid experiment found for this sector and {climate_scenario}, "
             "{soc_scenario}, {sens_scenario} between {start_year} and {end_year}. Skipping..."
         ).format(
-            climate_scenario=spec.get('climate_forcing', '<unknown>'),
-            soc_scenario=spec.get('soc_scenario', '<unknown>'),
-            sens_scenario=spec.get('sens_scenario', '<unknown>'),
-            start_year=spec.get('start_year', '<unknown>'),
-            end_year=spec.get('end_year', '<unknown>'),
+            climate_scenario=specifiers.get('climate_forcing', '<unknown>'),
+            soc_scenario=specifiers.get('soc_scenario', '<unknown>'),
+            sens_scenario=specifiers.get('sens_scenario', '<unknown>'),
+            start_year=specifiers.get('start_year', '<unknown>'),
+            end_year=specifiers.get('end_year', '<unknown>'),
         )
         raise FileCritical(file, msg)
 

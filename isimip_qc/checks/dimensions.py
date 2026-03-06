@@ -25,7 +25,10 @@ def check_lon_dimension(file):
     cf_def = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {})
     grid_info = cf_def.get('grid', {})
     if 'lon_size' in grid_info:
-        lon_size = grid_info.get('lon_size', {}).get(sens_scenario, grid_info.get('lon_size', {}).get('default', lon_size))
+        lon_size = (
+            grid_info.get('lon_size', {})
+                     .get(sens_scenario, grid_info.get('lon_size', {}).get('default', lon_size))
+        )
 
     actual = lon_dim.size
     if lon_size != actual:
@@ -57,7 +60,10 @@ def check_lat_dimension(file):
     cf_def = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {})
     grid_info = cf_def.get('grid', {})
     if 'lat_size' in grid_info:
-        lat_size = grid_info.get('lat_size', {}).get(sens_scenario, grid_info.get('lat_size', {}).get('default', lat_size))
+        lat_size = (
+            grid_info.get('lat_size', {})
+                     .get(sens_scenario, grid_info.get('lat_size', {}).get('default', lat_size))
+        )
 
     actual = lat_dim.size
     if lat_size != actual:

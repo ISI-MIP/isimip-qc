@@ -41,7 +41,7 @@ def check_3d_variable(file):
             dtypes = ['float32', 'float64']
             if var3d.name == 'bins':
                 # bins should be integer types in addition to numeric floats
-                allowed = dtypes + ['int16', 'int32']
+                allowed = [*dtypes, 'int16', 'int32']
             else:
                 allowed = dtypes
 

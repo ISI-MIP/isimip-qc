@@ -1,5 +1,3 @@
-import calendar
-
 import netCDF4
 
 from isimip_qc.config import settings

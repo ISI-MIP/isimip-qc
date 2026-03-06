@@ -1,8 +1,8 @@
+import heapq
 import math
 
 import netCDF4
 import numpy as np
-import heapq
 
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
@@ -46,8 +46,14 @@ def check_variable(file):
             # overwrite lat/lon ranges if available from climate forcing definition
             if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
                 grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
-                lat_size = grid_info.get('lat_size', {}).get(sens_scenario, grid_info.get('lat_size', {}).get('default'))
-                lon_size = grid_info.get('lon_size', {}).get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
+                lat_size = (
+                    grid_info.get('lat_size', {})
+                             .get(sens_scenario, grid_info.get('lat_size', {}).get('default'))
+                )
+                lon_size = (
+                    grid_info.get('lon_size', {})
+                             .get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
+                )
 
             # overwrite for special cases not defined in the protocol
             if model == 'dbem':
@@ -168,7 +174,8 @@ def check_variable(file):
                         else:
                             file.info('Missing value attribute "%s" is properly set.', name)
                     except AttributeError:
-                        file.error('Could not interpret %s attribute for variable "%s" as numeric.', name, file.variable_name)
+                        file.error('Could not interpret %s attribute for variable "%s" as numeric.',
+                                   name, file.variable_name)
             else:
                 if name == 'missing_value':
                     file.warning(
@@ -196,8 +203,6 @@ def check_variable(file):
             if (valid_min is not None) and (valid_max is not None):
                 file.info('Checking values for valid minimum and maximum range defined in'
                           ' the protocol. This could take some time...')
-                lat = file.dataset.variables.get('lat')
-                lon = file.dataset.variables.get('lon')
                 time_var = file.dataset.variables.get('time')
 
                 try:
@@ -305,13 +310,25 @@ def check_variable(file):
                         for v, idx in low_items[:n_keep]:
                             date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
                             if file.is_2d:
-                                lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                lat_val = (
+                                    lat_vals[idx[-2]]
+                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                                )
+                                lon_val = (
+                                    lon_vals[idx[-1]]
+                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                )
                                 file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           date, lat_val, lon_val, v, units)
                             else:
-                                lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                lat_val = (
+                                    lat_vals[idx[-2]]
+                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                                )
+                                lon_val = (
+                                    lon_vals[idx[-1]]
+                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                )
                                 level = idx[-3] + 1
                                 file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           date, lat_val, lon_val, level, v, units)
@@ -323,13 +340,25 @@ def check_variable(file):
                         for v, idx in high_items[:n_keep]:
                             date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
                             if file.is_2d:
-                                lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                lat_val = (
+                                    lat_vals[idx[-2]]
+                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                                )
+                                lon_val = (
+                                    lon_vals[idx[-1]]
+                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                )
                                 file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
                                           date, lat_val, lon_val, v, units)
                             else:
-                                lat_val = lat_vals[idx[-2]] if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                lon_val = lon_vals[idx[-1]] if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                lat_val = (
+                                    lat_vals[idx[-2]]
+                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                                )
+                                lon_val = (
+                                    lon_vals[idx[-1]]
+                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                                )
                                 level = idx[-3] + 1
                                 file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
                                           date, lat_val, lon_val, level, v, units)
@@ -339,4 +368,4 @@ def check_variable(file):
 
             else:
                 file.warning('No min and/or max definition found for variable "%s" in protocol. Skipping test.',
-                          file.variable_name)
+                             file.variable_name)

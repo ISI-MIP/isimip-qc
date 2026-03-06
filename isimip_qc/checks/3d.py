@@ -78,7 +78,8 @@ def check_3d(file):
             file.dim_vertical = variable.dimensions[pos]
             raise FileCritical(
                 file,
-                'Variable "%s" has time/lat/lon as second dependency. Dependency order must be [time, %s, lat, lon]. "time" is always first.',
+                'Variable "%s" has time/lat/lon as second dependency. Dependency order must be [time, %s, lat, lon]. '
+                ' "time" is always first.',
                 file.variable_name,
                 variable.dimensions[pos],
             )
