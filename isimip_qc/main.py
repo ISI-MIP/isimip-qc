@@ -138,12 +138,12 @@ def main():
 def check_file_path(file_path):
     if settings.INCLUDE:
         if not include_path(settings.INCLUDE, file_path, 'all'):
-            logger.log(CHECKING, 'skipped by include option.')
+            logger.info('File skipped by include option.')
             return False
 
     if settings.EXCLUDE:
         if exclude_path(settings.EXCLUDE, file_path):
-            logger.log(CHECKING, 'skipped by exclude option.')
+            logger.info('File skipped by exclude option.')
             return False
 
     if file_path.suffix not in settings.PATTERN.get('suffix', []):
