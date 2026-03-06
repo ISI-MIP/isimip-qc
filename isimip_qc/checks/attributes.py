@@ -72,7 +72,7 @@ def check_contact(file):
         return
 
     contact = file.dataset.getncattr('contact')
-    name, address = parseaddr(contact)
+    name, address = parseaddr(contact, strict=False)
     if not address:
         file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
     else:
