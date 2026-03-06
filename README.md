@@ -51,12 +51,13 @@ Usage
 The tool has several options which can be inspected using the help option `-h, --help`:
 
 ```plain
-usage: isimip-qc [-h] [-c] [-m] [-O] [--unchecked-path UNCHECKED_PATH] [--checked-path CHECKED_PATH]
-                 [--protocol-location PROTOCOL_LOCATIONS] [--log-level LOG_LEVEL]
-		 [--log-path LOG_PATH] [--log-path-level LOG_PATH_LEVEL]
-                 [--include INCLUDE_LIST] [--exclude EXCLUDE_LIST] [-f] [-w] [-e]
-		 [--ignore-critical] [--skip-exp] [-r [MINMAX]] [-nt] [--fix]
-		 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
+usage: isimip-qc [-h] [-c] [-m] [-O] [--unchecked-path UNCHECKED_PATH]
+                 [--checked-path CHECKED_PATH] [--protocol-location PROTOCOL_LOCATIONS]
+                 [--log-level LOG_LEVEL] [--show-time] [--show-path] [--log-path LOG_PATH]
+                 [--log-path-level LOG_PATH_LEVEL] [--include INCLUDE] [--exclude EXCLUDE] [-f]
+                 [-w] [-e] [--ignore-critical] [--skip-exp] [--match-only] [-r]
+                 [--minmax-values MINMAX_VALUES] [-nt] [--summary] [--fix]
+                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
@@ -64,7 +65,7 @@ Check ISIMIP files for matching protocol definitions
 positional arguments:
   schema_path           ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -c, --copy            copy checked files to CHECKED_PATH if no warnings or errors were found
   -m, --move            move checked files to CHECKED_PATH if no warnings or errors were found
@@ -76,32 +77,35 @@ optional arguments:
   --protocol-location PROTOCOL_LOCATIONS
                         URL or file path to the protocol when different from official repository
   --log-level LOG_LEVEL
-                        log level (CRITICAL, ERROR, WARN, VRDETAIL, CHECKING, SUMMARY, INFO, or
-                        DEBUG) [default: CHECKING]
+                        log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default:
+                        CHECKING]
+  --show-time           show time in console logs
+  --show-path           show path in console logs
   --log-path LOG_PATH   base path for the individual log files
   --log-path-level LOG_PATH_LEVEL
                         log level for the individual log files [default: WARN]
-  --include INCLUDE_LIST
-                        patterns of files to include. Exclude those that don't match any.
-  --exclude EXCLUDE_LIST
-                        patterns of files to exclude. Include only those that don't match any.
+  --include INCLUDE     patterns of files to include. Exclude those that don't match any.
+  --exclude EXCLUDE     patterns of files to exclude. Include only those that don't match any.
   -f, --first-file      only process first file found in UNCHECKED_PATH
   -w, --stop-on-warnings
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
   --ignore-critical     allow fixing and copy/move files with critical issues found
   --skip-exp            skip test for valid experiment combination
-  -r [MINMAX], --minmax [MINMAX]
-                        test values for valid range (slow, argument MINMAX defaults to show the
-                        top 10 values)
+  --match-only          only match the file name and skip all other checks
+  -r, --minmax          test values for valid range (slow)
+  --minmax-values MINMAX_VALUES
+                        number of values displayed when checking for valid range
   -nt, --skip-time-span-check
                         skip check for simulated time period
+  --summary             append a summary with statistics about experiments and specifiers to the
+                        output
   --fix                 try to fix warnings detected on the original files
   --fix-datamodel [FIX_DATAMODEL]
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose
                         preferred tool per lower case argument.
   --check CHECK         perform only one particular check
-  --force-copy-move     copy or move files despite errors
+  --force-copy-move     Copy or move files despite errors
   -V, --version         show program's version number and exit
 ```
 
@@ -132,6 +136,8 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 `SUMMARY`: includes warnings, errors and the summary shown at the end<br>
 `INFO`: includes `SUMMARY` and details for successful checks<br>
 `DEBUG`: all the above plus details for some debugging cases.
+* `--show-time`: show the timestamp in console logs
+* `--show-path`: Show the path from where a log entry is written in console logs
 * `--log-path LOG_PATH`: Also write the logs to a file where the folder structure below LOG_PATH is taken from UNCHECKED_PATH.
 * `--log-path-level LOG_PATH_LEVEL`: The log level used for the file specific logs below `LOG_PATH`. The default is `WARN` and should suffice for most cases.
 * `--include INCLUDE_LIST`: Provide a comma-separated list of strings to include for the checks if any of them matches the file path or name, e.g. 'daily,dis' will only check `*daily*` or `*discharge*` files while skipping others.
