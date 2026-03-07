@@ -23,7 +23,6 @@ env:
 jobs:
   build:
     name: Build distribution 👷
-    needs: test
     runs-on: ubuntu-latest
 
     steps:
