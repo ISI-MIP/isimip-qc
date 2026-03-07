@@ -1,6 +1,6 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["setuptools", "setuptools_scm"]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "isimip-qc"
@@ -25,22 +25,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "isimip-utils~=2.0",
-    "jsonschema",
-    "netCDF4",
-    "prettytable",
-    "python-dotenv",
-    "requests"
+    "isimip-utils[netcdf]~=2.0",
+    "jsonschema"
 ]
 dynamic = ["version"]
-
-[project.optional-dependencies]
-dev = [
-    "build",
-    "pre-commit",
-    "ruff",
-    "twine",
-]
 
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-qc"
@@ -49,8 +37,11 @@ Issues = "https://github.com/ISI-MIP/isimip-qc/issues"
 [project.scripts]
 isimip-qc = "isimip_qc.main:main"
 
-[tool.setuptools_scm]
-version_scheme = "release-branch-semver"
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["isimip_qc"]
 
 [tool.ruff]
 target-version = "py311"
