@@ -9,6 +9,8 @@
   * Integrate the new `isimip_utils` version
   * Improve performance when iteration over large file trees
 * CLI & UX improvements
+  * Use [TOML](https://toml.io/en/) syntax for config files and `.toml` suffix for default config locations
+  * Environment variables use `ISIMIP_` as prefix
   * Add `--show-time` and `--show-path` options
   * Add `--summary`, `--match-only` and `--minmax-values` options
   * Improve logging and remove obsolete log levels

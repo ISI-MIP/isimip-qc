@@ -16,9 +16,9 @@ A command line tool for the quality control of climate impact data of the ISIMIP
 Setup
 -----
 
-The application is written in Python (> 3.6) uses only dependencies, which can be installed without administrator privileges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different platforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
+The application is written in Python (> 3.11) uses only dependencies, which can be installed without administrator privileges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different platforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
 
-The tool itself can be installed via pip. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
+The tool itself can be installed via `pip`. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
 
 ```bash
 # setup venv on Linux/macOS/Windows WSL
@@ -38,7 +38,7 @@ pip install --upgrade isimip-qc
 # install directly from GitHub
 pip install git+https://github.com/ISI-MIP/isimip-qc
 
-# update from Github
+# update directly from GitHub
 pip install --upgrade git+https://github.com/ISI-MIP/isimip-qc
 ```
 
@@ -52,9 +52,9 @@ usage: isimip-qc [-h] [-c] [-m] [-O] [--unchecked-path UNCHECKED_PATH]
                  [--checked-path CHECKED_PATH] [--protocol-location PROTOCOL_LOCATIONS]
                  [--log-level LOG_LEVEL] [--show-time] [--show-path] [--log-path LOG_PATH]
                  [--log-path-level LOG_PATH_LEVEL] [--include INCLUDE] [--exclude EXCLUDE] [-f]
-                 [-w] [-e] [--ignore-critical] [--skip-exp] [--match-only] [-r]
-                 [--minmax-values MINMAX_VALUES] [-nt] [--summary] [--fix]
-                 [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK] [--force-copy-move] [-V]
+                 [-w] [-e] [--ignore-critical] [--skip-exp] [--match-only] [-r [MINMAX]] [-nt]
+                 [--summary] [--fix] [--fix-datamodel [FIX_DATAMODEL]] [--check CHECK]
+                 [--force-copy-move] [-V]
                  schema_path
 
 Check ISIMIP files for matching protocol definitions
@@ -90,9 +90,8 @@ options:
   --ignore-critical     allow fixing and copy/move files with critical issues found
   --skip-exp            skip test for valid experiment combination
   --match-only          only match the file name and skip all other checks
-  -r, --minmax          test values for valid range (slow)
-  --minmax-values MINMAX_VALUES
-                        number of values displayed when checking for valid range
+  -r [MINMAX], --minmax [MINMAX]
+                        test values for valid range (slow)
   -nt, --skip-time-span-check
                         skip check for simulated time period
   --summary             append a summary with statistics about experiments and specifiers to the
@@ -111,14 +110,22 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 ### The options in detail
 
 * `--config-file`: Default values for the optional arguments are set in the code, but can also be provided via:
-    * a config file given by `--config-file`, or located at `isimip-qc.conf`, `~/.isimip-qc.conf`, or `/etc/isimip-qc.conf`. The config file needs to have a section `isimip-qc` and uses lower case variables and underscores, e.g.:
-        ```
-        [isimip-qc]
-        pattern_locations = /path/to/isimip-protocol-3/output/pattern/
-        schema_locations = path/to/isimip-protocol-3/output/schema/
-        ```
+  * a config file given by `--config-file`, or located at `isimip.toml`, `~/.isimip.toml`, or `/etc/isimip.toml`. The config file needs to have a section `isimip-qc` and uses lower case variables and underscores, e.g.:
 
-    * environment variables (in caps and with underscores, e.g. `UNCHECKED_PATH`).
+  ```toml;
+  [isimip-qc]
+  unchecked_path = "unchecked"
+  checked_path = "checked"
+
+  log_level = "INFO"
+  log_path = "log"
+  log_path_level = "INFO"
+
+  minmax = true  # for the default value
+  minmax = 5     # for a custom value
+  ```
+
+  * environment variables (in caps, with underscores, and with `ISIMIP_` as prefix, e.g. `ISIMIP_UNCHECKED_PATH`).
 * `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination. Effective only when no warnings have been found on the file.
 * '-O, --overwrite`: Allow overwriting of existing files in CHECKED_PATH. Default is to skip copy or move in case the target file is already present.
 * `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
@@ -150,32 +157,3 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the functions defined in the `isimip_qc/checks/*.py` files.
 * `--force-copy-move`: Copy or move files despite errors found during checks.
-
-
-Scripts/Notebooks
------------------
-
-The different functions of the tool can also be used in Python scripts or Jupyter Notebooks. Before any functions are called, the global settings object needs to be initialized using the `init_settings` function, e.g.:
-
-```python
-from isimip_qc.checks import checks
-from isimip_qc.main import init_settings
-from isimip_qc.models import File
-
-settings = init_settings(
-    schema_path='ISIMIP3b/OutputData/water_global',
-    config_file='~/data/isimip/isimip.conf'
-)
-
-file_path = '~/data/isimip/qc/unchecked/h08_ipsl-cm6a-lr_w5e5_ssp585_2015soc_default_dis_global_monthly_2015_2100.nc'
-
-file = File(file_path)
-file.open_log()
-file.match()
-file.open_dataset()
-
-for check in checks:
-    check(file)
-
-file.close_dataset()
-```
