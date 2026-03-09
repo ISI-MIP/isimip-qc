@@ -63,7 +63,7 @@ def main():
                         help='skip test for valid experiment combination')
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
                         help='only match the file name and skip all other checks')
-    parser.add_argument('-r', '--minmax', dest='minmax', action='store', type=int, const=10, nargs='?',
+    parser.add_argument('-r', '--minmax', dest='minmax', const=10, nargs='?', type=int,
                         help='test values for valid range (slow)')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
                         help='skip check for simulated time period')
@@ -71,7 +71,7 @@ def main():
                         help='append a summary with statistics about experiments and specifiers to the output')
     parser.add_argument('--fix', dest='fix', action='store_true', default=False,
                         help='try to fix warnings detected on the original files')
-    parser.add_argument('--fix-datamodel', dest='fix_datamodel', action='store', nargs='?', const='nccopy', type=str,
+    parser.add_argument('--fix-datamodel', dest='fix_datamodel', nargs='?', const='nccopy', type=str,
                         help='also fix warnings on data model found using NCCOPY or CDO (slow).'
                         ' Choose preferred tool per lower case argument.')
     parser.add_argument('--check', dest='check',
