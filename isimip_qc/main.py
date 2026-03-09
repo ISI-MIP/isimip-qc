@@ -64,7 +64,8 @@ def main():
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
                         help='only match the file name and skip all other checks')
     parser.add_argument('-r', '--minmax', dest='minmax', const=10, nargs='?', type=int,
-                        help='test values for valid range (slow)')
+                        help='test values for valid range (slow). MINMAX denotes the length of the ordered top'
+                        ' list of outliers')
     parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
                         help='skip check for simulated time period')
     parser.add_argument('--summary', dest='summary', action='store_true', default=False,

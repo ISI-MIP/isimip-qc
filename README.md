@@ -18,7 +18,7 @@ Setup
 
 The application is written in Python (> 3.11) uses only dependencies, which can be installed without administrator privileges. The installation of Python (and its developing packages), however differs from operating system to operating system. Optional Git is needed if the application is installed directly from GitHub. The installation of Python 3 and Git for different platforms is documented [here](https://github.com/ISI-MIP/isimip-utils/blob/master/docs/prerequisites.md).
 
-The tool itself can be installed via `pip`. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional.
+The tool itself can be installed via `pip`. Usually you want to create a [virtual environment](https://docs.python.org/3/library/venv.html) first, but this is optional. The tool works also with [pipx](https://pipx.pypa.io/stable/).
 
 ```bash
 # setup venv on Linux/macOS/Windows WSL
@@ -91,7 +91,8 @@ options:
   --skip-exp            skip test for valid experiment combination
   --match-only          only match the file name and skip all other checks
   -r [MINMAX], --minmax [MINMAX]
-                        test values for valid range (slow)
+                        test values for valid range (slow). MINMAX denotes the length of the
+                        ordered top list of outliers
   -nt, --skip-time-span-check
                         skip check for simulated time period
   --summary             append a summary with statistics about experiments and specifiers to the
@@ -114,11 +115,11 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 
   ```toml;
   [isimip-qc]
-  unchecked_path = "unchecked"
-  checked_path = "checked"
+  unchecked_path = "data/unchecked"
+  checked_path = "data/checked"
 
   log_level = "INFO"
-  log_path = "log"
+  log_path = "data/log"
   log_path_level = "INFO"
 
   minmax = true  # for the default value
