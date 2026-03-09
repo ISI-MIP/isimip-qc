@@ -30,7 +30,7 @@ def check_variable(file):
         # check dtype (compare with NumPy dtype object)
         if variable.dtype != np.dtype('float32'):
             file.warning('%s data type is "%s" should be "float32".',
-                      file.variable_name, variable.dtype, fix_datamodel=True)
+                         file.variable_name, variable.dtype, fix_datamodel=True)
 
         # check chunking
         chunking = variable.chunking()
@@ -48,11 +48,11 @@ def check_variable(file):
                 grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
                 lat_size = (
                     grid_info.get('lat_size', {})
-                             .get(sens_scenario, grid_info.get('lat_size', {}).get('default'))
+                    .get(sens_scenario, grid_info.get('lat_size', {}).get('default'))
                 )
                 lon_size = (
                     grid_info.get('lon_size', {})
-                             .get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
+                    .get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
                 )
 
             # overwrite for special cases not defined in the protocol
@@ -63,7 +63,7 @@ def check_variable(file):
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
                     file.warning('%s.chunking=%s should be [1, %s, %s] (with proper dependency order).',
-                              file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
+                                 file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
 
@@ -74,9 +74,9 @@ def check_variable(file):
                     or chunking[2] != lat_size
                     or chunking[3] != lon_size):
                     file.warning('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
-                              ' (with proper dependency order).',
-                              file.variable_name, chunking, var3d_size, lat_size, lon_size,
-                              lat_size, lon_size, fix_datamodel=True)
+                                 ' (with proper dependency order).',
+                                 file.variable_name, chunking, var3d_size, lat_size, lon_size,
+                                 lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s, %s].', var3d_size, lat_size, lon_size)
         else:
@@ -193,7 +193,7 @@ def check_variable(file):
         if settings.SECTOR == 'agriculture':
             return
 
-        if settings.MINMAX:
+        if settings.MINMAX >= 0:
             if file.is_time_fixed:
                 file.warning('Valid range test for fixed data not yet implemented')
                 return
@@ -232,7 +232,7 @@ def check_variable(file):
                 nt = time_var.size
 
                 # Heaps to keep top N extremes while scanning
-                n_keep = max(1, int(settings.MINMAX))
+                n_keep = int(settings.MINMAX)
                 low_heap = []  # max-heap via storing (-value, index_tuple)
                 high_heap = []  # min-heap storing (value, index_tuple)
                 count_low = 0
@@ -296,72 +296,71 @@ def check_variable(file):
                 # reporting
                 if count_low:
                     file.warning('%i values are lower than the valid minimum (%.2E %s).',
-                              count_low, valid_min, units)
+                                 count_low, valid_min, units)
                 if count_high:
                     file.warning('%i values are higher than the valid maximum (%.2E %s).',
-                              count_high, valid_max, units)
+                                 count_high, valid_max, units)
 
-                if settings.LOG_LEVEL == 'VRDETAIL':
-                    if count_low:
-                        file.warning('%i lowest values are :', min(n_keep, count_low))
-                        # low_heap stores negatives; convert and sort ascending
-                        low_items = [(-v, idx) for v, idx in low_heap]
-                        low_items.sort(key=lambda x: x[0])
-                        for v, idx in low_items[:n_keep]:
-                            date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
-                            if file.is_2d:
-                                lat_val = (
-                                    lat_vals[idx[-2]]
-                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                )
-                                lon_val = (
-                                    lon_vals[idx[-1]]
-                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                )
-                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
-                                          date, lat_val, lon_val, v, units)
-                            else:
-                                lat_val = (
-                                    lat_vals[idx[-2]]
-                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                )
-                                lon_val = (
-                                    lon_vals[idx[-1]]
-                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                )
-                                level = idx[-3] + 1
-                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
-                                          date, lat_val, lon_val, level, v, units)
+                if count_low:
+                    file.warning('%i lowest values are :', min(n_keep, count_low))
+                    # low_heap stores negatives; convert and sort ascending
+                    low_items = [(-v, idx) for v, idx in low_heap]
+                    low_items.sort(key=lambda x: x[0])
+                    for v, idx in low_items[:n_keep]:
+                        date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
+                        if file.is_2d:
+                            lat_val = (
+                                lat_vals[idx[-2]]
+                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                            )
+                            lon_val = (
+                                lon_vals[idx[-1]]
+                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                            )
+                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                         date, lat_val, lon_val, v, units)
+                        else:
+                            lat_val = (
+                                lat_vals[idx[-2]]
+                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                            )
+                            lon_val = (
+                                lon_vals[idx[-1]]
+                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                            )
+                            level = idx[-3] + 1
+                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                         date, lat_val, lon_val, level, v, units)
 
-                    if count_high:
-                        file.warning('%i highest values are :', min(n_keep, count_high))
-                        high_items = [(v, idx) for v, idx in high_heap]
-                        high_items.sort(key=lambda x: x[0], reverse=True)
-                        for v, idx in high_items[:n_keep]:
-                            date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
-                            if file.is_2d:
-                                lat_val = (
-                                    lat_vals[idx[-2]]
-                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                )
-                                lon_val = (
-                                    lon_vals[idx[-1]]
-                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                )
-                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
-                                          date, lat_val, lon_val, v, units)
-                            else:
-                                lat_val = (
-                                    lat_vals[idx[-2]]
-                                    if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                                )
-                                lon_val = (
-                                    lon_vals[idx[-1]]
-                                    if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                                )
-                                level = idx[-3] + 1
-                                file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
-                                          date, lat_val, lon_val, level, v, units)
+                if count_high:
+                    file.warning('%i highest values are :', min(n_keep, count_high))
+                    high_items = [(v, idx) for v, idx in high_heap]
+                    high_items.sort(key=lambda x: x[0], reverse=True)
+                    for v, idx in high_items[:n_keep]:
+                        date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
+                        if file.is_2d:
+                            lat_val = (
+                                lat_vals[idx[-2]]
+                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                            )
+                            lon_val = (
+                                lon_vals[idx[-1]]
+                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                            )
+                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
+                                         date, lat_val, lon_val, v, units)
+                        else:
+                            lat_val = (
+                                lat_vals[idx[-2]]
+                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
+                            )
+                            lon_val = (
+                                lon_vals[idx[-1]]
+                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
+                            )
+                            level = idx[-3] + 1
+                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
+                                         date, lat_val, lon_val, level, v, units)
 
                 if not count_low and not count_high:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
