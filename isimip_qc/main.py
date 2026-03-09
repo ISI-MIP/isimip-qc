@@ -110,10 +110,10 @@ def main():
 
     # walk over unchecked files
     for file_path in walk_files(settings.UNCHECKED_PATH):
-        logger.log(CHECKING, file_path)
-
         if not check_file_path(file_path):
             continue
+
+        logger.log(CHECKING, file_path)
 
         file = File(file_path)
         file.open_log()
@@ -136,16 +136,17 @@ def main():
 def check_file_path(file_path):
     if settings.INCLUDE:
         if not include_path(settings.INCLUDE, file_path, 'all'):
-            logger.info('File skipped by include option.')
+            logger.info('%s skipped by include option.', file_path)
             return False
 
     if settings.EXCLUDE:
         if exclude_path(settings.EXCLUDE, file_path):
-            logger.info('File skipped by exclude option.')
+            logger.info('%s skipped by exclude option.', file_path)
             return False
 
     if file_path.suffix not in settings.PATTERN.get('suffix', []):
-        logger.error('File has wrong suffix. Use "%s" for this simulation round.', settings.PATTERN['suffix'][0])
+        logger.error('%s has wrong suffix. Use "%s" for this simulation round.',
+                     file_path, settings.PATTERN['suffix'][0])
         return False
 
     return True
