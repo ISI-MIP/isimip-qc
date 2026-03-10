@@ -14,6 +14,9 @@ authors:
   - family-names: Mengel
     given-names: Matthias
     orcid: 'https://orcid.org/0000-0001-6724-9685'
+  - family-names: Inga
+    given-names: Sauer
+    orcid: https://orcid.org/0000-0002-9302-2131
 
 license: MIT
 repository-code: 'https://github.com/ISI-MIP/isimip-qc'
