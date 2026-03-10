@@ -3,10 +3,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-import colorlog
 import jsonschema
-from prettytable.colortable import PrettyTable
-
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
     get_dimensions,
@@ -16,13 +13,18 @@ from isimip_utils.netcdf import (
     open_dataset_write,
 )
 from isimip_utils.patterns import match_file
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.table import Table
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
 from .utils.experiments import get_experiment
 from .utils.files import copy_file, move_file
-from .utils.logging import SUMMARY
 
+logger = logging.getLogger(__name__)
+
+console = Console()
 
 class File:
 
@@ -49,12 +51,17 @@ class File:
 
     @property
     def json(self):
-        return {
-            'dimensions': get_dimensions(self.dataset),
-            'variables': get_variables(self.dataset),
-            'global_attributes': get_global_attributes(self.dataset),
-            'specifiers': self.specifiers
-        }
+        if self.dataset is None:
+            return {
+                'specifiers': self.specifiers
+            }
+        else:
+            return {
+                'dimensions': get_dimensions(self.dataset),
+                'variables': get_variables(self.dataset),
+                'global_attributes': get_global_attributes(self.dataset),
+                'specifiers': self.specifiers
+            }
 
     def open_log(self):
         self.logger = self.get_logger()
@@ -62,6 +69,7 @@ class File:
     def close_log(self):
         if self.handler:
             self.handler.close()
+        self.handler = None
 
     def open_dataset(self, write=False):
         if write:
@@ -70,7 +78,9 @@ class File:
             self.dataset = open_dataset_read(self.abs_path)
 
     def close_dataset(self):
-        self.dataset.close()
+        if self.dataset is not None:
+            self.dataset.close()
+        self.dataset = None
 
     def debug(self, message, *args):
         if self.logger is not None:
@@ -82,9 +92,9 @@ class File:
 
         self.infos.append((message % args, fix))
 
-    def warn(self, message, *args, fix=None, fix_datamodel=None):
+    def warning(self, message, *args, fix=None, fix_datamodel=None):
         if self.logger is not None:
-            self.logger.warn(message, *args)
+            self.logger.warning(message, *args)
 
         self.warnings.append((message % args, fix, fix_datamodel))
 
@@ -102,14 +112,14 @@ class File:
 
     def fix_infos(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 fix['func'](*fix['args'])
                 self.infos.remove(info)
 
     def fix_warnings(self):
         for warning in self.warnings[:]:
-            message, fix, _ = warning
+            _, fix, _ = warning
             if fix:
                 fix['func'](*fix['args'])
                 self.warnings.remove(warning)
@@ -142,14 +152,14 @@ class File:
 
                 # remove warnings after fix
                 for warning in self.warnings[:]:
-                    message, _, fix_datamodel = warning
+                    _, _, fix_datamodel = warning
                     if fix_datamodel:
                         self.warnings.remove(warning)
 
     @property
     def has_infos_fixable(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 return bool(self.infos)
 
@@ -172,29 +182,23 @@ class File:
     def get_logger(self):
         # setup a log handler for the command line and one for the file
         logger_name = str(self.path)
-        logger = colorlog.getLogger(logger_name)
+
+        logger = logging.getLogger(logger_name)
         logger.setLevel(settings.LOG_LEVEL)
 
         # do not propagate messages to the root logger,
-        # which is configured in settings.setup()
+        # which is configured in main()
         logger.propagate = False
 
-        # add handlers
-        logger.addHandler(self.get_stream_handler())
+        # add rich handler
+        logger.addHandler(RichHandler(show_time=settings.SHOW_TIME, show_path=settings.SHOW_PATH))
+
+        # add file handler
         if settings.LOG_PATH:
             self.handler = self.get_file_handler()
             logger.addHandler(self.handler)
 
         return logger
-
-    def get_stream_handler(self):
-        formatter = colorlog.ColoredFormatter(' %(log_color)s%(levelname)-9s: %(message)s%(reset)s')
-
-        handler = colorlog.StreamHandler()
-        handler.setLevel(settings.LOG_LEVEL)
-        handler.setFormatter(formatter)
-
-        return handler
 
     def get_file_handler(self):
         log_name = self.path.name.split('.')[0] + '_' + settings.NOW
@@ -211,12 +215,11 @@ class File:
 
     def match(self):
         try:
-            path, self.specifiers = match_file(settings.PATTERN, self.path)
+            _, self.specifiers = match_file(settings.PATTERN, self.path)
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
         except DidNotMatch as e:
-            self.error('File did not match naming scheme.')
-            self.debug(e)
+            self.error(str(e))
             self.matched = False
 
     def validate(self):
@@ -264,47 +267,40 @@ class Summary:
         if experiment:
             self.experiments[experiment] += 1
 
-    def log_specifiers(self):
-        table = PrettyTable()
-        table.field_names = ['Identifier', 'Specifier', 'Count']
-        table.align['Identifier'] = 'l'
-        table.align['Specifier'] = 'l'
-        table.align['Count'] = 'r'
+    def print_specifiers(self):
+        table = Table()
+        table.add_column('Identifier')
+        table.add_column('Specifier', style='magenta')
+        table.add_column('Count', justify='right', style='cyan')
 
         for identifier, counter in self.specifiers.items():
-            for i, (specifier, count) in enumerate(counter.items()):
-                table.add_row([identifier if i == 0 else '', specifier, count])
+            for i, (specifier, count) in enumerate(sorted(counter.items(), key=lambda x: x[1], reverse=True)):
+                table.add_row(identifier if i == 0 else '', str(specifier), str(count))
 
-        for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+        console.print(table)
 
-    def log_variables(self):
-        table = PrettyTable()
-        table.field_names = ['Specifier', 'Sectors', 'Count']
-        table.align['Specifier'] = 'l'
-        table.align['Long name'] = 'l'
-        table.align['Sectors'] = 'l'
-        table.align['Count'] = 'r'
+    def print_variables(self):
+        table = Table()
+        table.add_column('Specifier', style='magenta')
+        table.add_column('Sectors', style='green')
+        table.add_column('Count', justify='right', style='cyan')
 
-        for specifier, variable in self.variables.items():
-            table.add_row([specifier, ', '.join(variable.get('sectors')), variable.get('count')])
+        for specifier, variable in sorted(self.variables.items(), key=lambda x: x[1].get('count'), reverse=True):
+            table.add_row(specifier, ', '.join(variable.get('sectors')), str(variable.get('count')))
 
-        for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+        console.print(table)
 
-    def log_experiments(self):
-        table = PrettyTable()
-        table.field_names = ['Experiment', 'Count']
-        table.align['Experiment'] = 'l'
-        table.align['Count'] = 'r'
+    def print_experiments(self):
+        table = Table()
+        table.add_column('Experiment')
+        table.add_column('Count', justify='right', style='cyan')
 
-        for experiment, count in self.experiments.items():
-            table.add_row([experiment, count])
+        for experiment, count in sorted(self.experiments.items(), key=lambda x: x[1], reverse=True):
+            table.add_row(experiment, str(count))
 
-        for line in table.get_string().splitlines():
-            colorlog.log(SUMMARY, line)
+        console.print(table)
 
-    def log(self):
-        self.log_specifiers()
-        self.log_variables()
-        self.log_experiments()
+    def print(self):
+        self.print_specifiers()
+        self.print_variables()
+        self.print_experiments()
