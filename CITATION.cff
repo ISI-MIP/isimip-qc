@@ -18,5 +18,6 @@ authors:
     given-names: Sauer
     orcid: https://orcid.org/0000-0002-9302-2131
 
+doi: 10.5281/zenodo.18938341
 license: MIT
 repository-code: 'https://github.com/ISI-MIP/isimip-qc'
