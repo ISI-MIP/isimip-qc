@@ -4,10 +4,6 @@ from collections import Counter
 from pathlib import Path
 
 import jsonschema
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.table import Table
-
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
     get_dimensions,
@@ -17,6 +13,9 @@ from isimip_utils.netcdf import (
     open_dataset_write,
 )
 from isimip_utils.patterns import match_file
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.table import Table
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
@@ -70,6 +69,7 @@ class File:
     def close_log(self):
         if self.handler:
             self.handler.close()
+        self.handler = None
 
     def open_dataset(self, write=False):
         if write:
@@ -78,7 +78,9 @@ class File:
             self.dataset = open_dataset_read(self.abs_path)
 
     def close_dataset(self):
-        self.dataset.close()
+        if self.dataset is not None:
+            self.dataset.close()
+        self.dataset = None
 
     def debug(self, message, *args):
         if self.logger is not None:
@@ -90,9 +92,9 @@ class File:
 
         self.infos.append((message % args, fix))
 
-    def warn(self, message, *args, fix=None, fix_datamodel=None):
+    def warning(self, message, *args, fix=None, fix_datamodel=None):
         if self.logger is not None:
-            self.logger.warn(message, *args)
+            self.logger.warning(message, *args)
 
         self.warnings.append((message % args, fix, fix_datamodel))
 
@@ -110,14 +112,14 @@ class File:
 
     def fix_infos(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 fix['func'](*fix['args'])
                 self.infos.remove(info)
 
     def fix_warnings(self):
         for warning in self.warnings[:]:
-            message, fix, _ = warning
+            _, fix, _ = warning
             if fix:
                 fix['func'](*fix['args'])
                 self.warnings.remove(warning)
@@ -150,14 +152,14 @@ class File:
 
                 # remove warnings after fix
                 for warning in self.warnings[:]:
-                    message, _, fix_datamodel = warning
+                    _, _, fix_datamodel = warning
                     if fix_datamodel:
                         self.warnings.remove(warning)
 
     @property
     def has_infos_fixable(self):
         for info in self.infos[:]:
-            message, fix = info
+            _, fix = info
             if fix:
                 return bool(self.infos)
 
@@ -213,7 +215,7 @@ class File:
 
     def match(self):
         try:
-            path, self.specifiers = match_file(settings.PATTERN, self.path)
+            _, self.specifiers = match_file(settings.PATTERN, self.path)
             self.info('File matched naming scheme: %s.', self.specifiers)
             self.matched = True
         except DidNotMatch as e:

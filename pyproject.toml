@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
 [project]
 name = "isimip-qc"
 authors = [
@@ -9,36 +13,22 @@ maintainers = [
 ]
 description = "A command line tool for the quality control of climate impact data of the ISIMIP project."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3.11',
-    'Programming Language :: Python :: 3.12'
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14'
 ]
 
 dependencies = [
-    "isimip-utils>=1.2",
-    "jsonschema",
-    "netCDF4",
-    "prettytable",
-    "python-dotenv",
-    "requests"
+    "isimip-utils[netcdf]~=2.0",
+    "jsonschema"
 ]
 dynamic = ["version"]
-
-[build-system]
-requires = ["setuptools >= 77.0.3"]
-build-backend = "setuptools.build_meta"
-
-[project.optional-dependencies]
-dev = [
-    "build",
-    "pre-commit",
-    "ruff",
-    "twine",
-]
 
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-qc"
@@ -47,12 +37,17 @@ Issues = "https://github.com/ISI-MIP/isimip-qc/issues"
 [project.scripts]
 isimip-qc = "isimip_qc.main:main"
 
-[tool.setuptools.dynamic]
-version = { attr = "isimip_qc.__version__" }
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["isimip_qc"]
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py311"
 line-length = 120
+
+[tool.ruff.lint]
 select = [
     "B",    # flake8-bugbear
     "C4",   # flake8-comprehensions
@@ -66,13 +61,10 @@ select = [
     "YTT",  # flake8-2020
 ]
 ignore = [
-    "B006",   # mutable-argument-default
-    "B007",   # unused-loop-control-variable
-    "B018",   # useless-expression
     "RUF012", # mutable-class-default
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = [
     "isimip_qc"
 ]
@@ -87,3 +79,11 @@ section-order = [
 
 [tool.ruff.isort.sections]
 isimip_utils = ["isimip_utils"]
+
+[tool.typos.default.extend-identifiers]
+CHECKs = "CHECKs"
+ERRORs = "ERRORs"
+WARNINGs = "WARNINGs"
+criticals = "criticals"
+has_criticals = "has_criticals"
+calenders_daily = "calenders_daily"  # TODO: remove when isimip-protocol-3 is fixed
