@@ -193,7 +193,7 @@ def check_variable(file):
         if settings.SECTOR == 'agriculture':
             return
 
-        if settings.MINMAX >= 0:
+        if isinstance(settings.MINMAX, (int, float)) and not isinstance(settings.MINMAX, bool) and settings.MINMAX >= 0:
             if file.is_time_fixed:
                 file.warning('Valid range test for fixed data not yet implemented')
                 return
