@@ -1,10 +1,10 @@
 ISIMIP quality control
 ======================
 
-[![Latest release](https://shields.io/github/v/release/ISI-MIP/isimip-qc)](https://github.com/ISI-MIP/isimip-qc/releases)
-[![PyPI Release](https://img.shields.io/pypi/v/isimip-qc)](https://pypi.org/project/isimip-qc/)
-[![Python Version](https://img.shields.io/badge/python-%3E%3D3.11-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](https://github.com/ISI-MIP/django-datacite/blob/master/LICENSE)
+[![Python Version](https://img.shields.io/badge/python->=3.11-blue)](https://www.python.org/)
+[![License](https://img.shields.io/github/license/ISI-MIP/isimip-qc?style=flat)](https://github.com/rdmorganiser/isimip-qc/blob/main/LICENSE)
+[![CI status](https://github.com/ISI-MIP/isimip-qc/actions/workflows/ci.yaml/badge.svg)](https://github.com/ISI-MIP/isimip-qc/actions/workflows/ci.yaml)
+[![Latest release](https://img.shields.io/pypi/v/isimip-qc.svg?style=flat)](https://pypi.python.org/pypi/isimip-qc/)
 
 A command line tool for the quality control of climate impact data of the ISIMIP project. It mainly covers tests of:
 - the file name against the protocol schemas and patterns
