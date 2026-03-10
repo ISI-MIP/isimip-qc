@@ -2,7 +2,7 @@ ISIMIP quality control
 ======================
 
 [![Python Version](https://img.shields.io/badge/python->=3.11-blue)](https://www.python.org/)
-[![License](https://img.shields.io/github/license/ISI-MIP/isimip-qc?style=flat)](https://github.com/rdmorganiser/isimip-qc/blob/main/LICENSE)
+[![License](https://img.shields.io/github/license/ISI-MIP/isimip-qc?style=flat)](https://github.com/ISI-MIP/isimip-qc/blob/main/LICENSE)
 [![CI status](https://github.com/ISI-MIP/isimip-qc/actions/workflows/ci.yaml/badge.svg)](https://github.com/ISI-MIP/isimip-qc/actions/workflows/ci.yaml)
 [![Latest release](https://img.shields.io/pypi/v/isimip-qc.svg?style=flat)](https://pypi.python.org/pypi/isimip-qc/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18938341.svg)](https://doi.org/10.5281/zenodo.18938341)
