@@ -1,6 +1,6 @@
+import re
 import uuid
 from datetime import datetime
-from email.utils import parseaddr
 
 from .. import __version__
 from ..config import settings
@@ -71,12 +71,13 @@ def check_contact(file):
         file.error('Global attribute "contact" is missing.')
         return
 
+    pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
     contact = file.dataset.getncattr('contact')
-    name, address = parseaddr(contact, strict=False)
-    if not address:
-        file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
+
+    if re.search(pattern, contact):
+        file.info('Global attribute "contact" looks good. (%s)', contact)
     else:
-        file.info('Global attribute "contact" looks good. (%s <%s>)', name, address)
+        file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
 
 
 def check_isimip_qc_date(file):
