@@ -136,7 +136,7 @@ def main():
 
 def check_file_path(file_path):
     if settings.INCLUDE:
-        if not include_path(settings.INCLUDE, file_path, 'all'):
+        if not include_path(settings.INCLUDE, file_path, 'any'):
             logger.info('%s skipped by include option.', file_path)
             return False
 
