@@ -4,9 +4,6 @@ from isimip_qc.config import settings
 
 
 def check_time_resolution(file):
-    if settings.SECTOR == 'agriculture':
-        return
-
     if file.is_time_fixed:
         return
 
@@ -15,6 +12,11 @@ def check_time_resolution(file):
     time = variables.get('time')
     time_definition = settings.DEFINITIONS['dimensions'].get('time')
     time_resolution = file.specifiers.get('time_step')
+    time_resolution_definition = settings.DEFINITIONS['time_step'].get(time_resolution)
+
+    # skip check for time resolution, e.g. for agriculture
+    if time_resolution_definition.get('check') is False:
+        return
 
     # get attributes defensively without exception-driven control flow
     time_units = getattr(time, 'units', None)
