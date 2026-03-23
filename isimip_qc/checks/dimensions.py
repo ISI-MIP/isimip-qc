@@ -20,11 +20,9 @@ def check_lon_dimension(file):
 
     # overwrite for special climate forcings defined in the protocol
     grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
-    if 'lon_size' in grid_info:
-        lon_size = (
-            grid_info.get('lon_size', {})
-                     .get(sens_scenario, grid_info.get('lon_size', {}).get('default', lon_size))
-        )
+    if 'lon' in grid_info:
+        lon_size = grid_info['lon'].get('size', {}).get('default', lon_size)
+        lon_size = grid_info['lon'].get('size', {}).get(sens_scenario, lon_size)
 
     # overwrite for special models defined in the protocol
     model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
@@ -57,11 +55,9 @@ def check_lat_dimension(file):
 
     # overwrite for special climate forcings defined in the protocol
     grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
-    if 'lat_size' in grid_info:
-        lat_size = (
-            grid_info.get('lat_size', {})
-                     .get(sens_scenario, grid_info.get('lat_size', {}).get('default', lat_size))
-        )
+    if 'lat' in grid_info:
+        lat_size = grid_info['lat'].get('size', {}).get('default', lat_size)
+        lat_size = grid_info['lat'].get('size', {}).get(sens_scenario, lat_size)
 
     # overwrite for special models defined in the protocol
     model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
