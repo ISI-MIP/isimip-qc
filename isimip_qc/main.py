@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_logs
+from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_env, setup_logs
 from isimip_utils.exceptions import NotFound
 from isimip_utils.utils import exclude_path, include_path
 
@@ -81,6 +81,8 @@ def main():
                         help='copy or move files despite errors')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
+
+    setup_env()
 
     args = parser.parse_args()
 
