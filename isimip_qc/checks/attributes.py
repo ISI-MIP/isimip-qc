@@ -75,9 +75,9 @@ def check_contact(file):
     if match_contact(contact):
         file.info('Global attribute "contact" looks good. (%s)', contact)
     else:
-        file.error('Global attribute "contact" doe not follow the format "NAME <EMAIL>, ..." (%s).', contact)
+        file.warning('Global attribute "contact" does not follow the format "NAME <EMAIL>, ..." (%s).', contact)
         if not match_addrs(contact):
-            file.error('Global attribute "contact" contains a malformed address (%s).', contact)
+            file.warning('Global attribute "contact" contains a malformed address (%s).', contact)
 
 
 def check_isimip_qc_date(file):
