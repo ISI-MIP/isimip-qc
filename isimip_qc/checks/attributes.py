@@ -1,10 +1,10 @@
-import re
 import uuid
 from datetime import datetime
 
 from .. import __version__
 from ..config import settings
 from ..fixes import fix_remove_global_attr, fix_set_global_attr
+from ..utils.contact import match_addrs, match_contact
 
 
 def check_isimip_id(file):
@@ -69,15 +69,15 @@ def check_institution(file):
 def check_contact(file):
     if 'contact' not in file.dataset.ncattrs():
         file.error('Global attribute "contact" is missing.')
-        return
 
-    pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
     contact = file.dataset.getncattr('contact')
 
-    if re.search(pattern, contact):
+    if match_contact(contact):
         file.info('Global attribute "contact" looks good. (%s)', contact)
     else:
-        file.error('Global attribute "contact" does not contain a proper address (%s).', contact)
+        file.error('Global attribute "contact" doe not follow the format "NAME <EMAIL>, ..." (%s).', contact)
+        if not match_addrs(contact):
+            file.error('Global attribute "contact" contains a malformed address (%s).', contact)
 
 
 def check_isimip_qc_date(file):
