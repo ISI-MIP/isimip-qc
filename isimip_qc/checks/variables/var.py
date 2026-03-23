@@ -36,30 +36,44 @@ def check_variable(file):
         chunking = variable.chunking()
 
         if chunking:
-            # pick lat/lon sizes from dimensions definition
-            if settings.SECTOR in ['marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry']:
-                lat_size = variables.get('lat').size
-                lon_size = variables.get('lon').size
-            else:
-                lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
-                lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
-            # overwrite lat/lon ranges if available from climate forcing definition
-            if 'grid' in settings.DEFINITIONS['climate_forcing'].get(climate_forcing):
-                grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing)['grid']
-                lat_size = (
-                    grid_info.get('lat_size', {})
-                    .get(sens_scenario, grid_info.get('lat_size', {}).get('default'))
-                )
-                lon_size = (
-                    grid_info.get('lon_size', {})
-                    .get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
-                )
+            # get sizes from the protocol
+            lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
+            lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
 
-            # overwrite for special cases defined in the protocol
+            # overwrite for special climate forcings defined in the protocol
+            grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
+            if grid_info:
+                lat_size = grid_info['lat'].get('size', {}).get('default', lat_size)
+                lat_size = grid_info['lat'].get('size', {}).get(sens_scenario, lat_size)
+
+                lon_size = grid_info['lon'].get('size', {}).get('default', lon_size)
+                lon_size = grid_info['lon'].get('size', {}).get(sens_scenario, lon_size)
+
+            # overwrite for special sectors defined in the protocol
+            sector_grid = settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('grid')
+            if sector_grid:
+                if sector_grid.get('lat', {}).get('size') is False:
+                    lat_size = variables.get('lat').size
+                else:
+                    lat_size = sector_grid.get('lat', {}).get('size', lat_size)
+
+                if sector_grid.get('lat', {}).get('size') is False:
+                    lon_size = variables.get('lon').size
+                else:
+                    lon_size = sector_grid.get('lon', {}).get('size') or lon_size
+
+            # overwrite for special models defined in the protocol
             model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
             if model_grid:
-                lat_size = model_grid.get('lat', {}).get('size', lat_size)
-                lon_size = model_grid.get('lon', {}).get('size', lon_size)
+                if model_grid.get('lat', {}).get('size') is False:
+                    lat_size = variables.get('lat').size
+                else:
+                    lat_size = model_grid.get('lat', {}).get('size', lat_size)
+
+                if model_grid.get('lat', {}).get('size') is False:
+                    lon_size = variables.get('lon').size
+                else:
+                    lon_size = model_grid.get('lon', {}).get('size') or lon_size
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:

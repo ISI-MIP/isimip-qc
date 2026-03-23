@@ -6,9 +6,6 @@ def check_lon_dimension(file):
     climate_forcing = file.specifiers.get('climate_forcing')
     sens_scenario = file.specifiers.get('sens_scenario')
 
-    if settings.SECTOR in ('marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry'):
-        return
-
     # get dimension from the dataset
     lon_dim = file.dataset.dimensions.get('lon')
     if lon_dim is None:
@@ -20,13 +17,22 @@ def check_lon_dimension(file):
 
     # overwrite for special climate forcings defined in the protocol
     grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
-    if 'lon' in grid_info:
-        lon_size = grid_info['lon'].get('size', {}).get('default', lon_size)
-        lon_size = grid_info['lon'].get('size', {}).get(sens_scenario, lon_size)
+    if grid_info:
+        lon_size = grid_info.get('lon').get('size', {}).get('default', lon_size)
+        lon_size = grid_info.get('lon').get('size', {}).get(sens_scenario, lon_size)
+
+    # overwrite for special sectors defined in the protocol
+    sector_grid = settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('grid')
+    if sector_grid:
+        if sector_grid.get('lon', {}).get('size') is False:
+            return
+        lon_size = sector_grid.get('lon', {}).get('size', lon_size)
 
     # overwrite for special models defined in the protocol
     model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
     if model_grid:
+        if model_grid.get('lon', {}).get('size') is False:
+            return
         lon_size = model_grid.get('lon', {}).get('size', lon_size)
 
     actual = lon_dim.size
@@ -41,9 +47,6 @@ def check_lat_dimension(file):
     climate_forcing = file.specifiers.get('climate_forcing')
     sens_scenario = file.specifiers.get('sens_scenario')
 
-    if settings.SECTOR in ('marine-fishery_regional', 'water_regional', 'lakes_local', 'forestry'):
-        return
-
     # get dimension from the dataset
     lat_dim = file.dataset.dimensions.get('lat')
     if lat_dim is None:
@@ -55,13 +58,22 @@ def check_lat_dimension(file):
 
     # overwrite for special climate forcings defined in the protocol
     grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
-    if 'lat' in grid_info:
+    if grid_info:
         lat_size = grid_info['lat'].get('size', {}).get('default', lat_size)
         lat_size = grid_info['lat'].get('size', {}).get(sens_scenario, lat_size)
+
+    # overwrite for special sectors defined in the protocol
+    sector_grid = settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('grid')
+    if sector_grid:
+        if sector_grid.get('lat', {}).get('size') is False:
+            return
+        lat_size = sector_grid.get('lat', {}).get('size', lat_size)
 
     # overwrite for special models defined in the protocol
     model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
     if model_grid:
+        if model_grid.get('lat', {}).get('size') is False:
+            return
         lat_size = model_grid.get('lat', {}).get('size', lat_size)
 
     actual = lat_dim.size
