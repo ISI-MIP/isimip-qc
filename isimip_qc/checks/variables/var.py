@@ -205,12 +205,17 @@ def check_variable(file):
                                ' when variable is created.', name, file.variable_name)
 
         # check valid range
-        if settings.SECTOR == 'agriculture':
-            return
-
         if isinstance(settings.MINMAX, (int, float)) and not isinstance(settings.MINMAX, bool) and settings.MINMAX >= 0:
             if file.is_time_fixed:
-                file.warning('Valid range test for fixed data not yet implemented')
+                file.warning('Valid range test for fixed data not yet implemented.')
+                return
+
+            # skip valid range check for special sectors
+            if (
+                settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_min') is False or
+                settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_max') is False
+            ):
+                file.warning('Skip valid range test for "%s" sector.', settings.SECTOR)
                 return
 
             valid_min = definition.get('valid_min')
