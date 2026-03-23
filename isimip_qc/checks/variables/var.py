@@ -55,10 +55,11 @@ def check_variable(file):
                     .get(sens_scenario, grid_info.get('lon_size', {}).get('default'))
                 )
 
-            # overwrite for special cases not defined in the protocol
-            if model == 'dbem':
-                lat_size = 360
-                lon_size = 720
+            # overwrite for special cases defined in the protocol
+            model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
+            if model_grid:
+                lat_size = model_grid.get('lat', {}).get('size', lat_size)
+                lon_size = model_grid.get('lon', {}).get('size', lon_size)
 
             if file.is_2d:
                 if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:

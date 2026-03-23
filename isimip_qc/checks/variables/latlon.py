@@ -99,14 +99,11 @@ def check_latlon_variable(file):
                              .get(sens_scenario, grid_info.get('lon_max', {}).get('default', maximum))
                 )
 
-        # overwrite for special cases not defined in the protocol
-        if model == 'dbem':
-            if variable == 'lat':
-                minimum = -89.75
-                maximum = 89.75
-            elif variable == 'lon':
-                minimum = -179.75
-                maximum = 179.75
+        # overwrite for special cases defined in the protocol
+        model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
+        if model_grid:
+            minimum = model_grid.get(variable, {}).get('min', minimum)
+            maximum = model_grid.get(variable, {}).get('max', maximum)
 
         # use first and last element which is sufficient for monotonic lat/lon
         try:
