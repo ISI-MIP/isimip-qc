@@ -30,6 +30,11 @@ def test_match_addrs(contact, result):
     (r"John Doe <john@example.com>", True),
     (r"John Doe <john@example.com>, Jane Smith <jane@company.org>", True),
     (r"John Doe <john@example.com>, Jane Smith <jane@company.org>, Alice <alice@domain.co.uk>", True),
+    (r"John Doe", False),
+    (r"john@example.com", False),
+    (r"John Doe (john@example.com)", False),
+    (r"John Doe (john@example.com), Jane Smith (jane@company.org)", False),
+    (r"John Doe (john@example.com), Jane Smith (jane@company.org)", False),
     (r"John Doe <john@example.com>,Jane Smith <jane@company.org>", False),
     (r"invalid, John Doe <john@example.com>", False),
 ])
