@@ -2,7 +2,7 @@ import re
 
 candidate_pattern = r'\S+@\S+'
 addr_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-name_pattern = fr'[A-Za-z\s]+\s<{addr_pattern}>'
+name_pattern = fr'[A-Za-z\s-]+\s<{addr_pattern}>'
 full_pattern = fr'^{name_pattern}(,\s{name_pattern})*$'
 
 
