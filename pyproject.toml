@@ -30,6 +30,11 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+pytest = [
+    "pytest~=9.0",
+]
+
 [project.urls]
 Repository = "https://github.com/ISI-MIP/isimip-qc"
 Issues = "https://github.com/ISI-MIP/isimip-qc/issues"
