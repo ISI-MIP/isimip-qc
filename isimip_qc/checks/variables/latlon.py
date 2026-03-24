@@ -2,13 +2,10 @@ import numpy as np
 
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
+from isimip_qc.utils.grid import update_grid_value
 
 
 def check_latlon_variable(file):
-    model = file.specifiers.get('model')
-    climate_forcing = file.specifiers.get('climate_forcing')
-    sens_scenario = file.specifiers.get('sens_scenario')
-
     ds = file.dataset
     variables = ds.variables
 
@@ -73,36 +70,13 @@ def check_latlon_variable(file):
         minimum = var_definition.get('minimum')
         maximum = var_definition.get('maximum')
 
-        # overwrite lat/lon ranges for special climate forcings defined in the protocol
-        grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
-        if grid_info:
-            minimum = grid_info.get(variable, {}).get('min', {}).get('default', minimum)
-            minimum = grid_info.get(variable, {}).get('min', {}).get(sens_scenario, minimum)
+        # overwrite for special cases defined in the protocol
+        minimum = update_grid_value(file, variable, 'min', minimum)
+        maximum = update_grid_value(file, variable, 'max', maximum)
 
-            maximum = grid_info.get(variable, {}).get('max', {}).get('default', maximum)
-            maximum = grid_info.get(variable, {}).get('max', {}).get(sens_scenario, maximum)
-
-        # overwrite lat/lon ranges for special sectors defined in the protocol
-        sector_grid = settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('grid')
-        if sector_grid:
-            if (
-                sector_grid.get(variable, {}).get('min') is False or
-                sector_grid.get(variable, {}).get('max') is False
-            ):
-                return
-            minimum = grid_info.get(variable, {}).get('min', minimum)
-            maximum = grid_info.get(variable, {}).get('max', maximum)
-
-        # overwrite lat/lon ranges for special cases defined in the protocol
-        model_grid = settings.DEFINITIONS['model'].get(model, {}).get('grid')
-        if model_grid:
-            if (
-                model_grid.get(variable, {}).get('min') is False or
-                model_grid.get(variable, {}).get('max') is False
-            ):
-                return
-            minimum = model_grid.get(variable, {}).get('min', minimum)
-            maximum = model_grid.get(variable, {}).get('max', maximum)
+        # skip if check is disabled in the protocol
+        if minimum is False or maximum is False:
+            return
 
         # use first and last element which is sufficient for monotonic lat/lon
         try:
