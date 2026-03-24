@@ -99,11 +99,14 @@ def check_latlon_variable(file):
             expected_first = minimum
             expected_last = maximum
 
-        if expected_first is not None and round(first_val, 7) != expected_first:
-            file.error('First value of variable "%s" is %s. Must be %s.', variable, first_val, expected_first)
+        first_val_rounded = round(first_val, 7)
+        last_val_rounded = round(last_val, 7)
 
-        if expected_last is not None and round(last_val, 7) != expected_last:
-            file.error('Last value of variable "%s" is %s. Must be %s.', variable, last_val, expected_last)
+        if expected_first is not None and first_val_rounded != expected_first:
+            file.error('First value of variable "%s" is %s. Must be %s.', variable, first_val_rounded, expected_first)
+
+        if expected_last is not None and last_val_rounded != expected_last:
+            file.error('Last value of variable "%s" is %s. Must be %s.', variable, last_val_rounded, expected_last)
 
         # check ordering direction and report helpful messages
         if variable == 'lat':
