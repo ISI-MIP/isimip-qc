@@ -37,28 +37,28 @@ def check_variable(file):
 
         if chunking:
             # get sizes from the protocol
-            lat_size = settings.DEFINITIONS['dimensions'].get('lat')['size']
-            lon_size = settings.DEFINITIONS['dimensions'].get('lon')['size']
+            lat_size = settings.DEFINITIONS['dimensions']['lat']['size']
+            lon_size = settings.DEFINITIONS['dimensions']['lon']['size']
 
             # overwrite for special climate forcings defined in the protocol
             grid_info = settings.DEFINITIONS['climate_forcing'].get(climate_forcing, {}).get('grid', {})
             if grid_info:
-                lat_size = grid_info['lat'].get('size', {}).get('default', lat_size)
-                lat_size = grid_info['lat'].get('size', {}).get(sens_scenario, lat_size)
+                lat_size = grid_info.get('lat', {}).get('size', {}).get('default', lat_size)
+                lat_size = grid_info.get('lat', {}).get('size', {}).get(sens_scenario, lat_size)
 
-                lon_size = grid_info['lon'].get('size', {}).get('default', lon_size)
-                lon_size = grid_info['lon'].get('size', {}).get(sens_scenario, lon_size)
+                lon_size = grid_info.get('lon', {}).get('size', {}).get('default', lon_size)
+                lon_size = grid_info.get('lon', {}).get('size', {}).get(sens_scenario, lon_size)
 
             # overwrite for special sectors defined in the protocol
             sector_grid = settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('grid')
             if sector_grid:
                 if sector_grid.get('lat', {}).get('size') is False:
-                    lat_size = variables.get('lat').size
+                    lat_size = variables.get('lat', {}).size
                 else:
                     lat_size = sector_grid.get('lat', {}).get('size', lat_size)
 
                 if sector_grid.get('lat', {}).get('size') is False:
-                    lon_size = variables.get('lon').size
+                    lon_size = variables.get('lon', {}).size
                 else:
                     lon_size = sector_grid.get('lon', {}).get('size') or lon_size
 
