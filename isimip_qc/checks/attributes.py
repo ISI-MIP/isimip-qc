@@ -67,17 +67,17 @@ def check_institution(file):
 
 
 def check_contact(file):
-    if 'contact' not in file.dataset.ncattrs():
-        file.error('Global attribute "contact" is missing.')
+    if 'contact' in file.dataset.ncattrs():
+        contact = file.dataset.getncattr('contact')
 
-    contact = file.dataset.getncattr('contact')
-
-    if match_contact(contact):
-        file.info('Global attribute "contact" looks good. (%s)', contact)
+        if match_contact(contact):
+            file.info('Global attribute "contact" looks good. (%s)', contact)
+        else:
+            file.warning('Global attribute "contact" does not follow the format "NAME <EMAIL>, ..." (%s).', contact)
+            if not match_addrs(contact):
+                file.warning('Global attribute "contact" contains a malformed address (%s).', contact)
     else:
-        file.warning('Global attribute "contact" does not follow the format "NAME <EMAIL>, ..." (%s).', contact)
-        if not match_addrs(contact):
-            file.warning('Global attribute "contact" contains a malformed address (%s).', contact)
+        file.error('Global attribute "contact" is missing.')
 
 
 def check_isimip_qc_date(file):
