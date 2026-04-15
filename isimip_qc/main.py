@@ -24,7 +24,6 @@ def main():
     # mandatory
     parser.add_argument('schema_path', type=parse_schema_path,
                         help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
-    parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
 
     # optional
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
