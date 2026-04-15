@@ -11,6 +11,7 @@ from .checks import checks
 from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
 from .models import File, Summary
+from .utils.cli import parse_schema_path
 from .utils.files import walk_files
 from .utils.logging import CHECKING
 
@@ -21,6 +22,8 @@ def main():
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
 
     # mandatory
+    parser.add_argument('schema_path', type=parse_schema_path,
+                        help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
     parser.add_argument('schema_path', help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
 
     # optional
