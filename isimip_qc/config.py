@@ -1,9 +1,9 @@
 from datetime import datetime
+from functools import cached_property
 from pathlib import Path
 
 from isimip_utils.config import Settings as BaseSettings
 from isimip_utils.protocol import fetch_definitions, fetch_pattern, fetch_schema
-from isimip_utils.utils import cached_property
 
 
 class Settings(BaseSettings):
