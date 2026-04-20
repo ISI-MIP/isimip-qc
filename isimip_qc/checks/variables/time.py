@@ -73,8 +73,6 @@ def check_time_variable(file):
 
     # check calendars
     calendars = time_definition.get('calendars_daily')
-    if calendars is None:
-        calendars = time_definition.get('calenders_daily', [])
     cur_cal = getattr(time, 'calendar', None)
     if cur_cal not in calendars:
         file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', cur_cal, calendars)
