@@ -72,7 +72,7 @@ def check_time_variable(file):
         file.info('Valid time unit found (%s)', cur_units)
 
     # check calendars
-    calendars = time_definition.get('calenders_daily', [])
+    calendars = time_definition.get('calendars_daily')
     cur_cal = getattr(time, 'calendar', None)
     if cur_cal not in calendars:
         file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', cur_cal, calendars)
