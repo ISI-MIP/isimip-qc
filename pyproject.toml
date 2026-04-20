@@ -91,4 +91,4 @@ ERRORs = "ERRORs"
 WARNINGs = "WARNINGs"
 criticals = "criticals"
 has_criticals = "has_criticals"
-calenders_daily = "calenders_daily"  # TODO: remove when isimip-protocol-3 is fixed
+calenders_daily = "calenders_daily"  # Legacy protocol key kept for backward compatibility
