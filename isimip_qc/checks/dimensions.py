@@ -3,6 +3,10 @@ from ..utils.grid import update_grid_value
 
 
 def check_lon_dimension(file):
+    sector_default_dimensions = tuple(settings.DEFINITIONS['sector'][settings.SECTOR].get('default_dimensions'))
+    if 'lon' not in sector_default_dimensions:
+        return
+
     # get dimension from the dataset
     lon_dim = file.dataset.dimensions.get('lon')
     if lon_dim is None:
@@ -23,6 +27,9 @@ def check_lon_dimension(file):
 
 
 def check_lat_dimension(file):
+    sector_default_dimensions = tuple(settings.DEFINITIONS['sector'][settings.SECTOR].get('default_dimensions'))
+    if 'lat' not in sector_default_dimensions:
+        return
     # get dimension from the dataset
     lat_dim = file.dataset.dimensions.get('lat')
     if lat_dim is None:
@@ -60,15 +67,22 @@ def check_dimensions(file):
     variable = file.dataset.variables.get(file.variable_name)
     dims = variable.dimensions
 
-    if file.is_time_fixed:
-        expected = ('lat', 'lon')
-    elif file.is_2d:
-        expected = ('time', 'lat', 'lon')
-    elif file.is_3d:
-        expected = ('time', file.dim_vertical, 'lat', 'lon')
+    sector_default_dimensions = tuple(settings.DEFINITIONS['sector'][settings.SECTOR].get('default_dimensions'))
+
+    if sector_default_dimensions:
+        expected = sector_default_dimensions
     else:
-        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
-        return
+        if file.is_time_fixed:
+            expected = ('lat', 'lon')
+        elif file.is_1d:
+            expected = ('time', 'generic')
+        elif file.is_2d:
+            expected = ('time', 'lat', 'lon')
+        elif file.is_3d:
+            expected = ('time', file.dim_vertical, 'lat', 'lon')
+        else:
+            file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
+            return
 
     if dims != expected:
         file.error('Dimension order for variable "%s" is %s. Should be %s.', file.variable_name, dims, expected)
