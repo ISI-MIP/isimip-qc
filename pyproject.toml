@@ -82,7 +82,7 @@ section-order = [
     "local-folder"
 ]
 
-[tool.ruff.isort.sections]
+[tool.ruff.lint.isort.sections]
 isimip_utils = ["isimip_utils"]
 
 [tool.typos.default.extend-identifiers]
