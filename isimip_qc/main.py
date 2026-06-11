@@ -2,6 +2,8 @@ import logging
 import sys
 from pathlib import Path
 
+from requests.exceptions import ConnectionError
+
 from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_env, setup_logs
 from isimip_utils.exceptions import NotFound
 from isimip_utils.utils import exclude_path, include_path
@@ -11,7 +13,7 @@ from .checks import checks
 from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
 from .models import File, Summary
-from .utils.cli import parse_schema_path
+from .utils.cli import check_connection, check_version, parse_schema_path
 from .utils.files import walk_files
 from .utils.logging import CHECKING
 
@@ -93,6 +95,14 @@ def main():
     settings.from_dict(vars(args))
 
     summary = Summary()
+
+    check_version()
+
+    try:
+        check_connection(settings.PROTOCOL_LOCATIONS)
+    except ConnectionError as e:
+        url = e.request.url.rstrip("/")
+        parser.error(f'Could not connect to {url}. Please check your internet connection.')
 
     try:
         settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA  # noqa: B018
