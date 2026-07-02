@@ -42,6 +42,8 @@ def check_3d_variable(file):
             if var3d.name == 'bins':
                 # bins should be integer types in addition to numeric floats
                 allowed = [*dtypes, 'int16', 'int32']
+            elif var3d.name == 'species':
+                allowed = [*dtypes, 'char', '|S1']
             else:
                 allowed = dtypes
 
@@ -59,6 +61,10 @@ def check_3d_variable(file):
                     continue
                 check_attribute(var3d, attribute, attr_definition)
 
+            # further checks are specific to a depth dimension
+            if var3d.name in ['species', 'bin', 'fuelclass', 'plot']:
+                return
+
             # check direction of depth dimension
             # check direction of depth dimension (read only first and last value)
             try:
@@ -72,7 +78,7 @@ def check_3d_variable(file):
 
             if var3d.shape[0] > 1 and depth_first > depth_last:
                 file.warning('"%s" in wrong order. Should increase with depth. (found %s to %s)',
-                          file.dim_vertical, depth_first, depth_last)
+                             file.dim_vertical, depth_first, depth_last)
             else:
                 file.info('Depths or layers order looks good (positive down).')
 
@@ -106,7 +112,7 @@ def check_3d_variable(file):
 
                     if depth_definition is None:
                         file.warning('Dimension "depth" is not yet defined in protocol. Skipping'
-                                  ' attribute checks for "depth".')
+                                     ' attribute checks for "depth".')
                     else:
                         for attribute in ('axis', 'standard_name', 'long_name', 'units'):
                             attr_definition = depth_definition.get(attribute)
