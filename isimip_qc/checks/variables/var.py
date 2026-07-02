@@ -121,7 +121,7 @@ def check_variable(file):
                         'args': (file, file.variable_name, 'units', units)
                     }
                 )
-            elif cur != units:
+            elif cur != str(units):
                 file.error('%s.units="%s" should be "%s". Check if values are matching the unit given.',
                            file.variable_name, cur, units)
             else:
