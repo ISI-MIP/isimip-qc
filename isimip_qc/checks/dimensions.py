@@ -80,19 +80,19 @@ def check_dimensions(file):
     for dimension_name, dimension in file.dataset.dimensions.items():
         dimension_definition = settings.DEFINITIONS['dimensions'].get(dimension_name)
 
+        # check string length dimensions
+        match = re.match(r'string(\d+)', dimension_name)
+        if match:
+            if int(match.group(1)) != dimension.size:
+                file.error('String dimension "%s" is not correctly named (size=%s).', dimension_name, dimension.size)
+            continue
+
         if not dimension_definition:
             file.error('"%s" is not a valid dimension name as per protocol.', dimension_name)
             continue
 
         # size of lat and lon are checked above
         if dimension_definition.get('specifier') in ('lat', 'lon'):
-            continue
-
-        # check string length dimensions
-        match = re.match(r'string(\d+)', dimension_name)
-        if match:
-            if int(match.group(1)) != dimension.size:
-                file.error('String dimension "%s" is not correctly named (size=%s).', dimension_name, dimension.size)
             continue
 
         size = dimension_definition.get('size')
