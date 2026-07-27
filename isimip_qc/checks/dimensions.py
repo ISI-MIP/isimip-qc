@@ -1,3 +1,5 @@
+import re
+
 from ..config import settings
 from ..utils.grid import update_grid_value
 
@@ -84,6 +86,13 @@ def check_dimensions(file):
 
         # size of lat and lon are checked above
         if dimension_definition.get('specifier') in ('lat', 'lon'):
+            continue
+
+        # check string length dimensions
+        match = re.match(r'string(\d+)', dimension_name)
+        if match:
+            if int(match.group(1)) != dimension.size:
+                file.error('String dimension "%s" is not correctly named (size=%s).', dimension_name, dimension.size)
             continue
 
         size = dimension_definition.get('size')
