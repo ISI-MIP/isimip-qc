@@ -106,3 +106,18 @@ def check_history(file):
                       'func': fix_remove_global_attr,
                       'args': (file, 'history')
                   })
+
+
+def check_reference_area(file):
+    variable = file.specifiers.get('variable')
+    variable_definition = settings.DEFINITIONS['variable'].get(variable)
+    if variable_definition and variable_definition.get('reference_area'):
+        if 'reference_area' in file.dataset.ncattrs():
+            reference_area = file.dataset.getncattr('reference_area')
+            reference_areas = list(settings.DEFINITIONS['reference_area'])
+            if reference_area in reference_areas:
+                file.info('Global attribute "reference_area" looks good. (%s)', reference_area)
+            else:
+                file.error('Global attribute "reference_area" (%s) not in %s', reference_area, reference_areas)
+        else:
+            file.error('Global attribute "reference_area" is missing.')
