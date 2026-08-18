@@ -68,6 +68,8 @@ def main():
                         help='skip test for valid experiment combination')
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
                         help='only match the file name and skip all other checks')
+    parser.add_argument('--check-isimip-id', dest='check_isimip_id', action='store_true', default=False,
+                        help='check if the isimip_id is already used on the ISIMIP Repository')
     parser.add_argument('-r', '--minmax', dest='minmax', const=10, nargs='?', type=int,
                         help='test values for valid range (slow). MINMAX denotes the length of the ordered top'
                         ' list of outliers')
