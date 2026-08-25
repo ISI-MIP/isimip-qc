@@ -1,9 +1,18 @@
 import logging
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
-from isimip_utils.cli import ArgumentParser, parse_list, parse_locations, parse_path, setup_env, setup_logs
-from isimip_utils.exceptions import NotFound
+from isimip_utils.cli import (
+    ArgumentParser,
+    check_version,
+    parse_list,
+    parse_locations,
+    parse_path,
+    setup_env,
+    setup_logs,
+)
+from isimip_utils.exceptions import FetchError, NotFound
 from isimip_utils.utils import exclude_path, include_path
 
 from . import VERSION
@@ -94,10 +103,14 @@ def main():
 
     summary = Summary()
 
+    check_version('isimip-qc', VERSION)
+
     try:
         settings.DEFINITIONS, settings.PATTERN, settings.SCHEMA  # noqa: B018
     except NotFound as e:
         parser.error(f'{e} Check schema_path argument.')
+    except FetchError as e:
+        parser.error(f'Could not connect to {urlparse(e.url).netloc}. Please check your internet connection.')
 
     if settings.UNCHECKED_PATH:
         if not settings.UNCHECKED_PATH.exists():
