@@ -5,12 +5,27 @@ from .. import __version__
 from ..config import settings
 from ..fixes import fix_remove_global_attr, fix_set_global_attr
 from ..utils.contact import match_addrs, match_contact
+from ..utils.repository import confirm_isimip_id
 
 
 def check_isimip_id(file):
     if 'isimip_id' in file.dataset.ncattrs():
         isimip_id = file.dataset.getncattr('isimip_id')
         file.info('Global attribute "isimip_id" found (%s).', isimip_id)
+
+        if settings.CHECK_ISIMIP_ID:
+            response = confirm_isimip_id(isimip_id)
+            if response:
+                file.warning(
+                    'Global attribute "isimip_id" (%s) already exists in the repository for'
+                    ' the path %s.',
+                    isimip_id,
+                    response[0].get('path'),
+                    fix={
+                        'func': fix_set_global_attr,
+                        'args': (file, 'isimip_id', str(uuid.uuid4()))
+                    }
+                )
     else:
         file.info('Global attribute "isimip_id" not yet set.', fix={
             'func': fix_set_global_attr,

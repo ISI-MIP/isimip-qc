@@ -48,6 +48,9 @@ def main():
     parser.add_argument('--protocol-location', dest='protocol_locations', type=parse_locations,
                         default='https://protocol.isimip.org https://protocol2.isimip.org',
                         help='URL or file path to the protocol when different from official repository')
+    parser.add_argument('--data-url', dest='data_url', type=lambda p: p.rstrip('/'),
+                        default='https://data.isimip.org',
+                        help='URL of the ISIMIP repository [default: https://data.isimip.org/]')
     parser.add_argument('--log-level', dest='log_level', default='CHECKING', type=lambda s: s.upper(),
                         help='log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default: CHECKING]')
     parser.add_argument('--show-time', dest='show_time', action='store_true', default=False,
@@ -74,6 +77,8 @@ def main():
                         help='skip test for valid experiment combination')
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
                         help='only match the file name and skip all other checks')
+    parser.add_argument('--check-isimip-id', dest='check_isimip_id', action='store_true', default=False,
+                        help='check if the isimip_id is already used on the ISIMIP Repository')
     parser.add_argument('-r', '--minmax', dest='minmax', const=10, nargs='?', type=int,
                         help='test values for valid range (slow). MINMAX denotes the length of the ordered top'
                         ' list of outliers')
