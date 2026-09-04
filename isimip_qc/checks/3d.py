@@ -43,12 +43,17 @@ def check_3d(file):
         )
 
     # Number of expected dimensions
-    if 'dimensions' in definition:
-        definition_dim_len = len(definition['dimensions'])
-        dims_expected = str(definition['dimensions']).replace("'", '')
+    sector_default_dimensions = settings.DEFINITIONS['sector'][settings.SECTOR].get('default_dimensions')
+    if sector_default_dimensions:
+        definition_dim_len = len(sector_default_dimensions)
+        dims_expected = sector_default_dimensions
     else:
-        definition_dim_len = 3
-        dims_expected = '[time, lat, lon]'
+        if 'dimensions' in definition:
+            definition_dim_len = len(definition['dimensions'])
+            dims_expected = str(definition['dimensions']).replace("'", '')
+        else:
+            definition_dim_len = 3
+            dims_expected = '[time, lat, lon]'
 
     # detect 2d or 3d data: here we treat [time, lat, lon] as 3 dims (2D data),
     # and an extra vertical dimension yields 4 dims (3D data).
@@ -60,6 +65,8 @@ def check_3d(file):
                 'File has fixed data but more than 2 dimensions. Remove "time" dimension if present.',
             )
         return
+    elif file.dim_len == 2:
+        file.is_1d = True
     elif file.dim_len == 3:
         file.is_2d = True
     elif file.dim_len == 4:

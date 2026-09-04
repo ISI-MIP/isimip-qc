@@ -66,13 +66,19 @@ def check_variable(file):
 
         # check dimensions
         definition_dimensions = tuple(definition.get('dimensions', []))
+        sector_default_dimensions = tuple(settings.DEFINITIONS['sector'][settings.SECTOR].get('default_dimensions'))
 
-        if file.is_time_fixed:
-            default_dimensions = ('lat', 'lon')
-        if file.is_2d:
-            default_dimensions = ('time', 'lat', 'lon')
-        elif file.is_3d:
-            default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
+        if sector_default_dimensions:
+            default_dimensions = sector_default_dimensions
+        else:
+            if file.is_time_fixed:
+                default_dimensions = ('lat', 'lon')
+            if file.is_1d:
+                default_dimensions = ('time', 'generic')
+            if file.is_2d:
+                default_dimensions = ('time', 'lat', 'lon')
+            elif file.is_3d:
+                default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
 
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
