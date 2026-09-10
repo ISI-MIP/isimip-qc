@@ -1,3 +1,4 @@
+from ..config import settings
 from ..fixes import fix_remove_variable_attr, fix_rename_dimension, fix_rename_variable, fix_rename_variable_attr
 
 # Attributes allowed by the protocol (kept as a set for fast membership tests)
@@ -103,3 +104,59 @@ def check_lower_case(file):
                         'func': fix_rename_variable_attr,
                         'args': (file, variable_name, attr)
                     })
+
+
+def _split_classes(value):
+    '''
+    Parse a "classes" attribute into a list of class names. Accepts a comma-separated
+    string as well as a sequence of (byte-)strings.
+    '''
+    if isinstance(value, (str, bytes)):
+        candidates = [value]
+    else:
+        candidates = list(value)
+
+    classes = []
+    for candidate in candidates:
+        if isinstance(candidate, bytes):
+            candidate = candidate.decode()
+        for part in str(candidate).split(','):
+            part = part.strip().strip('\x00').strip()
+            if part:
+                classes.append(part)
+
+    return classes
+
+
+def check_fuelclass(file):
+    '''
+    The "fuelclass" variable must carry the mandatory "classes" attribute listing the
+    model-specific fuel classes. Which attributes are mandatory is read from the protocol
+    (definitions/dimensions.yaml, key "required_attributes") where available. The class
+    names themselves are model-specific and can not be fixed by the tool.
+    '''
+    variable = file.dataset.variables.get('fuelclass')
+    if variable is None:
+        return
+
+    definition = settings.DEFINITIONS['dimensions'].get('fuelclass', {})
+    required_attributes = definition.get('required_attributes')
+    if required_attributes is None:
+        # protocol versions without "required_attributes" yet: "classes" is mandatory as per fire.yaml
+        required_attributes = ['classes']
+
+    for attribute in required_attributes:
+        value = getattr(variable, attribute, None)
+        if value is None:
+            file.warning('Attribute "%s" for variable "fuelclass" is missing. It is mandatory, list the '
+                         'model-specific fuel class names.', attribute)
+            continue
+
+        classes = _split_classes(value)
+        if not classes:
+            file.warning('Attribute "%s" for variable "fuelclass" is empty. List the model-specific '
+                         'fuel class names.', attribute)
+            continue
+
+        file.info('Attribute "%s" for variable "fuelclass" found with %s class(es): %s.',
+                  attribute, len(classes), ', '.join(classes))
