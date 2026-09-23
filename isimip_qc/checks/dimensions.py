@@ -6,6 +6,10 @@ from ..utils.grid import update_grid_value
 
 def check_lon_dimension(file):
     # get dimension from the dataset
+    variable = file.dataset.variables.get(file.variable_name)
+    if variable.dimensions[1] == 'plot':
+        return
+
     lon_dim = file.dataset.dimensions.get('lon')
     if lon_dim is None:
         file.error('Longitude dimension "lon" is missing.')
@@ -26,6 +30,10 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     # get dimension from the dataset
+    variable = file.dataset.variables.get(file.variable_name)
+    if variable.dimensions[1] == 'plot':
+        return
+
     lat_dim = file.dataset.dimensions.get('lat')
     if lat_dim is None:
         file.error('Latitude dimension "lat" is missing.')
@@ -65,20 +73,28 @@ def check_dimensions(file):
     if file.is_time_fixed:
         expected = ('lat', 'lon')
     elif file.is_2d:
-
         if variable.dimensions[1] == 'plot':
+            expected = ('time', 'plot')
             if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'plot':
-                file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot].',
+                file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot"].',
                            file.variable_name, variable.dimensions)
+                expected = ('time', 'plot', 'layer')
         elif variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
+            expected = ('time', 'lat', 'lon')
             file.error('Dimension order for variable "%s" is %s. Should be ["time", "lat", "lon"].',
                        file.variable_name, variable.dimensions)
         else:
+            expected = ('time', 'lat', 'lon')
             file.info('Dimensions for variable "%s" look good: %s.',
                       file.variable_name, variable.dimensions)
-        expected = ('time', 'lat', 'lon')
     elif file.is_3d:
-        expected = ('time', file.dim_vertical, 'lat', 'lon')
+        if variable.dimensions[1] == 'plot':
+            expected = ('time', 'plot', 'layer')
+            if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'plot' or variable.dimensions[2] != 'layer':
+                file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot", "layer"].',
+                           file.variable_name, variable.dimensions)
+        else:
+            expected = ('time', file.dim_vertical, 'lat', 'lon')
     else:
         file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
         return

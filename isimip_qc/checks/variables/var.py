@@ -46,26 +46,26 @@ def check_variable(file):
                 if variable.dimensions[1] == 'plot':
                     file.info('Skipping checks for chunking in forestry sector')
                 elif chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
-                    file.warn('%s.chunking=%s should be [1, %s, %s] (with proper depencency order).',
-                              file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
-                if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
                     file.warning('%s.chunking=%s should be [1, %s, %s] (with proper dependency order).',
                                  file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
 
             if file.is_3d:
-                var3d_size = ds.dimensions.get(file.dim_vertical).size
-                if (chunking[0] != 1
-                    or (chunking[1] != 1 and chunking[1] != var3d_size)
-                    or chunking[2] != lat_size
-                    or chunking[3] != lon_size):
-                    file.warning('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
-                                 ' (with proper dependency order).',
-                                 file.variable_name, chunking, var3d_size, lat_size, lon_size,
-                                 lat_size, lon_size, fix_datamodel=True)
+                if variable.dimensions[1] == 'plot':
+                    file.info('Skipping checks for chunking in forestry sector')
                 else:
-                    file.info('Variable properly chunked [1, %s, %s, %s].', var3d_size, lat_size, lon_size)
+                    var3d_size = ds.dimensions.get(file.dim_vertical).size
+                    if (chunking[0] != 1
+                        or (chunking[1] != 1 and chunking[1] != var3d_size)
+                        or chunking[2] != lat_size
+                        or chunking[3] != lon_size):
+                        file.warning('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
+                                     ' (with proper dependency order).',
+                                     file.variable_name, chunking, var3d_size, lat_size, lon_size,
+                                     lat_size, lon_size, fix_datamodel=True)
+                    else:
+                        file.info('Variable properly chunked [1, %s, %s, %s].', var3d_size, lat_size, lon_size)
         else:
             file.info('Variable chunking not supported by data model found.')
 
@@ -80,7 +80,10 @@ def check_variable(file):
             else:
                 default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
-            default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
+            if variable.dimensions[1] == 'plot':
+                default_dimensions = ('time', 'plot', 'layer')
+            else:
+                default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
 
         if definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
