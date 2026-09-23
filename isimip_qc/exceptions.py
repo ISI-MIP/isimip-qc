@@ -1,7 +1,7 @@
 class FileWarning(Exception):
 
     def __init__(self, file, message, *args, **kwargs):
-        file.warn(message, *args, **kwargs)
+        file.warning(message, *args, **kwargs)
         super().__init__(message % args)
 
 
