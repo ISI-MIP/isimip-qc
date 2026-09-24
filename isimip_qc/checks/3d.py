@@ -51,8 +51,8 @@ def check_3d(file):
         dims_expected = '[time, lat, lon]'
 
     # detect 2d or 3d data
-    # workaround for foresty data
-    if variable.dimensions[1] == 'plot':
+    # workaround for forestry data
+    if len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
         if file.dim_len == 2:
             file.is_2d = True
         elif file.dim_len == 3:

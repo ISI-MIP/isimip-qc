@@ -6,8 +6,9 @@ from ..utils.grid import update_grid_value
 
 def check_lon_dimension(file):
     # get dimension from the dataset
+    # skip check for plot-based forestry variables
     variable = file.dataset.variables.get(file.variable_name)
-    if variable.dimensions[1] == 'plot':
+    if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
         return
 
     lon_dim = file.dataset.dimensions.get('lon')
@@ -30,8 +31,9 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     # get dimension from the dataset
+    # skip check for plot-based forestry variables
     variable = file.dataset.variables.get(file.variable_name)
-    if variable.dimensions[1] == 'plot':
+    if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
         return
 
     lat_dim = file.dataset.dimensions.get('lat')
