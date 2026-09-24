@@ -74,28 +74,45 @@ def check_latlon_variable(file):
         minimum = update_grid_value(file, variable, 'min', minimum)
         maximum = update_grid_value(file, variable, 'max', maximum)
 
-        # skip if check is disabled in the protocol
+        # skip if check is disabled in the protocol (for this axis only;
+        # the other one still needs to be checked)
         if minimum is False or maximum is False:
-            return
+            continue
+
+        if var.size == 0:
+            file.warning('Can\'t check the values of "%s" because the axis is empty.', variable)
+            continue
 
         # use first and last element which is sufficient for monotonic lat/lon
+        monotonic_axis = True
         try:
             first_val = var[0].item()
             last_val = var[-1].item()
-        except AttributeError:
-            # fallback to full-array min/max if needed
-            arr = np.asarray(var[:])
-            first_val = float(np.min(arr))
-            last_val = float(np.max(arr))
+        except (AttributeError, IndexError, TypeError, ValueError):
+            # not a one-dimensional vector axis (e.g. curvilinear coordinates);
+            # fall back to the full-array range, which still checks the protocol
+            # minimum and maximum but not the axis order
+            arr = np.ma.masked_invalid(np.ma.asarray(var[:]))
+            if arr.count() == 0:
+                file.warning('Can\'t check the values of "%s": no valid (unmasked) coordinate values.',
+                             variable)
+                continue
+            first_val = float(arr.min())
+            last_val = float(arr.max())
+            monotonic_axis = False
+            file.warning('"%s" is not a one-dimensional axis. Checking the value range'
+                         ' but not the axis order.', variable)
 
         # For latitude we expect values to decrease (north -> south),
         # so the first element should match the protocol's "maximum" and
         # the last element the "minimum". For longitude we expect
         # increasing values (west -> east): first == minimum, last == maximum.
-        if variable == 'lat':
+        # Without a monotonic axis first_val/last_val are merely the value
+        # range: first_val is the minimum, last_val the maximum.
+        if variable == 'lat' and monotonic_axis:
             expected_first = maximum
             expected_last = minimum
-        else:  # lon
+        else:  # lon, or range-only fallback
             expected_first = minimum
             expected_last = maximum
 
@@ -109,6 +126,8 @@ def check_latlon_variable(file):
             file.error('Last value of variable "%s" is %s. Must be %s.', variable, last_val_rounded, expected_last)
 
         # check ordering direction and report helpful messages
+        if not monotonic_axis:
+            continue
         if variable == 'lat':
             if not (first_val > last_val):
                 file.warning('Latitudes in wrong order. Index should range from north to south. (found %s to %s)',

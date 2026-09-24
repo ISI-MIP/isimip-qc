@@ -53,7 +53,14 @@ def check_isimip_qc_version(file):
 
 
 def check_isimip_protocol_version(file):
-    protocol_version = settings.DEFINITIONS['commit']
+    # "commit" is a build artifact embedded in the protocol definitions and may be
+    # absent (older snapshots, custom definition trees); do not crash on it
+    protocol_version = settings.DEFINITIONS.get('commit')
+
+    if not protocol_version:
+        file.warning('The protocol definitions carry no "commit" hash.'
+                     ' Skipping check for "isimip_protocol_version".')
+        return
 
     if 'isimip_protocol_version' in file.dataset.ncattrs():
         version = file.dataset.getncattr('isimip_protocol_version')

@@ -30,11 +30,22 @@ def walk_files(path):
             continue
 
 
+def _is_identical(source_path, target_path):
+    # CHECKED_PATH and the scanned path may resolve to the same file (both
+    # default to the current directory); shutil.copy would raise
+    # SameFileError on such pairs while shutil.move would silently no-op
+    return (Path(source_path).is_file() and target_path.is_file()
+            and Path(source_path).samefile(target_path))
+
+
 def move_file(source_path, target_path, overwrite=False):
     if settings.OVERWRITE is True:
         overwrite = True
 
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
+    if _is_identical(source_path, target_path):
+        logger.info('Source and target are the same file; skipping move.')
+        return
     target_path.parent.mkdir(parents=True, exist_ok=True)
     if not target_path.is_file() or overwrite:
         logger.info('Move file')
@@ -46,6 +57,9 @@ def move_file(source_path, target_path, overwrite=False):
 
 def copy_file(source_path, target_path):
     logger.debug('source_path=%s target_path=%s', source_path, target_path)
+    if _is_identical(source_path, target_path):
+        logger.info('Source and target are the same file; skipping copy.')
+        return
     target_path.parent.mkdir(parents=True, exist_ok=True)
     if not target_path.is_file() or settings.OVERWRITE:
         logger.info('Copy file')
