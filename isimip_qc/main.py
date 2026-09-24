@@ -72,7 +72,8 @@ def main():
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
     parser.add_argument('--ignore-critical', dest='ignore_crit', action='store_true', default=False,
-                        help='allow fixing and copy/move files with critical issues found')
+                        help='continue checking and fix files with critical issues found'
+                             ' (use --force-copy-move to also copy or move them)')
     parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
                         help='skip test for valid experiment combination')
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
@@ -94,7 +95,8 @@ def main():
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
-                        help='copy or move files despite errors')
+                        help='copy or move files despite warnings and errors'
+                             ' (files with critical issues also require --ignore-critical)')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
 
@@ -236,9 +238,9 @@ def check_single_file(file, checks_to_run, summary):
     # log result of checks, stop if flags are set
     if file.is_clean:
         logger.info('File has successfully passed all checks.')
-    elif file.has_warnings and not file.has_errors:
+    elif file.has_warnings and not (file.has_errors or file.has_criticals):
         logger.info('File passed all checks without unfixable issues.')
-    elif file.has_errors:
+    else:
         logger.critical('File did not pass all checks. Unfixable issues detected.')
 
     if file.has_warnings and settings.STOP_WARN:
