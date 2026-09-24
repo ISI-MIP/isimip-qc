@@ -82,9 +82,6 @@ def check_time_variable(file):
 
     # check calendars
     calendars = time_definition.get('calendars_daily')
-    if calendars is None:
-        # some protocol files carry the key misspelled as "calenders_daily" (e.g. energy)
-        calendars = time_definition.get('calenders_daily')
     cur_cal = getattr(time, 'calendar', None)
     if calendars is None:
         file.warning('No "calendars_daily" definition for the "time" dimension in protocol.'
