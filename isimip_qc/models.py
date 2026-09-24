@@ -267,10 +267,13 @@ class Summary:
         variable = specifiers.get('variable')
         if variable is not None:
             if variable not in self.variables:
-                definition = settings.DEFINITIONS['variable'].get(variable)
+                # a variable can match the file name pattern without being defined
+                # in the protocol (check_3d reports that); some definitions also
+                # carry no "sectors" key. Cope with both here.
+                definition = settings.DEFINITIONS.get('variable', {}).get(variable) or {}
                 self.variables[variable] = {
                     'specifier': variable,
-                    'sectors': definition.get('sectors'),
+                    'sectors': definition.get('sectors') or [],
                     'count': 1
                 }
             else:
@@ -300,7 +303,7 @@ class Summary:
         table.add_column('Count', justify='right', style='cyan')
 
         for specifier, variable in sorted(self.variables.items(), key=lambda x: x[1].get('count'), reverse=True):
-            table.add_row(specifier, ', '.join(variable.get('sectors')), str(variable.get('count')))
+            table.add_row(specifier, ', '.join(variable.get('sectors') or []), str(variable.get('count')))
 
         console.print(table)
 
