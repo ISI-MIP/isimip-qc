@@ -69,7 +69,12 @@ def check_depth_dimension(file):
 
 def check_dimensions(file):
     # check dimension order
-    variable = file.dataset.variables.get(file.variable_name)
+    # variable_name is set by check_3d, which may have stopped before doing so (broken files with
+    # --ignore-critical, or running this check alone); the problem is reported there already
+    variable = file.dataset.variables.get(getattr(file, 'variable_name', None))
+    if variable is None:
+        return
+
     dims = variable.dimensions
 
     if file.is_time_fixed:
@@ -98,7 +103,7 @@ def check_dimensions(file):
         else:
             expected = ('time', file.dim_vertical, 'lat', 'lon')
     else:
-        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
+        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, len(dims))
         return
 
     if dims != expected:
