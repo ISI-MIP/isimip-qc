@@ -1,5 +1,6 @@
 import logging
 import shutil
+import subprocess
 from collections import Counter
 from pathlib import Path
 
@@ -131,36 +132,43 @@ class File:
                 self.warnings.remove(warning)
 
     def fix_datamodel(self):
-        # check if we need to fix using cdu
-        if any(fix_datamodel for _, _, fix_datamodel in self.warnings):
-            # fix using tmpfile
-            tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
+        # check if we need to fix using an external tool
+        if not any(fix_datamodel for _, _, fix_datamodel in self.warnings):
+            return
+
+        if settings.FIX_DATAMODEL not in ('nccopy', 'cdo'):
+            self.error(f'"{settings.FIX_DATAMODEL}" is not a valid argument for --fix-datamodel option.'
+                       ' Chose "nccopy" or "cdo"')
+            return
+        if shutil.which(settings.FIX_DATAMODEL) is None:
+            self.error('"%s" is not available for execution. Please install before.', settings.FIX_DATAMODEL)
+            return
+
+        # fix using tmpfile
+        tmp_abs_path = self.abs_path.parent / ('.' + self.abs_path.name + '-fix')
+        try:
             if settings.FIX_DATAMODEL == 'cdo':
-                if shutil.which('cdo'):
-                    self.info('Rewriting file with fixed data model using "cdo"')
-                    call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'],
-                             self.abs_path, tmp_abs_path)
-                else:
-                    self.error('"cdo" is not available for execution. Please install before.')
-            elif settings.FIX_DATAMODEL == 'nccopy':
-                if shutil.which('nccopy'):
-                    self.info('Rewriting file with fixed data model using "nccopy"')
-                    call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
-                else:
-                    self.error('"nccopy" is not available for execution. Please install before.')
+                self.info('Rewriting file with fixed data model using "cdo"')
+                call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'],
+                         self.abs_path, tmp_abs_path)
             else:
-                self.error(f'"{settings.FIX_DATAMODEL}" is not a valid argument for --fix-datamodel option.'
-                           ' Chose "nccopy" or "cdo"')
+                self.info('Rewriting file with fixed data model using "nccopy"')
+                call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
+        except (subprocess.CalledProcessError, FileNotFoundError) as error:
+            # the tool vanished or exited non-zero; keep the file and its warnings
+            self.error('Fixing the data model with "%s" failed: %s', settings.FIX_DATAMODEL, error)
+            if tmp_abs_path.exists():
+                tmp_abs_path.unlink()
+            return
 
-            if settings.FIX_DATAMODEL in ['nccopy', 'cdo']:
-                # move tmp file to original file
-                move_file(tmp_abs_path, self.abs_path, overwrite=True)
+        # move tmp file to original file
+        move_file(tmp_abs_path, self.abs_path, overwrite=True)
 
-                # remove warnings after fix
-                for warning in self.warnings[:]:
-                    _, _, fix_datamodel = warning
-                    if fix_datamodel:
-                        self.warnings.remove(warning)
+        # remove warnings after fix
+        for warning in self.warnings[:]:
+            _, _, fix_datamodel = warning
+            if fix_datamodel:
+                self.warnings.remove(warning)
 
     @property
     def has_infos_fixable(self):
