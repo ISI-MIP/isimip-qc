@@ -61,8 +61,9 @@ def check_3d_variable(file):
                     continue
                 check_attribute(var3d, attribute, attr_definition)
 
-            # further checks are specific to a depth dimension
-            if var3d.name in ['species', 'bin', 'fuelclass', 'plot']:
+            # further checks are specific to a depth dimension (the protocol defines
+            # the dimension as "bins", not "bin")
+            if var3d.name in ['species', 'bins', 'fuelclass', 'plot']:
                 return
 
             # check direction of depth dimension
@@ -120,14 +121,18 @@ def check_3d_variable(file):
                                 continue
                             check_attribute(depth_file, attribute, attr_definition)
 
-            # check if vertical bounds were defined
+            # check if vertical bounds were defined (for "levlak" files the bounds belong
+            # to the "depth" variable; a missing "depth" was already reported above, so
+            # there is nothing left to complain about here)
             if file.dim_vertical in ['depth', 'levlak']:
-                try:
-                    var3d_bnds = file.dataset.variables.get('depth').bounds
-                    file.info('Vertical bounds "%s" found for "depth" variable', var3d_bnds)
-                except AttributeError:
-                    raise FileWarning(file,
-                                      'No vertical boundaries defined for "depth" variable.'
-                                      ' Consider adding depth_bnds(%s, bnds). '
-                                      ' See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
-                                      ) from None
+                depth_var = file.dataset.variables.get('depth')
+                if depth_var is not None:
+                    var3d_bnds = getattr(depth_var, 'bounds', None)
+                    if var3d_bnds:
+                        file.info('Vertical bounds "%s" found for "depth" variable', var3d_bnds)
+                    else:
+                        raise FileWarning(file,
+                                          'No vertical boundaries defined for "depth" variable.'
+                                          ' Consider adding depth_bnds(%s, bnds). '
+                                          ' See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
+                                          )
