@@ -37,18 +37,7 @@ def check_3d_variable(file):
 
         # do checks of definition and vertical variable were found
         if var3d and var3d_definition:
-            # check dtype
-            dtypes = ['float32', 'float64']
-            if var3d.name == 'bins':
-                # bins should be integer types in addition to numeric floats
-                allowed = [*dtypes, 'int16', 'int32']
-            elif var3d.name == 'species':
-                allowed = [*dtypes, 'char', '|S1']
-            else:
-                allowed = dtypes
-
-            if var3d.dtype not in allowed:
-                file.warning('%s.datatype="%s" should be in %s.', file.dim_vertical, var3d.dtype, allowed)
+            # the data type is checked against the protocol in check_dimension_variable_dtypes
 
             # check attributes
             sim_round = settings.SIMULATION_ROUND
