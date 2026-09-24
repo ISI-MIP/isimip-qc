@@ -32,7 +32,7 @@ def check_3d_variable(file):
                        file.dim_vertical, file.dim_vertical)
 
         # check for definition in protocol for 3d variable
-        if not var3d_definition:
+        if var3d_definition is None and file.dim_vertical:
             file.error('No definition for variable "%s" in protocol.', file.dim_vertical)
 
         # do checks of definition and vertical variable were found

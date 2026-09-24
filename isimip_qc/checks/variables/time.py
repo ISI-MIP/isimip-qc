@@ -10,7 +10,7 @@ def check_time_variable(file):
     ds = file.dataset
     variables = ds.variables
     time = variables.get('time')
-    time_definition = settings.DEFINITIONS['dimensions'].get('time')
+    time_definition = settings.DEFINITIONS.get('dimensions', {}).get('time')
 
     if time is None:
         file.error('Variable time is missing.')
@@ -55,29 +55,61 @@ def check_time_variable(file):
 
     # check units
     time_step = file.specifiers.get('time_step')
-    increment = settings.DEFINITIONS['time_step'][time_step]['increment']
-    minimum = settings.DEFINITIONS['time_span']['minimum']['value']
+    time_step_definition = settings.DEFINITIONS.get('time_step', {}).get(time_step)
+    minimum = settings.DEFINITIONS.get('time_span', {}).get('minimum', {}).get('value')
+    increment = time_step_definition.get('increment') if time_step_definition else None
 
-    units = (
-        f"{increment} since {minimum}-01-01",
-        f"{increment} since {minimum}-01-01 00:00:00",
-        f"{increment} since {minimum}-1-1",
-        f"{increment} since {minimum}-1-1 00:00:00",
-    )
-
-    cur_units = getattr(time, 'units', None)
-    if cur_units not in units:
-        file.error('"units" attribute for "time" is "%s". Should be one of "%s".', cur_units, units)
+    if time_step_definition is None:
+        file.warning('No definition for time step "%s" in protocol. Skipping check for time units.', time_step)
+    elif increment is None:
+        file.warning('Time step "%s" has no increment defined in protocol. Skipping check for time units.',
+                     time_step)
+    elif minimum is None:
+        file.warning('No minimum year for time spans defined in protocol. Skipping check for time units.')
     else:
-        file.info('Valid time unit found (%s)', cur_units)
+        units = (
+            f"{increment} since {minimum}-01-01",
+            f"{increment} since {minimum}-01-01 00:00:00",
+            f"{increment} since {minimum}-1-1",
+            f"{increment} since {minimum}-1-1 00:00:00",
+        )
+
+        cur_units = getattr(time, 'units', None)
+        if cur_units not in units:
+            file.error('"units" attribute for "time" is "%s". Should be one of "%s".', cur_units, units)
+        else:
+            file.info('Valid time unit found (%s)', cur_units)
 
     # check calendars
     calendars = time_definition.get('calendars_daily')
+    if calendars is None:
+        # some protocol files carry the key misspelled as "calenders_daily" (e.g. energy)
+        calendars = time_definition.get('calenders_daily')
     cur_cal = getattr(time, 'calendar', None)
-    if cur_cal not in calendars:
+    if calendars is None:
+        file.warning('No "calendars_daily" definition for the "time" dimension in protocol.'
+                     ' Skipping check for calendars.')
+    elif cur_cal not in calendars:
         file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', cur_cal, calendars)
     else:
         file.info('Valid calendar found (%s)', cur_cal)
+
+def get_time_span_value(name, climate_forcing=None):
+    # time_span values are either plain years, mappings per climate forcing
+    # (historical inputs of some rounds) or mappings per simulation round
+    # (e.g. ISIMIP3a pre-industrial/future entries). Return the applicable
+    # year, or None when the protocol does not define one for this file.
+    value = settings.DEFINITIONS.get('time_span', {}).get(name, {}).get('value')
+    if isinstance(value, dict):
+        if climate_forcing is not None:
+            return value.get(climate_forcing)
+        if settings.SIMULATION_ROUND in value:
+            return value[settings.SIMULATION_ROUND]
+        if len(value) == 1:
+            return next(iter(value.values()))
+        return None
+    return value
+
 
 def check_time_span_periods(file):
 
@@ -88,21 +120,33 @@ def check_time_span_periods(file):
     climate_forcing = file.specifiers.get('climate_forcing')
 
     if 'pre-industrial' in str(file.abs_path):
-        definition_startyear = settings.DEFINITIONS['time_span'].get('start_pre-ind')['value']
-        definition_endyear = settings.DEFINITIONS['time_span'].get('end_pre-ind')['value']
+        period = 'pre-industrial'
+        definition_startyear = get_time_span_value('start_pre-ind')
+        definition_endyear = get_time_span_value('end_pre-ind')
     elif 'historical' in str(file.abs_path):
+        period = 'historical'
         if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a']:
-            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value'][climate_forcing]
-            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value'][climate_forcing]
+            definition_startyear = get_time_span_value('start_hist', climate_forcing)
+            definition_endyear = get_time_span_value('end_hist', climate_forcing)
         elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b']:
-            definition_startyear = settings.DEFINITIONS['time_span'].get('start_hist')['value']
-            definition_endyear = settings.DEFINITIONS['time_span'].get('end_hist')['value']
+            definition_startyear = get_time_span_value('start_hist')
+            definition_endyear = get_time_span_value('end_hist')
+        else:
+            file.warning('Simulation round "%s" is not yet supported by the simulation period check.'
+                         ' Skipping check for simulation period.', settings.SIMULATION_ROUND)
+            return
     elif 'future' in str(file.abs_path):
-        definition_startyear = settings.DEFINITIONS['time_span'].get('start_fut')['value']
-        definition_endyear = settings.DEFINITIONS['time_span'].get('end_fut')['value']
+        period = 'future'
+        definition_startyear = get_time_span_value('start_fut')
+        definition_endyear = get_time_span_value('end_fut')
     else:
         file.warning('Skipping check for simulation period as the period itself could not be'
                   ' determined from the file path (pre-industrial, historical or future).')
+        return
+
+    if definition_startyear is None or definition_endyear is None:
+        file.warning('No "%s" time span defined in protocol for climate forcing "%s".'
+                     ' Skipping check for simulation period.', period, climate_forcing)
         return
 
     file_startyear = file.specifiers.get('start_year')

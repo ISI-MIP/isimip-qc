@@ -54,6 +54,9 @@ def check_variable(file):
             if file.is_3d:
                 if variable.dimensions[1] == 'plot':
                     file.info('Skipping checks for chunking in forestry sector')
+                elif ds.dimensions.get(file.dim_vertical) is None:
+                    file.warning('Can\'t check chunking: vertical dimension "%s" not found in file.',
+                                 file.dim_vertical)
                 else:
                     var3d_size = ds.dimensions.get(file.dim_vertical).size
                     if (chunking[0] != 1

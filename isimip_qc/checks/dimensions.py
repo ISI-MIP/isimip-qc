@@ -62,16 +62,19 @@ def check_time_dimension(file):
 
 def check_depth_dimension(file):
     if file.is_3d:
-        if file.dataset.dimensions.get(file.dim_vertical) is None:
+        if file.dim_vertical is None:
+            file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
+        elif file.dataset.dimensions.get(file.dim_vertical) is None:
             file.error('Valid 4th dimension is missing. Should be of of [depth, bins]. Found "%s" instead.',
                        file.dim_vertical)
 
 
 def check_dimensions(file):
     # check dimension order
-    # variable_name is set by check_3d, which may have stopped before doing so (broken files with
-    # --ignore-critical, or running this check alone); the problem is reported there already
-    variable = file.dataset.variables.get(getattr(file, 'variable_name', None))
+    # variable_name is only set by check_3d; when it is missing (running this check alone
+    # or broken files with --ignore-critical) or the variable was not found,
+    # the problem is reported there already
+    variable = file.dataset.variables.get(file.variable_name)
     if variable is None:
         return
 
@@ -100,6 +103,9 @@ def check_dimensions(file):
             if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'plot' or variable.dimensions[2] != 'layer':
                 file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot", "layer"].',
                            file.variable_name, variable.dimensions)
+        elif file.dim_vertical is None:
+            file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
+            return
         else:
             expected = ('time', file.dim_vertical, 'lat', 'lon')
     else:
