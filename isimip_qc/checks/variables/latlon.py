@@ -20,10 +20,7 @@ def check_latlon_variable(file):
             file.error('Definition for variable "%s" is missing.', variable)
             continue
 
-        # check dtype
-        if var.dtype not in (np.dtype('float32'), np.dtype('float64')):
-            file.warning('Data type of "%s" is "%s". Should be float or double (one of %s).',
-                      variable, var.dtype, ('float32', 'float64'))
+        # the data type is checked against the protocol in check_dimension_variable_dtypes
 
         # check axis
         axis = var_definition.get('axis')

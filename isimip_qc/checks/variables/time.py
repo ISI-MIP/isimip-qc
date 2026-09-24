@@ -1,5 +1,3 @@
-import numpy as np
-
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
 
@@ -19,10 +17,7 @@ def check_time_variable(file):
         file.error('Definition for variable time is missing.')
         return
 
-    # check dtype
-    if time.dtype not in (np.dtype('float32'), np.dtype('float64')):
-        file.warning('Data type of "time" is "%s". Should be float or double (one of %s).',
-                     time.dtype, ('float32', 'float64'))
+    # the data type is checked against the protocol in check_dimension_variable_dtypes
 
     # check axis
     axis = time_definition.get('axis')
