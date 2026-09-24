@@ -167,9 +167,13 @@ def check_file_path(file_path):
             logger.info('%s skipped by exclude option.', file_path)
             return False
 
-    if file_path.suffix not in settings.PATTERN.get('suffix', []):
+    # a pattern without a suffix constraint has nothing to pre-check against
+    # (used to raise IndexError on settings.PATTERN['suffix'][0]); the naming
+    # scheme match in file.match() still catches badly named files
+    suffixes = settings.PATTERN.get('suffix') or []
+    if suffixes and file_path.suffix not in suffixes:
         logger.error('%s has wrong suffix. Use "%s" for this simulation round.',
-                     file_path, settings.PATTERN['suffix'][0])
+                     file_path, suffixes[0])
         return False
 
     return True
