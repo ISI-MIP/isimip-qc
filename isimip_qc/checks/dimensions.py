@@ -52,14 +52,21 @@ def check_time_dimension(file):
 
 def check_depth_dimension(file):
     if file.is_3d:
-        if file.dataset.dimensions.get(file.dim_vertical) is None:
+        if file.dim_vertical is None:
+            file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
+        elif file.dataset.dimensions.get(file.dim_vertical) is None:
             file.error('Valid 4th dimension is missing. Should be of of [depth, bins]. Found "%s" instead.',
                        file.dim_vertical)
 
 
 def check_dimensions(file):
     # check dimension order
+    # variable_name is only set by check_3d; when it is missing (running this check alone)
+    # or the variable was not found, the problem is reported there already
     variable = file.dataset.variables.get(file.variable_name)
+    if variable is None:
+        return
+
     dims = variable.dimensions
 
     if file.is_time_fixed:
@@ -67,9 +74,12 @@ def check_dimensions(file):
     elif file.is_2d:
         expected = ('time', 'lat', 'lon')
     elif file.is_3d:
+        if file.dim_vertical is None:
+            file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
+            return
         expected = ('time', file.dim_vertical, 'lat', 'lon')
     else:
-        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, file.dim_len)
+        file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, len(dims))
         return
 
     if dims != expected:

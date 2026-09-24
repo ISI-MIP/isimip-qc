@@ -45,6 +45,12 @@ class File:
         self.dataset = None
         self.specifiers = {}
 
+        # set by check_3d; the defaults let checks run standalone (--check, --ignore-critical)
+        # report a problem instead of dying with an AttributeError
+        self.variable_name = None
+        self.dim_len = 0
+        self.dim_vertical = None
+
         self.is_2d = False
         self.is_3d = False
         self.is_time_fixed = False
