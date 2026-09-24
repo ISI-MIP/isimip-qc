@@ -9,6 +9,7 @@ def check_lon_dimension(file):
     # skip check for plot-based forestry variables
     variable = file.dataset.variables.get(file.variable_name)
     if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
+        file.info('Skipping "lon" dimension check for plot-based forestry data.')
         return
 
     lon_dim = file.dataset.dimensions.get('lon')
@@ -34,6 +35,7 @@ def check_lat_dimension(file):
     # skip check for plot-based forestry variables
     variable = file.dataset.variables.get(file.variable_name)
     if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
+        file.info('Skipping "lat" dimension check for plot-based forestry data.')
         return
 
     lat_dim = file.dataset.dimensions.get('lat')

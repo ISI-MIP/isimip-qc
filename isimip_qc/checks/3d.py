@@ -58,6 +58,7 @@ def check_3d(file):
         elif file.dim_len == 3:
             file.is_3d = True
             file.dim_vertical = variable.dimensions[2]
+        file.info('Variable "%s" is plot-based. Skipping the dimension count check.', file.variable_name)
         return
 
     # detect 2d or 3d data: here we treat [time, lat, lon] as 3 dims (2D data),
