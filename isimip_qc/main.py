@@ -128,6 +128,11 @@ def main():
     # determine checks to run and walk over unchecked files
     if settings.CHECK:
         checks_to_run = [c for c in checks if c.__name__ == settings.CHECK]
+        if not checks_to_run:
+            # an unknown name silently reduced the run to zero checks, so every
+            # file "passed" and got copied or moved as clean; fail up front instead
+            parser.error(f'Unknown check "{settings.CHECK}". Available checks are: '
+                         + ', '.join(sorted(c.__name__ for c in checks)))
     else:
         checks_to_run = list(checks)
 
