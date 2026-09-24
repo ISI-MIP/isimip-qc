@@ -39,6 +39,11 @@ def check_time_resolution(file):
                    ' (time.unit to be like "days since ...".')
         return
 
+    # an empty time axis is falsy, so it would be skipped silently by the guard below
+    if time.shape[0] == 0:
+        file.warning('Can\'t check the time period and number of time steps because the time axis is empty.')
+        return
+
     if ds.data_model in ('NETCDF4', 'NETCDF4_CLASSIC'):
 
         if not (time and time_definition and time_resolution and time_units and time_calendar):
