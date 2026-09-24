@@ -15,9 +15,11 @@ def check_variable(file):
     variable = variables.get(file.variable_name)
     definition = settings.DEFINITIONS.get('variable', {}).get(file.specifiers.get('variable'))
 
-    if not variable:
+    # bool(Variable) is false for variables with an empty first dimension and an empty
+    # definition dict is falsy as well, so compare against None explicitly
+    if variable is None:
         file.error('Variable %s is missing.', file.variable_name)
-    elif not definition:
+    elif definition is None:
         file.error('Definition for variable %s is missing.', file.variable_name)
     else:
         # check file name and NetCDF variable to match each other
@@ -30,10 +32,14 @@ def check_variable(file):
             file.warning('%s data type is "%s" should be "float32".',
                          file.variable_name, variable.dtype, fix_datamodel=True)
 
-        # check chunking
+        # check chunking (netCDF4 reports contiguous storage as the truthy
+        # string 'contiguous' rather than as a list of chunk sizes)
         chunking = variable.chunking()
 
-        if chunking:
+        if chunking == 'contiguous':
+            file.info('Variable is stored contiguously (no chunking).')
+
+        elif chunking:
             # get sizes from the protocol
             lat_size = settings.DEFINITIONS['dimensions']['lat']['size']
             lon_size = settings.DEFINITIONS['dimensions']['lon']['size']
@@ -74,12 +80,18 @@ def check_variable(file):
 
         if file.is_time_fixed:
             default_dimensions = ('lat', 'lon')
-        if file.is_2d:
+        elif file.is_2d:
             default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
             default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
+        else:
+            # neither 2d nor 3d data: reported by check_3d already (if it ran)
+            default_dimensions = None
 
-        if definition_dimensions:
+        if default_dimensions is None:
+            file.warning('Can\'t check the dimensions of variable "%s": it is neither 2d nor 3d data.',
+                         file.variable_name)
+        elif definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
                 file.error('Found %s dimensions for "%s". Must be %s.',
                            variable.dimensions, file.variable_name, default_dimensions)
@@ -213,15 +225,16 @@ def check_variable(file):
 
                 lat_var = file.dataset.variables.get('lat')
                 lon_var = file.dataset.variables.get('lon')
-                # preload lat/lon arrays to avoid repeated I/O
-                try:
-                    lat_vals = lat_var[:]
-                    lon_vals = lon_var[:]
-                except AttributeError:
-                    lat_vals = None
-                    lon_vals = None
+                # preload lat/lon arrays to avoid repeated I/O; missing coordinate
+                # variables are reported by the coordinate checks, here we just cope
+                # without them
+                lat_vals = lat_var[:] if lat_var is not None else None
+                lon_vals = lon_var[:] if lon_var is not None else None
 
                 nt = time_var.size
+                if nt == 0:
+                    file.warning('Can\'t check for valid ranges because the time axis is empty.')
+                    return
 
                 # Heaps to keep top N extremes while scanning
                 n_keep = int(settings.MINMAX)
@@ -293,66 +306,38 @@ def check_variable(file):
                     file.warning('%i values are higher than the valid maximum (%.2E %s).',
                                  count_high, valid_max, units)
 
+                def describe(v, idx):
+                    date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
+                    parts = ['date: %s' % date]
+                    if (lat_vals is not None and lon_vals is not None
+                            and idx[-2] < len(lat_vals) and idx[-1] < len(lon_vals)):
+                        parts.append('lat/lon: %4.2f/%4.2f' % (lat_vals[idx[-2]], lon_vals[idx[-1]]))
+                    else:
+                        parts.append('lat/lon: n/a')
+                    if not file.is_2d:
+                        parts.append('level: %s' % (idx[-3] + 1))
+                    parts.append('value: %E %s' % (v, units))
+                    return ', '.join(parts)
+
                 if count_low:
                     file.warning('%i lowest values are :', min(n_keep, count_low))
-                    # low_heap stores negatives; convert and sort ascending
-                    low_items = [(-v, idx) for v, idx in low_heap]
-                    low_items.sort(key=lambda x: x[0])
-                    for v, idx in low_items[:n_keep]:
-                        date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
-                        if file.is_2d:
-                            lat_val = (
-                                lat_vals[idx[-2]]
-                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                            )
-                            lon_val = (
-                                lon_vals[idx[-1]]
-                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                            )
-                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
-                                         date, lat_val, lon_val, v, units)
-                        else:
-                            lat_val = (
-                                lat_vals[idx[-2]]
-                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                            )
-                            lon_val = (
-                                lon_vals[idx[-1]]
-                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                            )
-                            level = idx[-3] + 1
-                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
-                                         date, lat_val, lon_val, level, v, units)
+                    # low_heap stores negated values; sorting them descending yields
+                    # the original values in ascending order (lowest first)
+                    for v, idx in sorted(low_heap, key=lambda x: x[0], reverse=True)[:n_keep]:
+                        try:
+                            file.warning('%s', describe(-v, idx))
+                        except (AttributeError, OverflowError, TypeError, ValueError):
+                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)',
+                                         idx, -v, units)
 
                 if count_high:
                     file.warning('%i highest values are :', min(n_keep, count_high))
-                    high_items = [(v, idx) for v, idx in high_heap]
-                    high_items.sort(key=lambda x: x[0], reverse=True)
-                    for v, idx in high_items[:n_keep]:
-                        date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
-                        if file.is_2d:
-                            lat_val = (
-                                lat_vals[idx[-2]]
-                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                            )
-                            lon_val = (
-                                lon_vals[idx[-1]]
-                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                            )
-                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, value: %E %s',
-                                         date, lat_val, lon_val, v, units)
-                        else:
-                            lat_val = (
-                                lat_vals[idx[-2]]
-                                if lat_vals is not None else file.dataset.variables.get('lat')[idx[-2]]
-                            )
-                            lon_val = (
-                                lon_vals[idx[-1]]
-                                if lon_vals is not None else file.dataset.variables.get('lon')[idx[-1]]
-                            )
-                            level = idx[-3] + 1
-                            file.warning('date: %s, lat/lon: %4.2f/%4.2f, level: %s, value: %E %s',
-                                         date, lat_val, lon_val, level, v, units)
+                    for v, idx in sorted(high_heap, key=lambda x: x[0], reverse=True)[:n_keep]:
+                        try:
+                            file.warning('%s', describe(v, idx))
+                        except (AttributeError, OverflowError, TypeError, ValueError):
+                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)',
+                                         idx, v, units)
 
                 if not count_low and not count_high:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
