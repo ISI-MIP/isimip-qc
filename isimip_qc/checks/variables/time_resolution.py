@@ -10,9 +10,14 @@ def check_time_resolution(file):
     ds = file.dataset
     variables = ds.variables
     time = variables.get('time')
-    time_definition = settings.DEFINITIONS['dimensions'].get('time')
+    time_definition = settings.DEFINITIONS.get('dimensions', {}).get('time')
     time_resolution = file.specifiers.get('time_step')
-    time_resolution_definition = settings.DEFINITIONS['time_step'].get(time_resolution)
+    time_resolution_definition = settings.DEFINITIONS.get('time_step', {}).get(time_resolution)
+
+    if time_resolution_definition is None:
+        file.warning('No definition for time step "%s" in protocol. Skipping time resolution check.',
+                     time_resolution)
+        return
 
     # skip check for time resolution, e.g. for agriculture
     if time_resolution_definition.get('check') is False:
@@ -77,9 +82,9 @@ def check_time_resolution(file):
                     lastdate_nc = netCDF4.num2date(time[time_steps - 1], time_units, time_calendar)
                     startyear_nc = firstdate_nc.year
                     endyear_nc = lastdate_nc.year
-            except (AttributeError, OverflowError, ValueError):
+            except (AttributeError, OverflowError, TypeError, ValueError):
                 # num2date raises ValueError on malformed units, OverflowError on absurd offsets
-                # and AttributeError from cftime internals on NaN/masked values
+                # and AttributeError/TypeError from cftime internals on NaN/masked values
                 file.warning('Can\'t check the period covered by the time axis because of malformed'
                              ' time units (%s) or time values.', time_units)
                 return
