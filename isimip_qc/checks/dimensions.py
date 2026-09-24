@@ -80,29 +80,21 @@ def check_dimensions(file):
 
     dims = variable.dimensions
 
+    # only compute the expected dependency order here; the single comparison
+    # below reports matching and mismatches (reporting inside the branches
+    # used to double-report and to overwrite the expected order wrongly)
     if file.is_time_fixed:
         expected = ('lat', 'lon')
     elif file.is_2d:
-        if variable.dimensions[1] == 'plot':
+        # forestry data may hold plot series in [time, plot] instead of [time, lat, lon]
+        if len(dims) > 1 and dims[1] == 'plot':
             expected = ('time', 'plot')
-            if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'plot':
-                file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot"].',
-                           file.variable_name, variable.dimensions)
-                expected = ('time', 'plot', 'layer')
-        elif variable.dimensions[0] != 'time' or variable.dimensions[1] != 'lat' or variable.dimensions[2] != 'lon':
-            expected = ('time', 'lat', 'lon')
-            file.error('Dimension order for variable "%s" is %s. Should be ["time", "lat", "lon"].',
-                       file.variable_name, variable.dimensions)
         else:
             expected = ('time', 'lat', 'lon')
-            file.info('Dimensions for variable "%s" look good: %s.',
-                      file.variable_name, variable.dimensions)
     elif file.is_3d:
-        if variable.dimensions[1] == 'plot':
+        # forestry data may hold plot series in [time, plot, layer]
+        if len(dims) > 1 and dims[1] == 'plot':
             expected = ('time', 'plot', 'layer')
-            if variable.dimensions[0] != 'time' or variable.dimensions[1] != 'plot' or variable.dimensions[2] != 'layer':
-                file.error('Dimension order for variable "%s" is %s. Should be ["time", "plot", "layer"].',
-                           file.variable_name, variable.dimensions)
         elif file.dim_vertical is None:
             file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
             return
