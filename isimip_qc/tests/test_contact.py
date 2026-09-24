@@ -1,6 +1,6 @@
 import pytest
 
-from ..utils.contact import match_addrs, match_contact
+from ..utils.contact import match_addrs, match_contact, normalize_contact
 
 
 @pytest.mark.parametrize('contact,result', [
@@ -41,6 +41,28 @@ def test_match_addrs(contact, result):
     (r"Dr. John Doe-Smth of Example University <john@example.com>", True),
     (r"Dr. John Doe-Smth of Example University @ Potsdam <john@example.com>", True),
     (r"invalid, John Doe <john@example.com>", False),
+    # semicolon as a separator is tolerated (c088183)
+    (r"John Doe <john@example.com>; Jane Smith <jane@company.org>", True),
+    (r"John Doe <john@example.com>; Jane Smith <jane@company.org>, Alice <alice@domain.co.uk>", True),
+    (r"John Doe <john@example.com>;Jane Smith <jane@company.org>", False),
 ])
 def test_match_contact(contact, result):
     assert match_contact(contact) == result
+
+
+@pytest.mark.parametrize('contact,normalized', [
+    (r"John Doe <john@example.com>", r"John Doe <john@example.com>"),
+    (r"John Doe <john@example.com>, Jane Smith <jane@company.org>",
+     r"John Doe <john@example.com>, Jane Smith <jane@company.org>"),
+    (r"John Doe <john@example.com>; Jane Smith <jane@company.org>",
+     r"John Doe <john@example.com>, Jane Smith <jane@company.org>"),
+    (r"John Doe <john@example.com>; Jane Smith <jane@company.org>; Alice <alice@domain.co.uk>",
+     r"John Doe <john@example.com>, Jane Smith <jane@company.org>, Alice <alice@domain.co.uk>"),
+    (r"John Doe <john@example.com>; Jane Smith <jane@company.org>, Alice <alice@domain.co.uk>",
+     r"John Doe <john@example.com>, Jane Smith <jane@company.org>, Alice <alice@domain.co.uk>"),
+    # a semicolon inside a display name is part of the name, not a separator
+    (r"Doe; Jr <john@example.com>; Jane Smith <jane@company.org>",
+     r"Doe; Jr <john@example.com>, Jane Smith <jane@company.org>"),
+])
+def test_normalize_contact(contact, normalized):
+    assert normalize_contact(contact) == normalized

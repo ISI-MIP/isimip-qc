@@ -72,7 +72,8 @@ def main():
     parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
                         help='stop execution on errors')
     parser.add_argument('--ignore-critical', dest='ignore_crit', action='store_true', default=False,
-                        help='allow fixing and copy/move files with critical issues found')
+                        help='continue checking and fix files with critical issues found'
+                             ' (use --force-copy-move to also copy or move them)')
     parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
                         help='skip test for valid experiment combination')
     parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
@@ -94,7 +95,8 @@ def main():
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
-                        help='copy or move files despite errors')
+                        help='copy or move files despite warnings and errors'
+                             ' (files with critical issues also require --ignore-critical)')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
 
@@ -128,6 +130,11 @@ def main():
     # determine checks to run and walk over unchecked files
     if settings.CHECK:
         checks_to_run = [c for c in checks if c.__name__ == settings.CHECK]
+        if not checks_to_run:
+            # an unknown name silently reduced the run to zero checks, so every
+            # file "passed" and got copied or moved as clean; fail up front instead
+            parser.error(f'Unknown check "{settings.CHECK}". Available checks are: '
+                         + ', '.join(sorted(c.__name__ for c in checks)))
     else:
         checks_to_run = list(checks)
 
@@ -167,9 +174,13 @@ def check_file_path(file_path):
             logger.info('%s skipped by exclude option.', file_path)
             return False
 
-    if file_path.suffix not in settings.PATTERN.get('suffix', []):
+    # a pattern without a suffix constraint has nothing to pre-check against
+    # (used to raise IndexError on settings.PATTERN['suffix'][0]); the naming
+    # scheme match in file.match() still catches badly named files
+    suffixes = settings.PATTERN.get('suffix') or []
+    if suffixes and file_path.suffix not in suffixes:
         logger.error('%s has wrong suffix. Use "%s" for this simulation round.',
-                     file_path, settings.PATTERN['suffix'][0])
+                     file_path, suffixes[0])
         return False
 
     return True
@@ -227,9 +238,9 @@ def check_single_file(file, checks_to_run, summary):
     # log result of checks, stop if flags are set
     if file.is_clean:
         logger.info('File has successfully passed all checks.')
-    elif file.has_warnings and not file.has_errors:
+    elif file.has_warnings and not (file.has_errors or file.has_criticals):
         logger.info('File passed all checks without unfixable issues.')
-    elif file.has_errors:
+    else:
         logger.critical('File did not pass all checks. Unfixable issues detected.')
 
     if file.has_warnings and settings.STOP_WARN:

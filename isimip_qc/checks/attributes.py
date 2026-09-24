@@ -4,7 +4,7 @@ from datetime import datetime
 from .. import __version__
 from ..config import settings
 from ..fixes import fix_remove_global_attr, fix_set_global_attr
-from ..utils.contact import match_addrs, match_contact
+from ..utils.contact import match_addrs, match_contact, normalize_contact
 from ..utils.repository import confirm_isimip_id
 
 
@@ -93,7 +93,15 @@ def check_contact(file):
         contact = file.dataset.getncattr('contact')
 
         if match_contact(contact):
-            file.info('Global attribute "contact" looks good. (%s)', contact)
+            normalized = normalize_contact(contact)
+            if normalized != contact:
+                file.warning('Global attribute "contact" uses ";" to separate multiple contacts.'
+                             ' Should use ",". (%s)', contact, fix={
+                                 'func': fix_set_global_attr,
+                                 'args': (file, 'contact', normalized)
+                             })
+            else:
+                file.info('Global attribute "contact" looks good. (%s)', contact)
         else:
             file.warning('Global attribute "contact" does not follow the format "NAME <EMAIL>, ..." (%s).', contact)
             if not match_addrs(contact):
