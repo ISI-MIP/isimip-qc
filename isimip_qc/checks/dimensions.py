@@ -6,6 +6,12 @@ from ..utils.grid import update_grid_value
 
 def check_lon_dimension(file):
     # get dimension from the dataset
+    # skip check for plot-based forestry variables
+    variable = file.dataset.variables.get(file.variable_name)
+    if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
+        file.info('Skipping "lon" dimension check for plot-based forestry data.')
+        return
+
     lon_dim = file.dataset.dimensions.get('lon')
     if lon_dim is None:
         file.error('Longitude dimension "lon" is missing.')
@@ -26,6 +32,12 @@ def check_lon_dimension(file):
 
 def check_lat_dimension(file):
     # get dimension from the dataset
+    # skip check for plot-based forestry variables
+    variable = file.dataset.variables.get(file.variable_name)
+    if variable is not None and len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
+        file.info('Skipping "lat" dimension check for plot-based forestry data.')
+        return
+
     lat_dim = file.dataset.dimensions.get('lat')
     if lat_dim is None:
         file.error('Latitude dimension "lat" is missing.')
@@ -61,23 +73,35 @@ def check_depth_dimension(file):
 
 def check_dimensions(file):
     # check dimension order
-    # variable_name is only set by check_3d; when it is missing (running this check alone)
-    # or the variable was not found, the problem is reported there already
+    # variable_name is only set by check_3d; when it is missing (running this check alone
+    # or broken files with --ignore-critical) or the variable was not found,
+    # the problem is reported there already
     variable = file.dataset.variables.get(file.variable_name)
     if variable is None:
         return
 
     dims = variable.dimensions
 
+    # only compute the expected dependency order here; the single comparison
+    # below reports matching and mismatches (reporting inside the branches
+    # used to double-report and to overwrite the expected order wrongly)
     if file.is_time_fixed:
         expected = ('lat', 'lon')
     elif file.is_2d:
-        expected = ('time', 'lat', 'lon')
+        # forestry data may hold plot series in [time, plot] instead of [time, lat, lon]
+        if len(dims) > 1 and dims[1] == 'plot':
+            expected = ('time', 'plot')
+        else:
+            expected = ('time', 'lat', 'lon')
     elif file.is_3d:
-        if file.dim_vertical is None:
+        # forestry data may hold plot series in [time, plot, layer]
+        if len(dims) > 1 and dims[1] == 'plot':
+            expected = ('time', 'plot', 'layer')
+        elif file.dim_vertical is None:
             file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
             return
-        expected = ('time', file.dim_vertical, 'lat', 'lon')
+        else:
+            expected = ('time', file.dim_vertical, 'lat', 'lon')
     else:
         file.error('Variable "%s" neither holds 2d or 3d data. (dim=%s)', file.variable_name, len(dims))
         return
@@ -88,6 +112,9 @@ def check_dimensions(file):
         file.info('Dimensions for variable "%s" look good: %s.', file.variable_name, dims)
 
     for dimension_name, dimension in file.dataset.dimensions.items():
+        if dimension_name in ['nchar']:
+            continue
+
         dimension_definition = settings.DEFINITIONS['dimensions'].get(dimension_name)
 
         # check string length dimensions

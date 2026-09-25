@@ -49,19 +49,22 @@ def check_variable(file):
             lon_size = update_grid_value(file, 'lon', 'size', lon_size)
 
             if file.is_2d:
-                if chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
+                if variable.dimensions[1] == 'plot':
+                    file.info('Skipping checks for chunking in forestry sector')
+                elif chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
                     file.warning('%s.chunking=%s should be [1, %s, %s] (with proper dependency order).',
                                  file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
 
             if file.is_3d:
-                vertical_dim = ds.dimensions.get(file.dim_vertical)
-                if vertical_dim is None:
+                if variable.dimensions[1] == 'plot':
+                    file.info('Skipping checks for chunking in forestry sector')
+                elif ds.dimensions.get(file.dim_vertical) is None:
                     file.warning('Can\'t check chunking: vertical dimension "%s" not found in file.',
                                  file.dim_vertical)
                 else:
-                    var3d_size = vertical_dim.size
+                    var3d_size = ds.dimensions.get(file.dim_vertical).size
                     if (chunking[0] != 1
                         or (chunking[1] != 1 and chunking[1] != var3d_size)
                         or chunking[2] != lat_size
@@ -81,9 +84,15 @@ def check_variable(file):
         if file.is_time_fixed:
             default_dimensions = ('lat', 'lon')
         elif file.is_2d:
-            default_dimensions = ('time', 'lat', 'lon')
+            if variable.dimensions[1] == 'plot':
+                default_dimensions = ('time', 'plot')
+            else:
+                default_dimensions = ('time', 'lat', 'lon')
         elif file.is_3d:
-            default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
+            if variable.dimensions[1] == 'plot':
+                default_dimensions = ('time', 'plot', 'layer')
+            else:
+                default_dimensions = ('time', file.dim_vertical, 'lat', 'lon')
         else:
             # neither 2d nor 3d data: reported by check_3d already (if it ran)
             default_dimensions = None

@@ -50,6 +50,17 @@ def check_3d(file):
         definition_dim_len = 3
         dims_expected = '[time, lat, lon]'
 
+    # detect 2d or 3d data
+    # workaround for forestry data
+    if len(variable.dimensions) > 1 and variable.dimensions[1] == 'plot':
+        if file.dim_len == 2:
+            file.is_2d = True
+        elif file.dim_len == 3:
+            file.is_3d = True
+            file.dim_vertical = variable.dimensions[2]
+        file.info('Variable "%s" is plot-based. Skipping the dimension count check.', file.variable_name)
+        return
+
     # detect 2d or 3d data: here we treat [time, lat, lon] as 3 dims (2D data),
     # and an extra vertical dimension yields 4 dims (3D data).
     if file.specifiers.get('time_step') == 'fixed':
