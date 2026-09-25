@@ -88,7 +88,8 @@ options:
   -w, --stop-on-warnings
                         stop execution on warnings
   -e, --stop-on-errors  stop execution on errors
-  --ignore-critical     allow fixing and copy/move files with critical issues found
+  --ignore-critical     continue checking and fix files with critical issues found (use
+                        --force-copy-move to also copy or move them)
   --skip-exp            skip test for valid experiment combination
   --match-only          only match the file name and skip all other checks
   -r [MINMAX], --minmax [MINMAX]
@@ -103,7 +104,8 @@ options:
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose
                         preferred tool per lower case argument.
   --check CHECK         perform only one particular check
-  --force-copy-move     copy or move files despite errors
+  --force-copy-move     copy or move files despite warnings and errors (files with critical issues
+                        also require --ignore-critical)
   -V, --version         show program's version number and exit
 ```
 
@@ -129,7 +131,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 
   * environment variables (in caps, with underscores, and with `ISIMIP_` as prefix, e.g. `ISIMIP_UNCHECKED_PATH`).
 * `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination. Effective only when no warnings have been found on the file.
-* '-O, --overwrite`: Allow overwriting of existing files in CHECKED_PATH. Default is to skip copy or move in case the target file is already present.
+* `-O, --overwrite`: Allow overwriting of existing files in CHECKED_PATH. Default is to skip copy or move in case the target file is already present. A file that would be copied or moved onto itself is always skipped.
 * `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
 * `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
 * `--protocol-location PROTOCOL_LOCATIONS`: For working with local copies of the ISIMIP protocol (append `/output` to the cloned repositories folder). Omit option for using the online GitHub protocol versions for [ISIMIP2](https://github.com/ISI-MIP/isimip-protocol-2) or [ISIMIP3](https://github.com/ISI-MIP/isimip-protocol-3). An internet connection is required for reading the online protocols.
@@ -151,11 +153,11 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `-f, --first-file`: Only test the first file found in UNCHECKED_PATH. Useful for revealing issues that may occur on all your files.
 * `-w, --stop-on-warnings`: The tool will stop after the first file where WARNINGs have been identified.
 * `-e, --stop-on-errors`: The tool will stop after the first file where ERRORs have been identified.
-* `--ignore-critical`: allow fixing and copy/move files although critical issues were found. Caution, this might lead to unexpected behaviour.
+* `--ignore-critical`: Continue the checks and apply fixes even though critical issues were found. The file is still not copied or moved by this alone, as it is not considered clean (see `--force-copy-move`). Caution, this might lead to unexpected behaviour.
 * `--skip-exp`: Skip test for valid experiment combination validation, e.g for secondary outputs.
 * `-r [MINMAX], --minmax [MINMAX]`: Test the data for valid ranges when defined in the protocol and outputs a toplist with exact time step and geographic location. `MINMAX` is optional, defaults to `10` and defines the length of the toplist. This test drastically slows down the run time of the tool as every data point is looked at.
 * `-nt`, `--skip-time-span-check`: Skip checking non-dialy data for proper coverage of simulation periods.
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the functions defined in the `isimip_qc/checks/*.py` files.
-* `--force-copy-move`: Copy or move files despite errors found during checks.
+* `--force-copy-move`: Copy or move files despite warnings and errors found during checks. Files with critical issues are only copied or moved if `--ignore-critical` is given as well, since without it they never reach the copy/move step.
