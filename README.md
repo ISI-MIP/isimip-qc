@@ -65,8 +65,8 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -c, --copy            copy checked files to CHECKED_PATH if no warnings or errors were found
-  -m, --move            move checked files to CHECKED_PATH if no warnings or errors were found
+  -c, --copy            copy checked files to CHECKED_PATH if clean and all QC attributes are set
+  -m, --move            move checked files to CHECKED_PATH if clean and all QC attributes are set
   -O, --overwrite       overwrite files in CHECKED_PATH if present. Default is False.
   --unchecked-path UNCHECKED_PATH
                         base path of the unchecked files
@@ -104,8 +104,8 @@ options:
                         also fix warnings on data model found using NCCOPY or CDO (slow). Choose
                         preferred tool per lower case argument.
   --check CHECK         perform only one particular check
-  --force-copy-move     copy or move files despite warnings and errors (files with critical issues
-                        also require --ignore-critical)
+  --force-copy-move     copy or move files despite missing QC attributes, warnings and errors
+                        (files with critical issues also require --ignore-critical)
   -V, --version         show program's version number and exit
 ```
 
@@ -130,7 +130,7 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
   ```
 
   * environment variables (in caps, with underscores, and with `ISIMIP_` as prefix, e.g. `ISIMIP_UNCHECKED_PATH`).
-* `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination. Effective only when no warnings have been found on the file.
+* `-c, --copy` and `-m, --move`: Copy or move files that have successfully passed the checks to a final destination. Effective only when no warnings, errors or critical issues were found **and** the four QC global attributes `isimip_id`, `isimip_qc_version`, `isimip_protocol_version` and `isimip_qc_pass_date` are set on the file (they can be applied with `--fix`). See `--force-copy-move` to copy or move regardless.
 * `-O, --overwrite`: Allow overwriting of existing files in CHECKED_PATH. Default is to skip copy or move in case the target file is already present. A file that would be copied or moved onto itself is always skipped.
 * `--unchecked-path UNCHECKED_PATH`: Any files in this folder **and** its subfolders will be included into the list of files to test.
 * `--checked-path CHECKED_PATH`: Target folder for the `--copy` or `--move` operation. The subfolder structure below CHECKED_PATH will be created and filled according to the sub-structure found in UNCHECKED_PATH
@@ -160,4 +160,4 @@ The only mandatory argument is the `schema_path`, which specifies the pattern an
 * `--fix`: Activates a number of fixes for WARNINGs by taking the default values from the protocol, e.g. variable attributes and units. In additions an unique identifier (UUID), the version of this tool and the protocol version (by a git hash) are being written to the global attributes section of the NetCDF file. **Attention**: Fixes and are going to be applied on **your original files** in UNCHECKED_PATH.
 * `--fix-datamodel [FIX_DATAMODEL]`: Fixes to the data model and compression level of the NetCDF file can't be made on-the-fly with the libraries used by the tool. We here rely on the external tools [cdo](https://code.mpimet.mpg.de/projects/cdo/) or nccopy (from the [NetCDF library](https://www.unidata.ucar.edu/software/netcdf/)) to rewrite the entire file. Default is `nccopy`. Please try to create the files with the proper data model (compressed NETCDF4_CLASSIC) in your postprocessing chain before submitting them to the data server.
 * `--check CHECK`: Perform only one particular check. The list of CHECKs can be taken from the functions defined in the `isimip_qc/checks/*.py` files.
-* `--force-copy-move`: Copy or move files despite warnings and errors found during checks. Files with critical issues are only copied or moved if `--ignore-critical` is given as well, since without it they never reach the copy/move step.
+* `--force-copy-move`: Copy or move files despite missing QC global attributes, warnings and errors found during checks. Files with critical issues are only copied or moved if `--ignore-critical` is given as well, since without it they never reach the copy/move step.

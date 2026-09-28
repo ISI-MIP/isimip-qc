@@ -27,6 +27,10 @@ logger = logging.getLogger(__name__)
 
 console = Console()
 
+# global attributes this tool stamps onto a checked file; a file without all of them
+# has not passed quality control yet and is not copied or moved (--force-copy-move excepts)
+QC_ATTRIBUTES = ('isimip_id', 'isimip_qc_version', 'isimip_protocol_version', 'isimip_qc_pass_date')
+
 class File:
 
     def __init__(self, file_path):
@@ -38,6 +42,7 @@ class File:
         self.warnings = []
         self.errors = []
         self.criticals = []
+        self.missing_qc_attributes = []
 
         self.logger = None
         self.handler = None
@@ -88,6 +93,13 @@ class File:
         if self.dataset is not None:
             self.dataset.close()
         self.dataset = None
+
+    def update_qc_attributes(self):
+        # note which of the stamped attributes are not set yet while the dataset is
+        # open; gates copy/move in check_single_file unless --force-copy-move is set
+        if self.dataset is not None:
+            self.missing_qc_attributes = [attribute for attribute in QC_ATTRIBUTES
+                                          if attribute not in self.dataset.ncattrs()]
 
     def debug(self, message, *args):
         if self.logger is not None:

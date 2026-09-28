@@ -36,9 +36,9 @@ def main():
 
     # optional
     parser.add_argument('-c', '--copy', dest='copy', action='store_true',
-                        help='copy checked files to CHECKED_PATH if no warnings or errors were found')
+                        help='copy checked files to CHECKED_PATH if clean and all QC attributes are set')
     parser.add_argument('-m', '--move', dest='move', action='store_true',
-                        help='move checked files to CHECKED_PATH if no warnings or errors were found')
+                        help='move checked files to CHECKED_PATH if clean and all QC attributes are set')
     parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
                         help='overwrite files in CHECKED_PATH if present. Default is False.')
     parser.add_argument('--unchecked-path', dest='unchecked_path', type=parse_path, default=Path().cwd(),
@@ -95,7 +95,7 @@ def main():
     parser.add_argument('--check', dest='check',
                         help='perform only one particular check')
     parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
-                        help='copy or move files despite warnings and errors'
+                        help='copy or move files despite missing QC attributes, warnings and errors'
                              ' (files with critical issues also require --ignore-critical)')
     parser.add_argument('-V', '--version', action='version',
                         version=VERSION)
@@ -228,6 +228,9 @@ def check_single_file(file, checks_to_run, summary):
                 skip = True
                 break
 
+    # note missing QC attributes while the dataset is still open
+    file.update_qc_attributes()
+
     # close the dataset
     file.close_dataset()
 
@@ -265,6 +268,9 @@ def check_single_file(file, checks_to_run, summary):
                 logger.info('Fix WARNINGs...')
                 file.fix_warnings()
 
+            # fixes may have set the QC attributes in the meantime
+            file.update_qc_attributes()
+
             file.close_dataset()
 
     # 2nd pass: fix warnings
@@ -274,7 +280,10 @@ def check_single_file(file, checks_to_run, summary):
 
     # copy/move files to checked_path
     if settings.MOVE or settings.COPY:
-        if file.is_clean or settings.FORCE_COPY_MOVE:
+        if file.missing_qc_attributes and not settings.FORCE_COPY_MOVE:
+            logger.warning('File has not been moved or copied. Global attributes are missing: %s. '
+                           'Run again with --fix to set them.', ', '.join(file.missing_qc_attributes))
+        elif file.is_clean or settings.FORCE_COPY_MOVE:
             if settings.MOVE:
                 file.move()
             elif settings.COPY:

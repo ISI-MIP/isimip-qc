@@ -9,6 +9,7 @@
   * Check for a newer `isimip-qc` version on PyPI at startup, and abort with a clear error message when no internet connection is available
   * Reject unknown `--check` names instead of silently skipping all checks
   * Align `--ignore-critical` and `--force-copy-move` with their actual behaviour: copying or moving files with critical issues now requires both options, and files with critical issues now get a proper verdict logged
+  * Only copy or move files that carry the four QC global attributes `isimip_id`, `isimip_qc_version`, `isimip_protocol_version` and `isimip_qc_pass_date`; `--force-copy-move` skips this requirement
   * Validate the `schema_path` argument and fail with a clear error message
   * Drop the special `any` string in `--include` lists (unmatched include lists already pass all files)
 * Data handling & checks
