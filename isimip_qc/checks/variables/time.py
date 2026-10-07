@@ -71,7 +71,7 @@ def check_time_variable(file):
 
         cur_units = getattr(time, 'units', None)
         if cur_units not in units:
-            file.error('"units" attribute for "time" is "%s". Should be one of "%s".', cur_units, units)
+            file.error('"units" attribute for "time" is "%s". Should be one of %s.', cur_units, list(units))
         else:
             file.info('Valid time unit found (%s)', cur_units)
 
