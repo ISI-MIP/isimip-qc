@@ -117,10 +117,10 @@ def check_time_span_periods(file):
         definition_endyear = get_time_span_value('end_pre-ind')
     elif 'historical' in str(file.abs_path):
         period = 'historical'
-        if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a']:
+        if settings.SIMULATION_ROUND in ['ISIMIP2a', 'ISIMIP3a', 'ISIMIP4a']:
             definition_startyear = get_time_span_value('start_hist', climate_forcing)
             definition_endyear = get_time_span_value('end_hist', climate_forcing)
-        elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b']:
+        elif settings.SIMULATION_ROUND in ['ISIMIP2b', 'ISIMIP3b', 'ISIMIP4b']:
             definition_startyear = get_time_span_value('start_hist')
             definition_endyear = get_time_span_value('end_hist')
         else:

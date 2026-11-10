@@ -21,6 +21,7 @@ from .config import settings
 from .exceptions import FileCritical, FileError, FileWarning
 from .models import File, Summary
 from .utils.cli import parse_schema_path
+from .utils.experiments import get_period
 from .utils.files import walk_files
 from .utils.logging import CHECKING
 
@@ -197,7 +198,7 @@ def check_single_file(file, checks_to_run, summary):
     if settings.SUMMARY:
         summary.update_specifiers(file.specifiers)
         summary.update_variables(file.specifiers)
-        summary.update_experiments(file.specifiers)
+        summary.update_experiments(file.specifiers, get_period(file.path))
 
     if settings.MATCH_ONLY:
         return

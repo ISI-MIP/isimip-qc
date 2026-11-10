@@ -20,7 +20,7 @@ from rich.table import Table
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
-from .utils.experiments import get_experiment
+from .utils.experiments import get_experiment, get_period
 from .utils.files import copy_file, move_file
 
 logger = logging.getLogger(__name__)
@@ -291,8 +291,8 @@ class Summary:
             else:
                 self.variables[variable]['count'] += 1
 
-    def update_experiments(self, specifiers):
-        experiment = get_experiment(specifiers)
+    def update_experiments(self, specifiers, period=None):
+        experiment = get_experiment(specifiers, period)
         if experiment:
             self.experiments[experiment] += 1
 
