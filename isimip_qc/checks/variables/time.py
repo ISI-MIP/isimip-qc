@@ -155,7 +155,10 @@ def check_time_span_periods(file):
             file.info('File is covering the full simulation period (by file name)')
     else:
         if 'historical' in str(file.abs_path):
-            if settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5':
+            # where the historical period extends beyond the last full decade,
+            # the tail is delivered as a separate file starting in 2021
+            if ((settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5') or
+                    settings.SIMULATION_ROUND in ('ISIMIP4a', 'ISIMIP4b')):
                 last_file_startyear = 2021
             else:
                 last_file_startyear = 2011
