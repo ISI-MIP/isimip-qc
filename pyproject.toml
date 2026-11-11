@@ -52,6 +52,9 @@ packages = ["isimip_qc"]
 target-version = "py311"
 line-length = 120
 
+[tool.ruff.format]
+quote-style = "single"
+
 [tool.ruff.lint]
 select = [
     "B",    # flake8-bugbear
