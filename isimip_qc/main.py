@@ -33,74 +33,212 @@ def main():
     parser = ArgumentParser(prog='isimip-qc', description='Check ISIMIP files for matching protocol definitions')
 
     # mandatory
-    parser.add_argument('schema_path', type=parse_schema_path,
-                        help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global')
+    parser.add_argument(
+        'schema_path', type=parse_schema_path, help='ISIMIP schema_path, e.g. ISIMIP3a/OutputData/water_global'
+    )
 
     # optional
-    parser.add_argument('-c', '--copy', dest='copy', action='store_true',
-                        help='copy checked files to CHECKED_PATH if clean and all QC attributes are set')
-    parser.add_argument('-m', '--move', dest='move', action='store_true',
-                        help='move checked files to CHECKED_PATH if clean and all QC attributes are set')
-    parser.add_argument('-O', '--overwrite', dest='overwrite', action='store_true',
-                        help='overwrite files in CHECKED_PATH if present. Default is False.')
-    parser.add_argument('--unchecked-path', dest='unchecked_path', type=parse_path, default=Path().cwd(),
-                        help='base path of the unchecked files')
-    parser.add_argument('--checked-path', dest='checked_path', type=parse_path, default=Path().cwd(),
-                        help='base path for the checked files')
-    parser.add_argument('--protocol-location', dest='protocol_locations', type=parse_locations,
-                        default=' '.join(PROTOCOL_LOCATIONS),
-                        help='URL or file path to the protocol when different from official repository')
-    parser.add_argument('--data-url', dest='data_url', type=lambda p: p.rstrip('/'),
-                        default='https://data.isimip.org',
-                        help='URL of the ISIMIP repository [default: https://data.isimip.org/]')
-    parser.add_argument('--log-level', dest='log_level', default='CHECKING', type=lambda s: s.upper(),
-                        help='log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default: CHECKING]')
-    parser.add_argument('--show-time', dest='show_time', action='store_true', default=False,
-                        help='show time in console logs')
-    parser.add_argument('--show-path', dest='show_path', action='store_true', default=False,
-                        help='show path in console logs')
-    parser.add_argument('--log-path', dest='log_path', type=parse_path,
-                        help='base path for the individual log files')
-    parser.add_argument('--log-path-level', dest='log_path_level', default='WARN',
-                        help='log level for the individual log files [default: WARN]')
-    parser.add_argument('--include', dest='include', type=parse_list,
-                        help='patterns of files to include. Exclude those that don\'t match any.')
-    parser.add_argument('--exclude', dest='exclude', type=parse_list,
-                        help='patterns of files to exclude. Include only those that don\'t match any.')
-    parser.add_argument('-f', '--first-file', dest='first_file', action='store_true', default=False,
-                        help='only process first file found in UNCHECKED_PATH')
-    parser.add_argument('-w', '--stop-on-warnings', dest='stop_warn', action='store_true', default=False,
-                        help='stop execution on warnings')
-    parser.add_argument('-e', '--stop-on-errors', dest='stop_err', action='store_true', default=False,
-                        help='stop execution on errors')
-    parser.add_argument('--ignore-critical', dest='ignore_crit', action='store_true', default=False,
-                        help='continue checking and fix files with critical issues found'
-                             ' (use --force-copy-move to also copy or move them)')
-    parser.add_argument('--skip-exp', dest='skip_exp', action='store_true', default=False,
-                        help='skip test for valid experiment combination')
-    parser.add_argument('--match-only', dest='match_only', action='store_true', default=False,
-                        help='only match the file name and skip all other checks')
-    parser.add_argument('--check-isimip-id', dest='check_isimip_id', action='store_true', default=False,
-                        help='check if the isimip_id is already used on the ISIMIP Repository')
-    parser.add_argument('-r', '--minmax', dest='minmax', const=10, nargs='?', type=int,
-                        help='test values for valid range (slow). MINMAX denotes the length of the ordered top'
-                        ' list of outliers')
-    parser.add_argument('-nt', '--skip-time-span-check', dest='time_span', action='store_true', default=False,
-                        help='skip check for simulated time period')
-    parser.add_argument('--summary', dest='summary', action='store_true', default=False,
-                        help='append a summary with statistics about experiments and specifiers to the output')
-    parser.add_argument('--fix', dest='fix', action='store_true', default=False,
-                        help='try to fix warnings detected on the original files')
-    parser.add_argument('--fix-datamodel', dest='fix_datamodel', nargs='?', const='nccopy', type=str,
-                        help='also fix warnings on data model found using NCCOPY or CDO (slow).'
-                        ' Choose preferred tool per lower case argument.')
-    parser.add_argument('--check', dest='check',
-                        help='perform only one particular check')
-    parser.add_argument('--force-copy-move', dest='force_copy_move', action='store_true', default=False,
-                        help='copy or move files despite missing QC attributes, warnings and errors'
-                             ' (files with critical issues also require --ignore-critical)')
-    parser.add_argument('-V', '--version', action='version',
-                        version=VERSION)
+    parser.add_argument(
+        '-c',
+        '--copy',
+        dest='copy',
+        action='store_true',
+        help='copy checked files to CHECKED_PATH if clean and all QC attributes are set',
+    )
+    parser.add_argument(
+        '-m',
+        '--move',
+        dest='move',
+        action='store_true',
+        help='move checked files to CHECKED_PATH if clean and all QC attributes are set',
+    )
+    parser.add_argument(
+        '-O',
+        '--overwrite',
+        dest='overwrite',
+        action='store_true',
+        help='overwrite files in CHECKED_PATH if present. Default is False.',
+    )
+    parser.add_argument(
+        '--unchecked-path',
+        dest='unchecked_path',
+        type=parse_path,
+        default=Path().cwd(),
+        help='base path of the unchecked files',
+    )
+    parser.add_argument(
+        '--checked-path',
+        dest='checked_path',
+        type=parse_path,
+        default=Path().cwd(),
+        help='base path for the checked files',
+    )
+    parser.add_argument(
+        '--protocol-location',
+        dest='protocol_locations',
+        type=parse_locations,
+        default=' '.join(PROTOCOL_LOCATIONS),
+        help='URL or file path to the protocol when different from official repository',
+    )
+    parser.add_argument(
+        '--data-url',
+        dest='data_url',
+        type=lambda p: p.rstrip('/'),
+        default='https://data.isimip.org',
+        help='URL of the ISIMIP repository [default: https://data.isimip.org/]',
+    )
+    parser.add_argument(
+        '--log-level',
+        dest='log_level',
+        default='CHECKING',
+        type=lambda s: s.upper(),
+        help='log level (CRITICAL, ERROR, WARN, CHECKING, INFO, or DEBUG) [default: CHECKING]',
+    )
+    parser.add_argument(
+        '--show-time',
+        dest='show_time',
+        action='store_true',
+        default=False,
+        help='show time in console logs',
+    )
+    parser.add_argument(
+        '--show-path',
+        dest='show_path',
+        action='store_true',
+        default=False,
+        help='show path in console logs',
+    )
+    parser.add_argument(
+        '--log-path',
+        dest='log_path',
+        type=parse_path,
+        help='base path for the individual log files',
+    )
+    parser.add_argument(
+        '--log-path-level',
+        dest='log_path_level',
+        default='WARN',
+        help='log level for the individual log files [default: WARN]',
+    )
+    parser.add_argument(
+        '--include',
+        dest='include',
+        type=parse_list,
+        help="patterns of files to include. Exclude those that don't match any.",
+    )
+    parser.add_argument(
+        '--exclude',
+        dest='exclude',
+        type=parse_list,
+        help="patterns of files to exclude. Include only those that don't match any.",
+    )
+    parser.add_argument(
+        '-f',
+        '--first-file',
+        dest='first_file',
+        action='store_true',
+        default=False,
+        help='only process first file found in UNCHECKED_PATH',
+    )
+    parser.add_argument(
+        '-w',
+        '--stop-on-warnings',
+        dest='stop_warn',
+        action='store_true',
+        default=False,
+        help='stop execution on warnings',
+    )
+    parser.add_argument(
+        '-e',
+        '--stop-on-errors',
+        dest='stop_err',
+        action='store_true',
+        default=False,
+        help='stop execution on errors',
+    )
+    parser.add_argument(
+        '--ignore-critical',
+        dest='ignore_crit',
+        action='store_true',
+        default=False,
+        help='continue checking and fix files with critical issues found'
+        ' (use --force-copy-move to also copy or move them)',
+    )
+    parser.add_argument(
+        '--skip-exp',
+        dest='skip_exp',
+        action='store_true',
+        default=False,
+        help='skip test for valid experiment combination',
+    )
+    parser.add_argument(
+        '--match-only',
+        dest='match_only',
+        action='store_true',
+        default=False,
+        help='only match the file name and skip all other checks',
+    )
+    parser.add_argument(
+        '--check-isimip-id',
+        dest='check_isimip_id',
+        action='store_true',
+        default=False,
+        help='check if the isimip_id is already used on the ISIMIP Repository',
+    )
+    parser.add_argument(
+        '-r',
+        '--minmax',
+        dest='minmax',
+        const=10,
+        nargs='?',
+        type=int,
+        help='test values for valid range (slow). MINMAX denotes the length of the ordered top list of outliers',
+    )
+    parser.add_argument(
+        '-nt',
+        '--skip-time-span-check',
+        dest='time_span',
+        action='store_true',
+        default=False,
+        help='skip check for simulated time period',
+    )
+    parser.add_argument(
+        '--summary',
+        dest='summary',
+        action='store_true',
+        default=False,
+        help='append a summary with statistics about experiments and specifiers to the output',
+    )
+    parser.add_argument(
+        '--fix',
+        dest='fix',
+        action='store_true',
+        default=False,
+        help='try to fix warnings detected on the original files',
+    )
+    parser.add_argument(
+        '--fix-datamodel',
+        dest='fix_datamodel',
+        nargs='?',
+        const='nccopy',
+        type=str,
+        help='also fix warnings on data model found using NCCOPY or CDO (slow).'
+        ' Choose preferred tool per lower case argument.',
+    )
+    parser.add_argument(
+        '--check',
+        dest='check',
+        help='perform only one particular check',
+    )
+    parser.add_argument(
+        '--force-copy-move',
+        dest='force_copy_move',
+        action='store_true',
+        default=False,
+        help='copy or move files despite missing QC attributes, warnings and errors'
+        ' (files with critical issues also require --ignore-critical)',
+    )
+    parser.add_argument('-V', '--version', action='version', version=VERSION)
 
     setup_env()
 
@@ -135,8 +273,10 @@ def main():
         if not checks_to_run:
             # an unknown name silently reduced the run to zero checks, so every
             # file "passed" and got copied or moved as clean; fail up front instead
-            parser.error(f'Unknown check "{settings.CHECK}". Available checks are: '
-                         + ', '.join(sorted(c.__name__ for c in checks)))
+            parser.error(
+                f'Unknown check "{settings.CHECK}". Available checks are: '
+                + ', '.join(sorted(c.__name__ for c in checks))
+            )
     else:
         checks_to_run = list(checks)
 
@@ -181,8 +321,7 @@ def check_file_path(file_path):
     # scheme match in file.match() still catches badly named files
     suffixes = settings.PATTERN.get('suffix') or []
     if suffixes and file_path.suffix not in suffixes:
-        logger.error('%s has wrong suffix. Use "%s" for this simulation round.',
-                     file_path, suffixes[0])
+        logger.error('%s has wrong suffix. Use "%s" for this simulation round.', file_path, suffixes[0])
         return False
 
     return True
@@ -225,8 +364,10 @@ def check_single_file(file, checks_to_run, summary):
             pass
         except FileCritical:
             if not settings.IGNORE_CRIT:
-                logger.info('Skip further checks. Try to repair the file first before checking '
-                            'it again or proceed on own risk with the "--ignore-critical" option.')
+                logger.info(
+                    'Skip further checks. Try to repair the file first before checking '
+                    'it again or proceed on own risk with the "--ignore-critical" option.'
+                )
                 skip = True
                 break
 
@@ -283,8 +424,11 @@ def check_single_file(file, checks_to_run, summary):
     # copy/move files to checked_path
     if settings.MOVE or settings.COPY:
         if file.missing_qc_attributes and not settings.FORCE_COPY_MOVE:
-            logger.warning('File has not been moved or copied. Global attributes are missing: %s. '
-                           'Run again with --fix to set them.', ', '.join(file.missing_qc_attributes))
+            logger.warning(
+                'File has not been moved or copied. Global attributes are missing: %s. '
+                'Run again with --fix to set them.',
+                ', '.join(file.missing_qc_attributes),
+            )
         elif file.is_clean or settings.FORCE_COPY_MOVE:
             if settings.MOVE:
                 file.move()

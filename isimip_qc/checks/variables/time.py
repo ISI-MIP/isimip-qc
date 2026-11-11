@@ -23,19 +23,29 @@ def check_time_variable(file):
     axis = time_definition.get('axis')
     cur_axis = getattr(time, 'axis', None)
     if cur_axis != axis:
-        file.warning('"axis" attribute of "time" is %s. Should be "%s".', cur_axis, axis, fix={
-            'func': fix_set_variable_attr,
-            'args': (file, 'time', 'axis', axis)
-        })
+        file.warning(
+            '"axis" attribute of "time" is %s. Should be "%s".',
+            cur_axis,
+            axis,
+            fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'time', 'axis', axis),
+            },
+        )
 
     # check standard_name
     standard_name = time_definition.get('standard_name')
     cur_std = getattr(time, 'standard_name', None)
     if cur_std != standard_name:
-        file.warning('"standard_name" attribute of "time" is "%s". Should be "%s".', cur_std, standard_name, fix={
-            'func': fix_set_variable_attr,
-            'args': (file, 'time', 'standard_name', standard_name)
-        })
+        file.warning(
+            '"standard_name" attribute of "time" is "%s". Should be "%s".',
+            cur_std,
+            standard_name,
+            fix={
+                'func': fix_set_variable_attr,
+                'args': (file, 'time', 'standard_name', standard_name),
+            },
+        )
 
     # check long_name
     long_names = time_definition.get('long_names', [])
@@ -43,10 +53,15 @@ def check_time_variable(file):
         cur_long = getattr(time, 'long_name', None)
         default_long = long_names[2] if len(long_names) > 2 else long_names[0]
         if cur_long not in long_names:
-            file.warning('"long_name" attribute of "time" is %s. Should be in %s.', cur_long, long_names, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'long_name', default_long)
-            })
+            file.warning(
+                '"long_name" attribute of "time" is %s. Should be in %s.',
+                cur_long,
+                long_names,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, 'time', 'long_name', default_long),
+                },
+            )
 
     # check units
     time_step = file.specifiers.get('time_step')
@@ -57,16 +72,15 @@ def check_time_variable(file):
     if time_step_definition is None:
         file.warning('No definition for time step "%s" in protocol. Skipping check for time units.', time_step)
     elif increment is None:
-        file.warning('Time step "%s" has no increment defined in protocol. Skipping check for time units.',
-                     time_step)
+        file.warning('Time step "%s" has no increment defined in protocol. Skipping check for time units.', time_step)
     elif minimum is None:
         file.warning('No minimum year for time spans defined in protocol. Skipping check for time units.')
     else:
         units = (
-            f"{increment} since {minimum}-01-01",
-            f"{increment} since {minimum}-01-01 00:00:00",
-            f"{increment} since {minimum}-1-1",
-            f"{increment} since {minimum}-1-1 00:00:00",
+            f'{increment} since {minimum}-01-01',
+            f'{increment} since {minimum}-01-01 00:00:00',
+            f'{increment} since {minimum}-1-1',
+            f'{increment} since {minimum}-1-1 00:00:00',
         )
 
         cur_units = getattr(time, 'units', None)
@@ -79,12 +93,14 @@ def check_time_variable(file):
     calendars = time_definition.get('calendars_daily')
     cur_cal = getattr(time, 'calendar', None)
     if calendars is None:
-        file.warning('No "calendars_daily" definition for the "time" dimension in protocol.'
-                     ' Skipping check for calendars.')
+        file.warning(
+            'No "calendars_daily" definition for the "time" dimension in protocol. Skipping check for calendars.'
+        )
     elif cur_cal not in calendars:
         file.error('"calendar" attribute for "time" is "%s". Must be one of "%s".', cur_cal, calendars)
     else:
         file.info('Valid calendar found (%s)', cur_cal)
+
 
 def get_time_span_value(name, climate_forcing=None):
     # time_span values are either plain years, mappings per climate forcing
@@ -124,21 +140,29 @@ def check_time_span_periods(file):
             definition_startyear = get_time_span_value('start_hist')
             definition_endyear = get_time_span_value('end_hist')
         else:
-            file.warning('Simulation round "%s" is not yet supported by the simulation period check.'
-                         ' Skipping check for simulation period.', settings.SIMULATION_ROUND)
+            file.warning(
+                'Simulation round "%s" is not yet supported by the simulation period check.'
+                ' Skipping check for simulation period.',
+                settings.SIMULATION_ROUND,
+            )
             return
     elif 'future' in str(file.abs_path):
         period = 'future'
         definition_startyear = get_time_span_value('start_fut')
         definition_endyear = get_time_span_value('end_fut')
     else:
-        file.warning('Skipping check for simulation period as the period itself could not be'
-                  ' determined from the file path (pre-industrial, historical or future).')
+        file.warning(
+            'Skipping check for simulation period as the period itself could not be'
+            ' determined from the file path (pre-industrial, historical or future).'
+        )
         return
 
     if definition_startyear is None or definition_endyear is None:
-        file.warning('No "%s" time span defined in protocol for climate forcing "%s".'
-                     ' Skipping check for simulation period.', period, climate_forcing)
+        file.warning(
+            'No "%s" time span defined in protocol for climate forcing "%s". Skipping check for simulation period.',
+            period,
+            climate_forcing,
+        )
         return
 
     file_startyear = file.specifiers.get('start_year')
@@ -148,24 +172,33 @@ def check_time_span_periods(file):
 
     if time_resolution not in ['daily', 'fixed']:
         if definition_startyear != file_startyear or definition_endyear != file_endyear:
-            file.warning('time period covered by file (%s-%s) does not match input data time span (%s-%s).'
-                      ' Ensure to prepare the full period for all variables using the latest input data set.',
-                      file_startyear, file_endyear, definition_startyear, definition_endyear)
+            file.warning(
+                'time period covered by file (%s-%s) does not match input data time span (%s-%s).'
+                ' Ensure to prepare the full period for all variables using the latest input data set.',
+                file_startyear,
+                file_endyear,
+                definition_startyear,
+                definition_endyear,
+            )
         else:
             file.info('File is covering the full simulation period (by file name)')
     else:
         if 'historical' in str(file.abs_path):
             # where the historical period extends beyond the last full decade,
             # the tail is delivered as a separate file starting in 2021
-            if ((settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5') or
-                    settings.SIMULATION_ROUND in ('ISIMIP4a', 'ISIMIP4b')):
+            if (
+                settings.SIMULATION_ROUND == 'ISIMIP3a' and climate_forcing == '20crv3-era5'
+            ) or settings.SIMULATION_ROUND in ('ISIMIP4a', 'ISIMIP4b'):
                 last_file_startyear = 2021
             else:
                 last_file_startyear = 2011
 
             if file_startyear == last_file_startyear:
                 if definition_endyear != file_endyear:
-                    file.warning('Last year of time period covered by file (%s) does not match end of input'
-                              ' data time span (%s). Ensure to prepare the full period for all variables'
-                              ' using the latest input data set.',
-                              file_endyear, definition_endyear)
+                    file.warning(
+                        'Last year of time period covered by file (%s) does not match end of input'
+                        ' data time span (%s). Ensure to prepare the full period for all variables'
+                        ' using the latest input data set.',
+                        file_endyear,
+                        definition_endyear,
+                    )

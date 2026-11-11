@@ -5,6 +5,10 @@ from collections import Counter
 from pathlib import Path
 
 import jsonschema
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.table import Table
+
 from isimip_utils.exceptions import DidNotMatch
 from isimip_utils.netcdf import (
     get_dimensions,
@@ -14,13 +18,10 @@ from isimip_utils.netcdf import (
     open_dataset_write,
 )
 from isimip_utils.patterns import match_file
-from rich.console import Console
-from rich.logging import RichHandler
-from rich.table import Table
 
 from .config import settings
 from .utils.datamodel import call_cdo, call_nccopy
-from .utils.experiments import get_experiment, get_period
+from .utils.experiments import get_experiment
 from .utils.files import copy_file, move_file
 
 logger = logging.getLogger(__name__)
@@ -31,8 +32,8 @@ console = Console()
 # has not passed quality control yet and is not copied or moved (--force-copy-move excepts)
 QC_ATTRIBUTES = ('isimip_id', 'isimip_qc_version', 'isimip_protocol_version', 'isimip_qc_pass_date')
 
-class File:
 
+class File:
     def __init__(self, file_path):
         file_path = Path(file_path).expanduser()
         self.path = file_path.relative_to(settings.UNCHECKED_PATH)
@@ -64,15 +65,13 @@ class File:
     @property
     def json(self):
         if self.dataset is None:
-            return {
-                'specifiers': self.specifiers
-            }
+            return {'specifiers': self.specifiers}
         else:
             return {
                 'dimensions': get_dimensions(self.dataset),
                 'variables': get_variables(self.dataset),
                 'global_attributes': get_global_attributes(self.dataset),
-                'specifiers': self.specifiers
+                'specifiers': self.specifiers,
             }
 
     def open_log(self):
@@ -98,8 +97,9 @@ class File:
         # note which of the stamped attributes are not set yet while the dataset is
         # open; gates copy/move in check_single_file unless --force-copy-move is set
         if self.dataset is not None:
-            self.missing_qc_attributes = [attribute for attribute in QC_ATTRIBUTES
-                                          if attribute not in self.dataset.ncattrs()]
+            self.missing_qc_attributes = [
+                attribute for attribute in QC_ATTRIBUTES if attribute not in self.dataset.ncattrs()
+            ]
 
     def debug(self, message, *args):
         if self.logger is not None:
@@ -149,8 +149,10 @@ class File:
             return
 
         if settings.FIX_DATAMODEL not in ('nccopy', 'cdo'):
-            self.error(f'"{settings.FIX_DATAMODEL}" is not a valid argument for --fix-datamodel option.'
-                       ' Chose "nccopy" or "cdo"')
+            self.error(
+                f'"{settings.FIX_DATAMODEL}" is not a valid argument for --fix-datamodel option.'
+                ' Chose "nccopy" or "cdo"'
+            )
             return
         if shutil.which(settings.FIX_DATAMODEL) is None:
             self.error('"%s" is not available for execution. Please install before.', settings.FIX_DATAMODEL)
@@ -161,8 +163,11 @@ class File:
         try:
             if settings.FIX_DATAMODEL == 'cdo':
                 self.info('Rewriting file with fixed data model using "cdo"')
-                call_cdo(['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'],
-                         self.abs_path, tmp_abs_path)
+                call_cdo(
+                    ['--history', '-s', '-z', 'zip_5', '-f', 'nc4c', '-b', 'F32', '-k', 'grid', '-copy'],
+                    self.abs_path,
+                    tmp_abs_path,
+                )
             else:
                 self.info('Rewriting file with fixed data model using "nccopy"')
                 call_nccopy(['-k4', '-d5'], self.abs_path, tmp_abs_path)
@@ -262,7 +267,6 @@ class File:
 
 
 class Summary:
-
     def __init__(self):
         self.specifiers = {}
         self.variables = {}
@@ -286,7 +290,7 @@ class Summary:
                 self.variables[variable] = {
                     'specifier': variable,
                     'sectors': definition.get('sectors') or [],
-                    'count': 1
+                    'count': 1,
                 }
             else:
                 self.variables[variable]['count'] += 1

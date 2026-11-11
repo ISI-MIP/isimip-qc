@@ -26,20 +26,31 @@ def check_latlon_variable(file):
         axis = var_definition.get('axis')
         cur_axis = getattr(var, 'axis', None)
         if cur_axis != axis:
-            file.warning('"axis" attribute of "%s" is %s. Should be "%s".', variable, cur_axis, axis, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, variable, 'axis', axis)
-            })
+            file.warning(
+                '"axis" attribute of "%s" is %s. Should be "%s".',
+                variable,
+                cur_axis,
+                axis,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, variable, 'axis', axis),
+                },
+            )
 
         # check standard_name
         standard_name = var_definition.get('standard_name')
         cur_std = getattr(var, 'standard_name', None)
         if cur_std != standard_name:
-            file.warning('"standard_name" attribute of "%s" is "%s". Should be "%s".',
-                      variable, cur_std, standard_name, fix={
-                          'func': fix_set_variable_attr,
-                          'args': (file, variable, 'standard_name', standard_name)
-                      })
+            file.warning(
+                '"standard_name" attribute of "%s" is "%s". Should be "%s".',
+                variable,
+                cur_std,
+                standard_name,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, variable, 'standard_name', standard_name),
+                },
+            )
 
         # check long_name
         long_names = var_definition.get('long_names', [])
@@ -47,21 +58,31 @@ def check_latlon_variable(file):
             cur_long = getattr(var, 'long_name', None)
             default_long = long_names[0]
             if cur_long not in long_names:
-                file.warning('"long_name" attribute of "%s" is %s. Should be in %s.',
-                          variable, cur_long, long_names, fix={
-                              'func': fix_set_variable_attr,
-                              'args': (file, variable, 'long_name', default_long)
-                          })
+                file.warning(
+                    '"long_name" attribute of "%s" is %s. Should be in %s.',
+                    variable,
+                    cur_long,
+                    long_names,
+                    fix={
+                        'func': fix_set_variable_attr,
+                        'args': (file, variable, 'long_name', default_long),
+                    },
+                )
 
         # check units
         units = var_definition.get('units')
         cur_units = getattr(var, 'units', None)
         if cur_units != units:
-            file.warning('"units" attribute for "%s" is "%s". Should be "%s".',
-                      variable, cur_units, units, fix={
-                          'func': fix_set_variable_attr,
-                          'args': (file, variable, 'units', units)
-                      })
+            file.warning(
+                '"units" attribute for "%s" is "%s". Should be "%s".',
+                variable,
+                cur_units,
+                units,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, variable, 'units', units),
+                },
+            )
 
         # get lat/lon ranges from the protocol
         minimum = var_definition.get('minimum')
@@ -91,14 +112,14 @@ def check_latlon_variable(file):
             # minimum and maximum but not the axis order
             arr = np.ma.masked_invalid(np.ma.asarray(var[:]))
             if arr.count() == 0:
-                file.warning('Can\'t check the values of "%s": no valid (unmasked) coordinate values.',
-                             variable)
+                file.warning('Can\'t check the values of "%s": no valid (unmasked) coordinate values.', variable)
                 continue
             first_val = float(arr.min())
             last_val = float(arr.max())
             monotonic_axis = False
-            file.warning('"%s" is not a one-dimensional axis. Checking the value range'
-                         ' but not the axis order.', variable)
+            file.warning(
+                '"%s" is not a one-dimensional axis. Checking the value range but not the axis order.', variable
+            )
 
         # For latitude we expect values to decrease (north -> south),
         # so the first element should match the protocol's "maximum" and
@@ -127,13 +148,19 @@ def check_latlon_variable(file):
             continue
         if variable == 'lat':
             if not (first_val > last_val):
-                file.warning('Latitudes in wrong order. Index should range from north to south. (found %s to %s)',
-                          first_val, last_val)
+                file.warning(
+                    'Latitudes in wrong order. Index should range from north to south. (found %s to %s)',
+                    first_val,
+                    last_val,
+                )
             else:
                 file.info('Latitude index order looks good (N to S).')
         else:  # lon
             if not (first_val < last_val):
-                file.warning('Longitudes in wrong order. Index should range from west to east. (found %s to %s)',
-                          first_val, last_val)
+                file.warning(
+                    'Longitudes in wrong order. Index should range from west to east. (found %s to %s)',
+                    first_val,
+                    last_val,
+                )
             else:
                 file.info('Longitude index order looks good (W to E).')

@@ -15,8 +15,7 @@ def check_time_resolution(file):
     time_resolution_definition = settings.DEFINITIONS.get('time_step', {}).get(time_resolution)
 
     if time_resolution_definition is None:
-        file.warning('No definition for time step "%s" in protocol. Skipping time resolution check.',
-                     time_resolution)
+        file.warning('No definition for time step "%s" in protocol. Skipping time resolution check.', time_resolution)
         return
 
     # skip check for time resolution, e.g. for agriculture
@@ -35,22 +34,24 @@ def check_time_resolution(file):
         return
 
     if time_resolution in ['monthly', 'annual'] and time_calendar == '360_day':
-        file.error('360_day calendar is not allowed for monthly and annual data anymore.'
-                   ' Use one of ["standard", "proleptic_gregorian", "365_day", "366_day"]')
+        file.error(
+            '360_day calendar is not allowed for monthly and annual data anymore.'
+            ' Use one of ["standard", "proleptic_gregorian", "365_day", "366_day"]'
+        )
         return
 
     if 'days' not in time_units:
-        file.error('time index has to be in daily increments for all calendars used'
-                   ' (time.unit to be like "days since ...".')
+        file.error(
+            'time index has to be in daily increments for all calendars used (time.unit to be like "days since ...".'
+        )
         return
 
     # an empty time axis is falsy, so it would be skipped silently by the guard below
     if time.shape[0] == 0:
-        file.warning('Can\'t check the time period and number of time steps because the time axis is empty.')
+        file.warning("Can't check the time period and number of time steps because the time axis is empty.")
         return
 
     if ds.data_model in ('NETCDF4', 'NETCDF4_CLASSIC'):
-
         if not (time and time_definition and time_resolution and time_units and time_calendar):
             return
 
@@ -85,8 +86,12 @@ def check_time_resolution(file):
             except (AttributeError, OverflowError, TypeError, ValueError) as e:
                 # num2date raises ValueError on malformed units, OverflowError on absurd offsets
                 # and AttributeError/TypeError from cftime internals on NaN/masked values
-                file.error('Can\'t check the period covered by the time axis because of malformed'
-                           ' time units (%s) or time values. (Error: %s)', time_units, e)
+                file.error(
+                    "Can't check the period covered by the time axis because of malformed"
+                    ' time units (%s) or time values. (Error: %s)',
+                    time_units,
+                    e,
+                )
                 return
         else:
             # year and time step checks are not defined for sub-daily time steps
@@ -95,20 +100,24 @@ def check_time_resolution(file):
         startyear_file = file.specifiers.get('start_year')
         endyear_file = file.specifiers.get('end_year')
         if startyear_file is None or endyear_file is None:
-            file.warning('Can\'t check the time period because the file name does not specify'
-                         ' a start and end year.')
+            file.warning("Can't check the time period because the file name does not specify a start and end year.")
             return
         startyear_file = int(startyear_file)
         endyear_file = int(endyear_file)
         nyears_file = endyear_file - startyear_file + 1
 
         if startyear_nc != startyear_file or endyear_nc != endyear_file:
-            file.error('Start and/or end year of NetCDF time axis (%s-%s) doesn\'t'
-                       ' match period defined in file name (%s-%s)',
-                       startyear_nc, endyear_nc, startyear_file, endyear_file)
+            file.error(
+                "Start and/or end year of NetCDF time axis (%s-%s) doesn't match period defined in file name (%s-%s)",
+                startyear_nc,
+                endyear_nc,
+                startyear_file,
+                endyear_file,
+            )
         else:
-            file.info('Time period covered by this file matches the internal time axis (%s-%s)',
-                      startyear_nc, endyear_nc)
+            file.info(
+                'Time period covered by this file matches the internal time axis (%s-%s)', startyear_nc, endyear_nc
+            )
 
         if time_resolution == 'daily':
             # compute number of days in period efficiently
@@ -133,25 +142,41 @@ def check_time_resolution(file):
                 return
 
             if time_days != time_steps:
-                file.error('Number of internal time steps (%s) does not match the expected'
-                           ' number from the file name specifiers (%s). ("%s" calendar found)',
-                           time_steps, time_days, time_calendar)
+                file.error(
+                    'Number of internal time steps (%s) does not match the expected'
+                    ' number from the file name specifiers (%s). ("%s" calendar found)',
+                    time_steps,
+                    time_days,
+                    time_calendar,
+                )
             else:
-                file.info('Correct number of time steps (%s) given the defined calendar (%s)',
-                          time_steps, time_calendar)
+                file.info(
+                    'Correct number of time steps (%s) given the defined calendar (%s)', time_steps, time_calendar
+                )
         elif time_resolution == 'monthly':
             time_months = nyears_file * 12
             if time_months != time_steps:
-                file.error('Number of internal time steps (%s) does not match the expected'
-                           ' number from the file name specifiers (%s).', time_steps, time_months)
+                file.error(
+                    'Number of internal time steps (%s) does not match the expected'
+                    ' number from the file name specifiers (%s).',
+                    time_steps,
+                    time_months,
+                )
             else:
                 file.info('Correct number of time steps (%s).', time_steps)
         elif time_resolution == 'annual':
             if nyears_file != time_steps:
-                file.error('Number of internal time steps (%s) does not match the expected'
-                           ' number from the file name specifiers (%s).', time_steps, nyears_file)
+                file.error(
+                    'Number of internal time steps (%s) does not match the expected'
+                    ' number from the file name specifiers (%s).',
+                    time_steps,
+                    nyears_file,
+                )
             else:
                 file.info('Correct number of time steps (%s).', time_steps)
     else:
-        file.warning('Could not check for the correct number of time steps because of wrong'
-                  ' data model (%s). Has to be NETCDF4_CLASSIC.', file.dataset.data_model)
+        file.warning(
+            'Could not check for the correct number of time steps because of wrong'
+            ' data model (%s). Has to be NETCDF4_CLASSIC.',
+            file.dataset.data_model,
+        )

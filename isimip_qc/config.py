@@ -7,10 +7,9 @@ from isimip_utils.protocol import fetch_definitions, fetch_pattern, fetch_schema
 
 
 class Settings(BaseSettings):
-
     @cached_property
     def NOW(self):
-        return datetime.utcnow().strftime("%Y%m%dT%H%MZ")
+        return datetime.utcnow().strftime('%Y%m%dT%H%MZ')
 
     @cached_property
     def SIMULATION_ROUND(self):

@@ -9,27 +9,42 @@ def check_3d_variable(file):
         try:
             var3d_attr = getattr(var3d, attr_type)
         except AttributeError:
-            file.warning('Attribute %s.%s is missing. Should be "%s".', var3d.name, attr_type, attribute, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, var3d.name, attr_type, attribute)
-            })
+            file.warning(
+                'Attribute %s.%s is missing. Should be "%s".',
+                var3d.name,
+                attr_type,
+                attribute,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, var3d.name, attr_type, attribute),
+                },
+            )
             return
 
         if var3d_attr != attribute:
-            file.warning('Attribute %s.%s="%s". Should be "%s".', var3d.name, attr_type, var3d_attr, attribute, fix={
-                'func': fix_set_variable_attr,
-                'args': (file, var3d.name, attr_type, attribute)
-            })
+            file.warning(
+                'Attribute %s.%s="%s". Should be "%s".',
+                var3d.name,
+                attr_type,
+                var3d_attr,
+                attribute,
+                fix={
+                    'func': fix_set_variable_attr,
+                    'args': (file, var3d.name, attr_type, attribute),
+                },
+            )
 
     if file.is_3d:
-
         var3d = file.dataset.variables.get(file.dim_vertical)
         var3d_definition = settings.DEFINITIONS['dimensions'].get(file.dim_vertical)
 
         # check if vertical dimension ha a variable associated
         if var3d is None and file.dim_vertical:
-            file.error('Found dimension (%s) but no variable linked to it. Introduce "%s" as variable also.',
-                       file.dim_vertical, file.dim_vertical)
+            file.error(
+                'Found dimension (%s) but no variable linked to it. Introduce "%s" as variable also.',
+                file.dim_vertical,
+                file.dim_vertical,
+            )
 
         # check for definition in protocol for 3d variable
         if var3d_definition is None and file.dim_vertical:
@@ -67,13 +82,16 @@ def check_3d_variable(file):
                 depth_last = vals[-1]
 
             if var3d.shape[0] > 1 and depth_first > depth_last:
-                file.warning('"%s" in wrong order. Should increase with depth. (found %s to %s)',
-                             file.dim_vertical, depth_first, depth_last)
+                file.warning(
+                    '"%s" in wrong order. Should increase with depth. (found %s to %s)',
+                    file.dim_vertical,
+                    depth_first,
+                    depth_last,
+                )
             else:
                 file.info('Depths or layers order looks good (positive down).')
 
             if file.dim_vertical == 'levlak' and settings.SIMULATION_ROUND not in ['ISIMIP2a', 'ISIMIP2b']:
-
                 depth_file = file.dataset.variables.get('depth')
 
                 if depth_file is None:
@@ -85,24 +103,31 @@ def check_3d_variable(file):
                     ndims = len(depth_file.dimensions)
                     if ndims == 4:
                         if depth_file.dimensions[1] != 'levlak':
-                            file.error('Time varying "depth" variable has no dependency for "levlak"'
-                                       ' level index. Expecting: depth(time,levlak,lat,lon)')
+                            file.error(
+                                'Time varying "depth" variable has no dependency for "levlak"'
+                                ' level index. Expecting: depth(time,levlak,lat,lon)'
+                            )
                     elif ndims == 3:
                         if depth_file.dimensions[0] != 'levlak':
-                            file.error('Fixed-time "depth" variable has no dependency for "levlak"'
-                                       ' level index. Expecting: depth(levlak,lat,lon)')
+                            file.error(
+                                'Fixed-time "depth" variable has no dependency for "levlak"'
+                                ' level index. Expecting: depth(levlak,lat,lon)'
+                            )
                     elif ndims == 1:
                         if depth_file.dimensions[0] != 'levlak':
-                            file.error('Globally fixed "depth" variable has no dependency for "levlak"'
-                                       ' level index. Expecting: depth(levlak)')
+                            file.error(
+                                'Globally fixed "depth" variable has no dependency for "levlak"'
+                                ' level index. Expecting: depth(levlak)'
+                            )
                     else:
                         file.error('No proper "levlak" dependency found in "depth" variable.')
 
                     depth_definition = settings.DEFINITIONS['dimensions'].get('depth')
 
                     if depth_definition is None:
-                        file.warning('Dimension "depth" is not yet defined in protocol. Skipping'
-                                     ' attribute checks for "depth".')
+                        file.warning(
+                            'Dimension "depth" is not yet defined in protocol. Skipping attribute checks for "depth".'
+                        )
                     else:
                         for attribute in ('axis', 'standard_name', 'long_name', 'units'):
                             attr_definition = depth_definition.get(attribute)
@@ -120,8 +145,10 @@ def check_3d_variable(file):
                     if var3d_bnds:
                         file.info('Vertical bounds "%s" found for "depth" variable', var3d_bnds)
                     else:
-                        raise FileWarning(file,
-                                          'No vertical boundaries defined for "depth" variable.'
-                                          ' Consider adding depth_bnds(%s, bnds). '
-                                          ' See examples at https://bit.ly/ncdf-bounds', file.dim_vertical
-                                          )
+                        raise FileWarning(
+                            file,
+                            'No vertical boundaries defined for "depth" variable.'
+                            ' Consider adding depth_bnds(%s, bnds). '
+                            ' See examples at https://bit.ly/ncdf-bounds',
+                            file.dim_vertical,
+                        )
