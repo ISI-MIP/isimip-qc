@@ -1,5 +1,6 @@
 from ..config import settings
 from ..fixes import fix_remove_variable_attr, fix_rename_dimension, fix_rename_variable, fix_rename_variable_attr
+from ..models import Fix
 
 # Attributes allowed by the protocol (kept as a set for fast membership tests)
 _ALLOWED_VARIABLE_ATTRS = {
@@ -75,10 +76,7 @@ def check_lower_case(file):
             file.warning(
                 'Dimension "%s" is not lower case.',
                 dimension_name,
-                fix={
-                    'func': fix_rename_dimension,
-                    'args': (file, dimension_name, dimension_name.lower()),
-                },
+                fix=Fix(fix_rename_dimension, file, dimension_name, dimension_name.lower()),
             )
 
     for variable_name, variable in file.dataset.variables.items():
@@ -86,10 +84,7 @@ def check_lower_case(file):
             file.warning(
                 'Variable "%s" is not lower case.',
                 variable_name,
-                fix={
-                    'func': fix_rename_variable,
-                    'args': (file, variable_name, variable_name.lower()),
-                },
+                fix=Fix(fix_rename_variable, file, variable_name, variable_name.lower()),
             )
 
         # Use NetCDF4's ncattrs() to get user-defined attribute names reliably
@@ -108,10 +103,7 @@ def check_lower_case(file):
                     'Attribute "%s" for variable "%s" is not needed.',
                     attr,
                     variable_name,
-                    fix={
-                        'func': fix_remove_variable_attr,
-                        'args': (file, variable_name, attr),
-                    },
+                    fix=Fix(fix_remove_variable_attr, file, variable_name, attr),
                 )
             else:
                 if not attr.islower():
@@ -119,10 +111,7 @@ def check_lower_case(file):
                         'Attribute "%s" for variable "%s" is not lower case.',
                         attr,
                         variable_name,
-                        fix={
-                            'func': fix_rename_variable_attr,
-                            'args': (file, variable_name, attr),
-                        },
+                        fix=Fix(fix_rename_variable_attr, file, variable_name, attr),
                     )
 
 

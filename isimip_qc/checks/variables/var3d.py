@@ -1,5 +1,6 @@
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
+from isimip_qc.models import Fix
 
 from ...exceptions import FileWarning
 
@@ -14,10 +15,7 @@ def check_3d_variable(file):
                 var3d.name,
                 attr_type,
                 attribute,
-                fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, var3d.name, attr_type, attribute),
-                },
+                fix=Fix(fix_set_variable_attr, file, var3d.name, attr_type, attribute),
             )
             return
 
@@ -28,10 +26,7 @@ def check_3d_variable(file):
                 attr_type,
                 var3d_attr,
                 attribute,
-                fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, var3d.name, attr_type, attribute),
-                },
+                fix=Fix(fix_set_variable_attr, file, var3d.name, attr_type, attribute),
             )
 
     if file.is_3d:

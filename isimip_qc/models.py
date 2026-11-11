@@ -133,14 +133,14 @@ class File:
         for info in self.infos[:]:
             _, fix = info
             if fix:
-                fix['func'](*fix['args'])
+                fix()
                 self.infos.remove(info)
 
     def fix_warnings(self):
         for warning in self.warnings[:]:
             _, fix, _ = warning
             if fix:
-                fix['func'](*fix['args'])
+                fix()
                 self.warnings.remove(warning)
 
     def fix_datamodel(self):
@@ -337,3 +337,12 @@ class Summary:
         self.print_specifiers()
         self.print_variables()
         self.print_experiments()
+
+
+class Fix:
+    def __init__(self, func, *args):
+        self.func = func
+        self.args = args
+
+    def __call__(self):
+        self.func(*self.args)

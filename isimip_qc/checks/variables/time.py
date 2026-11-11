@@ -1,5 +1,6 @@
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
+from isimip_qc.models import Fix
 
 
 def check_time_variable(file):
@@ -27,10 +28,7 @@ def check_time_variable(file):
             '"axis" attribute of "time" is %s. Should be "%s".',
             cur_axis,
             axis,
-            fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'axis', axis),
-            },
+            fix=Fix(fix_set_variable_attr, file, 'time', 'axis', axis),
         )
 
     # check standard_name
@@ -41,10 +39,7 @@ def check_time_variable(file):
             '"standard_name" attribute of "time" is "%s". Should be "%s".',
             cur_std,
             standard_name,
-            fix={
-                'func': fix_set_variable_attr,
-                'args': (file, 'time', 'standard_name', standard_name),
-            },
+            fix=Fix(fix_set_variable_attr, file, 'time', 'standard_name', standard_name),
         )
 
     # check long_name
@@ -57,10 +52,7 @@ def check_time_variable(file):
                 '"long_name" attribute of "time" is %s. Should be in %s.',
                 cur_long,
                 long_names,
-                fix={
-                    'func': fix_set_variable_attr,
-                    'args': (file, 'time', 'long_name', default_long),
-                },
+                fix=Fix(fix_set_variable_attr, file, 'time', 'long_name', default_long),
             )
 
     # check units

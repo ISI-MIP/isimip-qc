@@ -6,6 +6,7 @@ import numpy as np
 
 from isimip_qc.config import settings
 from isimip_qc.fixes import fix_set_variable_attr
+from isimip_qc.models import Fix
 from isimip_qc.utils.grid import update_grid_value
 
 
@@ -145,10 +146,7 @@ def check_variable(file):
                     cur,
                     file.variable_name,
                     standard_name,
-                    fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'standard_name', standard_name),
-                    },
+                    fix=Fix(fix_set_variable_attr, file, file.variable_name, 'standard_name', standard_name),
                 )
 
         # check long_name
@@ -161,10 +159,7 @@ def check_variable(file):
                     cur,
                     file.variable_name,
                     long_name,
-                    fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'long_name', long_name),
-                    },
+                    fix=Fix(fix_set_variable_attr, file, file.variable_name, 'long_name', long_name),
                 )
 
         # check variable units
@@ -176,10 +171,7 @@ def check_variable(file):
                     'Variable "%s" units attribute is missing. Should be "%s".',
                     file.variable_name,
                     units,
-                    fix={
-                        'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'units', units),
-                    },
+                    fix=Fix(fix_set_variable_attr, file, file.variable_name, 'units', units),
                 )
             elif cur != str(units):
                 file.error(
@@ -238,7 +230,7 @@ def check_variable(file):
                         '"%s" attribute for variable "%s" is missing. Should be set to 1e+20f.',
                         name,
                         file.variable_name,
-                        fix={'func': fix_set_variable_attr, 'args': (file, file.variable_name, 'missing_value', 1e20)},
+                        fix=Fix(fix_set_variable_attr, file, file.variable_name, 'missing_value', 1e20),
                     )
                 else:
                     file.error(
