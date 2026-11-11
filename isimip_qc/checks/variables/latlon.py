@@ -1,8 +1,7 @@
 import numpy as np
 
 from isimip_qc.config import settings
-from isimip_qc.fixes import fix_set_variable_attr
-from isimip_qc.models import Fix
+from isimip_qc.fixes import SetVariableAttr
 from isimip_qc.utils.grid import update_grid_value
 
 
@@ -32,7 +31,7 @@ def check_latlon_variable(file):
                 variable,
                 cur_axis,
                 axis,
-                fix=Fix(fix_set_variable_attr, file, variable, 'axis', axis),
+                fix=SetVariableAttr(variable, 'axis', axis),
             )
 
         # check standard_name
@@ -44,7 +43,7 @@ def check_latlon_variable(file):
                 variable,
                 cur_std,
                 standard_name,
-                fix=Fix(fix_set_variable_attr, file, variable, 'standard_name', standard_name),
+                fix=SetVariableAttr(variable, 'standard_name', standard_name),
             )
 
         # check long_name
@@ -58,7 +57,7 @@ def check_latlon_variable(file):
                     variable,
                     cur_long,
                     long_names,
-                    fix=Fix(fix_set_variable_attr, file, variable, 'long_name', default_long),
+                    fix=SetVariableAttr(variable, 'long_name', default_long),
                 )
 
         # check units
@@ -70,7 +69,7 @@ def check_latlon_variable(file):
                 variable,
                 cur_units,
                 units,
-                fix=Fix(fix_set_variable_attr, file, variable, 'units', units),
+                fix=SetVariableAttr(variable, 'units', units),
             )
 
         # get lat/lon ranges from the protocol

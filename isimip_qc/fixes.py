@@ -1,59 +1,118 @@
-def fix_rename_dimension(file, dimension_name, new_dimension_name):
-    file.info('Renaming dimension "%s" -> "%s".', dimension_name, new_dimension_name)
-    if dimension_name in file.dataset.dimensions:
-        file.dataset.renameDimension(dimension_name, new_dimension_name)
-    else:
-        file.error('Cannot apply fix: dimension "%s" not found.', dimension_name)
+from dataclasses import dataclass
 
 
-def fix_rename_variable(file, variable_name, new_variable_name):
-    file.info('Renaming variable "%s" -> "%s".', variable_name, new_variable_name)
-    if variable_name in file.dataset.variables:
-        file.dataset.renameVariable(variable_name, new_variable_name)
-    else:
-        file.error('Cannot apply fix: variable "%s" not found.', variable_name)
+@dataclass
+class Fix:
+    def __call__(self, file):
+        return self.fix(file)
+
+    def fix(self, file):
+        raise NotImplementedError
 
 
-def fix_set_variable_attr(file, variable_name, attr_name, value):
-    file.info('Setting attribute "%s.%s=%s"', variable_name, attr_name, value)
-    if variable_name in file.dataset.variables:
-        file.dataset.variables[variable_name].setncattr(attr_name, value)
-    else:
-        file.error('Cannot apply fix: variable "%s" not found.', variable_name)
+@dataclass
+class RenameDimension(Fix):
+    dimension_name: str
+    new_dimension_name: str
+
+    def fix(self, file):
+        file.info('Renaming dimension "%s" -> "%s".', self.dimension_name, self.new_dimension_name)
+        if self.dimension_name in file.dataset.dimensions:
+            file.dataset.renameDimension(self.dimension_name, self.new_dimension_name)
+        else:
+            file.error('Cannot apply fix: dimension "%s" not found.', self.dimension_name)
 
 
-def fix_rename_variable_attr(file, variable_name, attr_name, new_attr_name):
-    file.info('Renaming attribute "%s.%s" -> "%s.%s".', variable_name, attr_name, variable_name, new_attr_name)
-    if variable_name in file.dataset.variables:
-        file.dataset.variables[variable_name].renameAttribute(attr_name, new_attr_name)
-    else:
-        file.error('Cannot apply fix: variable "%s" not found.', variable_name)
+@dataclass
+class RenameVariable(Fix):
+    variable_name: str
+    new_variable_name: str
+
+    def fix(self, file):
+        file.info('Renaming variable "%s" -> "%s".', self.variable_name, self.new_variable_name)
+        if self.variable_name in file.dataset.variables:
+            file.dataset.renameVariable(self.variable_name, self.new_variable_name)
+        else:
+            file.error('Cannot apply fix: variable "%s" not found.', self.variable_name)
 
 
-def fix_remove_variable_attr(file, variable_name, attr_name):
-    file.info('Removing attribute "%s.%s"', variable_name, attr_name)
-    if variable_name in file.dataset.variables:
-        file.dataset.variables[variable_name].delncattr(attr_name)
-    else:
-        file.error('Cannot apply fix: variable "%s" not found.', variable_name)
+@dataclass
+class SetVariableAttr(Fix):
+    variable_name: str
+    attr_name: str
+    value: object
+
+    def fix(self, file):
+        file.info('Setting attribute "%s.%s=%s"', self.variable_name, self.attr_name, self.value)
+        if self.variable_name in file.dataset.variables:
+            file.dataset.variables[self.variable_name].setncattr(self.attr_name, self.value)
+        else:
+            file.error('Cannot apply fix: variable "%s" not found.', self.variable_name)
 
 
-def fix_set_global_attr(file, attr_name, value):
-    file.info('Setting global attribute "%s=%s"', attr_name, value)
-    file.dataset.setncattr(attr_name, value)
+@dataclass
+class RenameVariableAttr(Fix):
+    variable_name: str
+    attr_name: str
+    new_attr_name: str
+
+    def fix(self, file):
+        file.info(
+            'Renaming attribute "%s.%s" -> "%s.%s".',
+            self.variable_name,
+            self.attr_name,
+            self.variable_name,
+            self.new_attr_name,
+        )
+        if self.variable_name in file.dataset.variables:
+            file.dataset.variables[self.variable_name].renameAttribute(self.attr_name, self.new_attr_name)
+        else:
+            file.error('Cannot apply fix: variable "%s" not found.', self.variable_name)
 
 
-def fix_rename_global_attr(file, attr_name, new_attr_name):
-    file.info('Renaming global attribute "%s" -> "%s".', attr_name, new_attr_name)
-    if attr_name in file.dataset.ncattrs():
-        file.dataset.renameAttribute(attr_name, new_attr_name)
-    else:
-        file.error('Cannot apply fix: global attribute "%s" not found.', attr_name)
+@dataclass
+class RemoveVariableAttr(Fix):
+    variable_name: str
+    attr_name: str
+
+    def fix(self, file):
+        file.info('Removing attribute "%s.%s"', self.variable_name, self.attr_name)
+        if self.variable_name in file.dataset.variables:
+            file.dataset.variables[self.variable_name].delncattr(self.attr_name)
+        else:
+            file.error('Cannot apply fix: variable "%s" not found.', self.variable_name)
 
 
-def fix_remove_global_attr(file, attr_name):
-    file.info('Removing global attribute "%s"', attr_name)
-    if attr_name in file.dataset.ncattrs():
-        file.dataset.delncattr(attr_name)
-    else:
-        file.error('Cannot apply fix: global attribute "%s" not found.', attr_name)
+@dataclass
+class SetGlobalAttr(Fix):
+    attr_name: str
+    value: object
+
+    def fix(self, file):
+        file.info('Setting global attribute "%s=%s"', self.attr_name, self.value)
+        file.dataset.setncattr(self.attr_name, self.value)
+
+
+@dataclass
+class RenameGlobalAttr(Fix):
+    attr_name: str
+    new_attr_name: str
+
+    def fix(self, file):
+        file.info('Renaming global attribute "%s" -> "%s".', self.attr_name, self.new_attr_name)
+        if self.attr_name in file.dataset.ncattrs():
+            file.dataset.renameAttribute(self.attr_name, self.new_attr_name)
+        else:
+            file.error('Cannot apply fix: global attribute "%s" not found.', self.attr_name)
+
+
+@dataclass
+class RemoveGlobalAttr(Fix):
+    attr_name: str
+
+    def fix(self, file):
+        file.info('Removing global attribute "%s"', self.attr_name)
+        if self.attr_name in file.dataset.ncattrs():
+            file.dataset.delncattr(self.attr_name)
+        else:
+            file.error('Cannot apply fix: global attribute "%s" not found.', self.attr_name)
