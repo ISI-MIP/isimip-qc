@@ -37,7 +37,6 @@ def check_dimension_variable_dtypes(file):
         var_dtype = np.dtype('O') if variable.dtype is str else variable.dtype
 
         if var_dtype not in allowed:
-            file.warning('Data type of "%s" is "%s". Should be one of %s.',
-                         name, var_dtype, dtypes)
+            file.warning('Data type of "%s" is "%s". Should be one of %s.', name, var_dtype, dtypes)
         else:
             file.info('Data type of "%s" looks good (%s).', name, var_dtype)

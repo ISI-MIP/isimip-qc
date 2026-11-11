@@ -24,13 +24,15 @@ def check_variable(file):
     else:
         # check file name and NetCDF variable to match each other
         if variable.name != file.variable_name:
-            file.error('File name variable (%s) does not match internal variable name (%s).',
-                       file.variable_name, variable.name)
+            file.error(
+                'File name variable (%s) does not match internal variable name (%s).', file.variable_name, variable.name
+            )
 
         # check dtype (compare with NumPy dtype object)
         if variable.dtype != np.dtype('float32'):
-            file.warning('%s data type is "%s" should be "float32".',
-                         file.variable_name, variable.dtype, fix_datamodel=True)
+            file.warning(
+                '%s data type is "%s" should be "float32".', file.variable_name, variable.dtype, fix_datamodel=True
+            )
 
         # check chunking (netCDF4 reports contiguous storage as the truthy
         # string 'contiguous' rather than as a list of chunk sizes)
@@ -52,8 +54,14 @@ def check_variable(file):
                 if variable.dimensions[1] == 'plot':
                     file.info('Skipping checks for chunking in forestry sector')
                 elif chunking[0] != 1 or chunking[1] != lat_size or chunking[2] != lon_size:
-                    file.warning('%s.chunking=%s should be [1, %s, %s] (with proper dependency order).',
-                                 file.variable_name, chunking, lat_size, lon_size, fix_datamodel=True)
+                    file.warning(
+                        '%s.chunking=%s should be [1, %s, %s] (with proper dependency order).',
+                        file.variable_name,
+                        chunking,
+                        lat_size,
+                        lon_size,
+                        fix_datamodel=True,
+                    )
                 else:
                     file.info('Variable properly chunked [1, %s, %s].', lat_size, lon_size)
 
@@ -61,18 +69,27 @@ def check_variable(file):
                 if variable.dimensions[1] == 'plot':
                     file.info('Skipping checks for chunking in forestry sector')
                 elif ds.dimensions.get(file.dim_vertical) is None:
-                    file.warning('Can\'t check chunking: vertical dimension "%s" not found in file.',
-                                 file.dim_vertical)
+                    file.warning('Can\'t check chunking: vertical dimension "%s" not found in file.', file.dim_vertical)
                 else:
                     var3d_size = ds.dimensions.get(file.dim_vertical).size
-                    if (chunking[0] != 1
+                    if (
+                        chunking[0] != 1
                         or (chunking[1] != 1 and chunking[1] != var3d_size)
                         or chunking[2] != lat_size
-                        or chunking[3] != lon_size):
-                        file.warning('%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
-                                     ' (with proper dependency order).',
-                                     file.variable_name, chunking, var3d_size, lat_size, lon_size,
-                                     lat_size, lon_size, fix_datamodel=True)
+                        or chunking[3] != lon_size
+                    ):
+                        file.warning(
+                            '%s.chunking=%s. Should be [1, %s, %s, %s] or [1, 1, %s, %s]'
+                            ' (with proper dependency order).',
+                            file.variable_name,
+                            chunking,
+                            var3d_size,
+                            lat_size,
+                            lon_size,
+                            lat_size,
+                            lon_size,
+                            fix_datamodel=True,
+                        )
                     else:
                         file.info('Variable properly chunked [1, %s, %s, %s].', var3d_size, lat_size, lon_size)
         else:
@@ -98,16 +115,25 @@ def check_variable(file):
             default_dimensions = None
 
         if default_dimensions is None:
-            file.warning('Can\'t check the dimensions of variable "%s": it is neither 2d nor 3d data.',
-                         file.variable_name)
+            file.warning(
+                'Can\'t check the dimensions of variable "%s": it is neither 2d nor 3d data.', file.variable_name
+            )
         elif definition_dimensions:
             if variable.dimensions not in [definition_dimensions, default_dimensions]:
-                file.error('Found %s dimensions for "%s". Must be %s.',
-                           variable.dimensions, file.variable_name, default_dimensions)
+                file.error(
+                    'Found %s dimensions for "%s". Must be %s.',
+                    variable.dimensions,
+                    file.variable_name,
+                    default_dimensions,
+                )
         else:
             if variable.dimensions != default_dimensions:
-                file.error('Found %s dimensions for "%s". Must be %s.',
-                           variable.dimensions, file.variable_name, default_dimensions)
+                file.error(
+                    'Found %s dimensions for "%s". Must be %s.',
+                    variable.dimensions,
+                    file.variable_name,
+                    default_dimensions,
+                )
 
         # check standard_name
         standard_name = definition.get('standard_name')
@@ -116,10 +142,13 @@ def check_variable(file):
             if cur != standard_name:
                 file.warning(
                     'Attribute standard_name="%s" for variable "%s". Should be "%s".',
-                    cur, file.variable_name, standard_name, fix={
+                    cur,
+                    file.variable_name,
+                    standard_name,
+                    fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'standard_name', standard_name)
-                    }
+                        'args': (file, file.variable_name, 'standard_name', standard_name),
+                    },
                 )
 
         # check long_name
@@ -129,10 +158,13 @@ def check_variable(file):
             if cur != long_name:
                 file.warning(
                     'Attribute long_name="%s" for variable "%s". Should be "%s".',
-                    cur, file.variable_name, long_name, fix={
+                    cur,
+                    file.variable_name,
+                    long_name,
+                    fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'long_name', long_name)
-                    }
+                        'args': (file, file.variable_name, 'long_name', long_name),
+                    },
                 )
 
         # check variable units
@@ -142,14 +174,20 @@ def check_variable(file):
             if cur is None:
                 file.warning(
                     'Variable "%s" units attribute is missing. Should be "%s".',
-                    file.variable_name, units, fix={
+                    file.variable_name,
+                    units,
+                    fix={
                         'func': fix_set_variable_attr,
-                        'args': (file, file.variable_name, 'units', units)
-                    }
+                        'args': (file, file.variable_name, 'units', units),
+                    },
                 )
             elif cur != str(units):
-                file.error('%s.units="%s" should be "%s". Check if values are matching the unit given.',
-                           file.variable_name, cur, units)
+                file.error(
+                    '%s.units="%s" should be "%s". Check if values are matching the unit given.',
+                    file.variable_name,
+                    cur,
+                    units,
+                )
             else:
                 file.info('Variable unit matches protocol definition (%s).', cur)
         else:
@@ -171,31 +209,44 @@ def check_variable(file):
                     attr_dtype = None
 
                 if attr_dtype is not None and attr_dtype != variable.dtype:
-                    file.error('%s data type (%s) differs from %s data type (%s).',
-                               name, attr_dtype, file.variable_name, variable.dtype)
+                    file.error(
+                        '%s data type (%s) differs from %s data type (%s).',
+                        name,
+                        attr_dtype,
+                        file.variable_name,
+                        variable.dtype,
+                    )
                 else:
                     try:
                         val = float(attr)
-                        if not math.isclose(val, 1e+20, rel_tol=1e-6):
-                            file.error('Missing values for variable "%s": %s=%s but should be 1e+20.',
-                                       file.variable_name, name, attr)
+                        if not math.isclose(val, 1e20, rel_tol=1e-6):
+                            file.error(
+                                'Missing values for variable "%s": %s=%s but should be 1e+20.',
+                                file.variable_name,
+                                name,
+                                attr,
+                            )
                         else:
                             file.info('Missing value attribute "%s" is properly set.', name)
                     except AttributeError:
-                        file.error('Could not interpret %s attribute for variable "%s" as numeric.',
-                                   name, file.variable_name)
+                        file.error(
+                            'Could not interpret %s attribute for variable "%s" as numeric.', name, file.variable_name
+                        )
             else:
                 if name == 'missing_value':
                     file.warning(
                         '"%s" attribute for variable "%s" is missing. Should be set to 1e+20f.',
-                        name, file.variable_name, fix={
-                            'func': fix_set_variable_attr,
-                            'args': (file, file.variable_name, 'missing_value', 1e+20)
-                        }
+                        name,
+                        file.variable_name,
+                        fix={'func': fix_set_variable_attr, 'args': (file, file.variable_name, 'missing_value', 1e20)},
                     )
                 else:
-                    file.error('"%s" attribute for variable "%s" is missing. Should be set to 1e+20f and must be set'
-                               ' when variable is created.', name, file.variable_name)
+                    file.error(
+                        '"%s" attribute for variable "%s" is missing. Should be set to 1e+20f and must be set'
+                        ' when variable is created.',
+                        name,
+                        file.variable_name,
+                    )
 
         # check valid range
         if isinstance(settings.MINMAX, (int, float)) and not isinstance(settings.MINMAX, bool) and settings.MINMAX >= 0:
@@ -205,8 +256,8 @@ def check_variable(file):
 
             # skip valid range check for special sectors
             if (
-                settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_min') is False or
-                settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_max') is False
+                settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_min') is False
+                or settings.DEFINITIONS['sector'].get(settings.SECTOR, {}).get('valid_max') is False
             ):
                 file.warning('Skip valid range test for "%s" sector.', settings.SECTOR)
                 return
@@ -214,20 +265,22 @@ def check_variable(file):
             valid_min = definition.get('valid_min')
             valid_max = definition.get('valid_max')
             if (valid_min is not None) and (valid_max is not None):
-                file.info('Checking values for valid minimum and maximum range defined in'
-                          ' the protocol. This could take some time...')
+                file.info(
+                    'Checking values for valid minimum and maximum range defined in'
+                    ' the protocol. This could take some time...'
+                )
                 time_var = file.dataset.variables.get('time')
 
                 try:
                     time_units = time_var.units
                 except AttributeError:
-                    file.warning('Can\'t check for valid ranges because of missing units attribute in time variable')
+                    file.warning("Can't check for valid ranges because of missing units attribute in time variable")
                     return
 
                 try:
                     time_calendar = time_var.calendar
                 except AttributeError:
-                    file.warning('Can\'t check for valid ranges because of missing calendar attribute in time variable')
+                    file.warning("Can't check for valid ranges because of missing calendar attribute in time variable")
                     return
 
                 file.info('Scanning in streaming mode to limit memory usage...')
@@ -242,7 +295,7 @@ def check_variable(file):
 
                 nt = time_var.size
                 if nt == 0:
-                    file.warning('Can\'t check for valid ranges because the time axis is empty.')
+                    file.warning("Can't check for valid ranges because the time axis is empty.")
                     return
 
                 # Heaps to keep top N extremes while scanning
@@ -309,23 +362,25 @@ def check_variable(file):
 
                 # reporting
                 if count_low:
-                    file.warning('%i values are lower than the valid minimum (%.2E %s).',
-                                 count_low, valid_min, units)
+                    file.warning('%i values are lower than the valid minimum (%.2E %s).', count_low, valid_min, units)
                 if count_high:
-                    file.warning('%i values are higher than the valid maximum (%.2E %s).',
-                                 count_high, valid_max, units)
+                    file.warning('%i values are higher than the valid maximum (%.2E %s).', count_high, valid_max, units)
 
                 def describe(v, idx):
                     date = netCDF4.num2date(time_var[idx[0]], time_units, time_calendar)
-                    parts = ['date: %s' % date]
-                    if (lat_vals is not None and lon_vals is not None
-                            and idx[-2] < len(lat_vals) and idx[-1] < len(lon_vals)):
-                        parts.append('lat/lon: %4.2f/%4.2f' % (lat_vals[idx[-2]], lon_vals[idx[-1]]))
+                    parts = [f'date: {date}']
+                    if (
+                        lat_vals is not None
+                        and lon_vals is not None
+                        and idx[-2] < len(lat_vals)
+                        and idx[-1] < len(lon_vals)
+                    ):
+                        parts.append(f'lat/lon: {lat_vals[idx[-2]]:4.2f}/{lon_vals[idx[-1]]:4.2f}')
                     else:
                         parts.append('lat/lon: n/a')
                     if not file.is_2d:
                         parts.append('level: %s' % (idx[-3] + 1))
-                    parts.append('value: %E %s' % (v, units))
+                    parts.append(f'value: {v:E} {units}')
                     return ', '.join(parts)
 
                 if count_low:
@@ -336,8 +391,7 @@ def check_variable(file):
                         try:
                             file.warning('%s', describe(-v, idx))
                         except (AttributeError, OverflowError, TypeError, ValueError):
-                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)',
-                                         idx, -v, units)
+                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)', idx, -v, units)
 
                 if count_high:
                     file.warning('%i highest values are :', min(n_keep, count_high))
@@ -345,12 +399,13 @@ def check_variable(file):
                         try:
                             file.warning('%s', describe(v, idx))
                         except (AttributeError, OverflowError, TypeError, ValueError):
-                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)',
-                                         idx, v, units)
+                            file.warning('index: %s, value: %E %s (date/coordinates unavailable)', idx, v, units)
 
                 if not count_low and not count_high:
                     file.info('Values are within valid range (%.2E to %.2E).', valid_min, valid_max)
 
             else:
-                file.warning('No min and/or max definition found for variable "%s" in protocol. Skipping test.',
-                             file.variable_name)
+                file.warning(
+                    'No min and/or max definition found for variable "%s" in protocol. Skipping test.',
+                    file.variable_name,
+                )

@@ -21,15 +21,13 @@ _ALLOWED_VARIABLE_ATTRS = {
 }
 
 # Attributes that should be ignored from removal checks
-_IGNORED_VARIABLE_ATTRS = {
-    '_FillValue'
-}
+_IGNORED_VARIABLE_ATTRS = {'_FillValue'}
 
 
 def check_data_model(file):
-    '''
+    """
     File must use the NetCDF4 classic data model
-    '''
+    """
     if file.dataset.data_model != 'NETCDF4_CLASSIC':
         file.warning('Data model is %s (not NETCDF4_CLASSIC).', file.dataset.data_model, fix_datamodel=True)
     else:
@@ -37,9 +35,9 @@ def check_data_model(file):
 
 
 def check_zip(file):
-    '''
+    """
     Data variables must be compressed with at least compression level 4. Skip check for dimension variables.
-    '''
+    """
 
     variable = file.dataset.variables.get(file.variable_name)
     if variable is None:
@@ -57,30 +55,42 @@ def check_zip(file):
 
     complevel = filters.get('complevel')
     if complevel < 5:
-        file.warning('Variable "%s" compression level is "%s". Should be >= 5.',
-                  file.variable_name, complevel, fix_datamodel=True)
+        file.warning(
+            'Variable "%s" compression level is "%s". Should be >= 5.',
+            file.variable_name,
+            complevel,
+            fix_datamodel=True,
+        )
     else:
         file.info('Variable "%s" compression level looks good (%s)', file.variable_name, complevel)
 
 
 def check_lower_case(file):
-    '''
+    """
     Internal names of dimensions and variables are lowercase.
-    '''
+    """
 
     for dimension_name in file.dataset.dimensions:
         if not dimension_name.islower():
-            file.warning('Dimension "%s" is not lower case.', dimension_name, fix={
-                'func': fix_rename_dimension,
-                'args': (file, dimension_name, dimension_name.lower())
-            })
+            file.warning(
+                'Dimension "%s" is not lower case.',
+                dimension_name,
+                fix={
+                    'func': fix_rename_dimension,
+                    'args': (file, dimension_name, dimension_name.lower()),
+                },
+            )
 
     for variable_name, variable in file.dataset.variables.items():
         if not variable_name.islower():
-            file.warning('Variable "%s" is not lower case.', variable_name, fix={
-                'func': fix_rename_variable,
-                'args': (file, variable_name, variable_name.lower())
-            })
+            file.warning(
+                'Variable "%s" is not lower case.',
+                variable_name,
+                fix={
+                    'func': fix_rename_variable,
+                    'args': (file, variable_name, variable_name.lower()),
+                },
+            )
 
         # Use NetCDF4's ncattrs() to get user-defined attribute names reliably
         try:
@@ -94,23 +104,33 @@ def check_lower_case(file):
                 continue
 
             if attr not in _ALLOWED_VARIABLE_ATTRS:
-                file.warning('Attribute "%s" for variable "%s" is not needed.', attr, variable_name, fix={
-                    'func': fix_remove_variable_attr,
-                    'args': (file, variable_name, attr)
-                })
+                file.warning(
+                    'Attribute "%s" for variable "%s" is not needed.',
+                    attr,
+                    variable_name,
+                    fix={
+                        'func': fix_remove_variable_attr,
+                        'args': (file, variable_name, attr),
+                    },
+                )
             else:
                 if not attr.islower():
-                    file.warning('Attribute "%s" for variable "%s" is not lower case.', attr, variable_name, fix={
-                        'func': fix_rename_variable_attr,
-                        'args': (file, variable_name, attr)
-                    })
+                    file.warning(
+                        'Attribute "%s" for variable "%s" is not lower case.',
+                        attr,
+                        variable_name,
+                        fix={
+                            'func': fix_rename_variable_attr,
+                            'args': (file, variable_name, attr),
+                        },
+                    )
 
 
 def _split_classes(value):
-    '''
+    """
     Parse a "classes" attribute into a list of class names. Accepts a comma-separated
     string as well as a sequence of (byte-)strings.
-    '''
+    """
     if isinstance(value, (str, bytes)):
         candidates = [value]
     else:
@@ -129,12 +149,12 @@ def _split_classes(value):
 
 
 def check_fuelclass(file):
-    '''
+    """
     The "fuelclass" variable must carry the mandatory "classes" attribute listing the
     model-specific fuel classes. Which attributes are mandatory is read from the protocol
     (definitions/dimensions.yaml, key "required_attributes") where available. The class
     names themselves are model-specific and can not be fixed by the tool.
-    '''
+    """
     variable = file.dataset.variables.get('fuelclass')
     if variable is None:
         return
@@ -148,15 +168,23 @@ def check_fuelclass(file):
     for attribute in required_attributes:
         value = getattr(variable, attribute, None)
         if value is None:
-            file.warning('Attribute "%s" for variable "fuelclass" is missing. It is mandatory, list the '
-                         'model-specific fuel class names.', attribute)
+            file.warning(
+                'Attribute "%s" for variable "fuelclass" is missing. It is mandatory, list the '
+                'model-specific fuel class names.',
+                attribute,
+            )
             continue
 
         classes = _split_classes(value)
         if not classes:
-            file.warning('Attribute "%s" for variable "fuelclass" is empty. List the model-specific '
-                         'fuel class names.', attribute)
+            file.warning(
+                'Attribute "%s" for variable "fuelclass" is empty. List the model-specific fuel class names.', attribute
+            )
             continue
 
-        file.info('Attribute "%s" for variable "fuelclass" found with %s class(es): %s.',
-                  attribute, len(classes), ', '.join(classes))
+        file.info(
+            'Attribute "%s" for variable "fuelclass" found with %s class(es): %s.',
+            attribute,
+            len(classes),
+            ', '.join(classes),
+        )

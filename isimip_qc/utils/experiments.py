@@ -40,15 +40,19 @@ def get_experiment(specifiers, period=None):
     for experiment_specifier, experiment_values in experiments.items():
         for period_specifier in period_candidates:
             period_values = all_periods[period_specifier]
-            if (period_values.get('start_year') <= specifiers.get('start_year') and
-                period_values.get('end_year') >= specifiers.get('end_year')):
-
+            if period_values.get('start_year') <= specifiers.get('start_year') and period_values.get(
+                'end_year'
+            ) >= specifiers.get('end_year'):
                 experiment_period = experiment_values.get(period_specifier, {})
 
-                if (isinstance(experiment_period, dict) and
-                    match_climate_scenario(experiment_period.get('climate'), climate_scenario) and
-                    experiment_period.get('soc') == soc_scenario and
-                    (sens_scenario == 'default' or
-                     experiment_period.get('climate_sens') == sens_scenario or
-                     experiment_period.get('soc_sens') == sens_scenario)):
+                if (
+                    isinstance(experiment_period, dict)
+                    and match_climate_scenario(experiment_period.get('climate'), climate_scenario)
+                    and experiment_period.get('soc') == soc_scenario
+                    and (
+                        sens_scenario == 'default'
+                        or experiment_period.get('climate_sens') == sens_scenario
+                        or experiment_period.get('soc_sens') == sens_scenario
+                    )
+                ):
                     return experiment_specifier

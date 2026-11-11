@@ -67,8 +67,9 @@ def check_depth_dimension(file):
         if file.dim_vertical is None:
             file.error('Could not determine the vertical dimension of variable "%s".', file.variable_name)
         elif file.dataset.dimensions.get(file.dim_vertical) is None:
-            file.error('Valid 4th dimension is missing. Should be of of [depth, bins]. Found "%s" instead.',
-                       file.dim_vertical)
+            file.error(
+                'Valid 4th dimension is missing. Should be of of [depth, bins]. Found "%s" instead.', file.dim_vertical
+            )
 
 
 def check_dimensions(file):

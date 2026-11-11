@@ -14,8 +14,4 @@ for path in sorted(checks_dir.rglob('*.py')):
     parts = path.relative_to(checks_dir).with_suffix('').parts
     module_name = 'isimip_qc.checks.{}'.format('.'.join(parts))
     module = importlib.import_module(module_name)
-    checks += [
-        func
-        for _, func in inspect.getmembers(module, inspect.isfunction)
-        if func.__name__.startswith('check_')
-    ]
+    checks += [func for _, func in inspect.getmembers(module, inspect.isfunction) if func.__name__.startswith('check_')]

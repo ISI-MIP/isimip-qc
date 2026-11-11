@@ -34,8 +34,7 @@ def _is_identical(source_path, target_path):
     # CHECKED_PATH and the scanned path may resolve to the same file (both
     # default to the current directory); shutil.copy would raise
     # SameFileError on such pairs while shutil.move would silently no-op
-    return (Path(source_path).is_file() and target_path.is_file()
-            and Path(source_path).samefile(target_path))
+    return Path(source_path).is_file() and target_path.is_file() and Path(source_path).samefile(target_path)
 
 
 def move_file(source_path, target_path, overwrite=False):
@@ -51,8 +50,9 @@ def move_file(source_path, target_path, overwrite=False):
         logger.info('Move file')
         shutil.move(source_path, target_path)
     else:
-        logger.warning('Skip moving because target file is present and overwriting not allowed.'
-                    ' Use -O to allow overwriting.')
+        logger.warning(
+            'Skip moving because target file is present and overwriting not allowed. Use -O to allow overwriting.'
+        )
 
 
 def copy_file(source_path, target_path):
@@ -65,5 +65,6 @@ def copy_file(source_path, target_path):
         logger.info('Copy file')
         shutil.copy(source_path, target_path)
     else:
-        logger.warning('Skip copying because target file is present and overwriting not allowed.'
-                    ' Use -O to allow overwriting.')
+        logger.warning(
+            'Skip copying because target file is present and overwriting not allowed. Use -O to allow overwriting.'
+        )
