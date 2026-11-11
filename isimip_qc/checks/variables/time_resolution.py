@@ -82,11 +82,11 @@ def check_time_resolution(file):
                     lastdate_nc = netCDF4.num2date(time[time_steps - 1], time_units, time_calendar)
                     startyear_nc = firstdate_nc.year
                     endyear_nc = lastdate_nc.year
-            except (AttributeError, OverflowError, TypeError, ValueError):
+            except (AttributeError, OverflowError, TypeError, ValueError) as e:
                 # num2date raises ValueError on malformed units, OverflowError on absurd offsets
                 # and AttributeError/TypeError from cftime internals on NaN/masked values
                 file.warning('Can\'t check the period covered by the time axis because of malformed'
-                             ' time units (%s) or time values.', time_units)
+                             ' time units (%s) or time values. (Error: %s)', time_units, e)
                 return
         else:
             # year and time step checks are not defined for sub-daily time steps
