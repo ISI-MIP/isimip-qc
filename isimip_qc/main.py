@@ -13,6 +13,7 @@ from isimip_utils.cli import (
     setup_logs,
 )
 from isimip_utils.exceptions import FetchError, NotFound
+from isimip_utils.protocol import PROTOCOL_LOCATIONS
 from isimip_utils.utils import exclude_path, include_path
 
 from . import VERSION
@@ -47,7 +48,7 @@ def main():
     parser.add_argument('--checked-path', dest='checked_path', type=parse_path, default=Path().cwd(),
                         help='base path for the checked files')
     parser.add_argument('--protocol-location', dest='protocol_locations', type=parse_locations,
-                        default='https://protocol.isimip.org https://protocol2.isimip.org',
+                        default=' '.join(PROTOCOL_LOCATIONS),
                         help='URL or file path to the protocol when different from official repository')
     parser.add_argument('--data-url', dest='data_url', type=lambda p: p.rstrip('/'),
                         default='https://data.isimip.org',
