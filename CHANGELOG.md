@@ -1,5 +1,37 @@
 # Changelog
 
+## [isimip-qc 4.2](https://github.com/ISI-MIP/isimip-qc/releases/tag/4.2)
+
+### Main improvements
+
+* Checks
+  * Malformed time units or time values that make the NetCDF time axis unreadable are now
+    reported as errors instead of warnings; such files are no longer considered free of
+    unfixable issues and won't be copied or moved
+  * Show the underlying exception in the message when the time axis cannot be parsed
+* Data handling
+  * The default `--protocol-location` is taken from `isimip_utils` and now includes
+    `https://protocol4.isimip.org`, so ISIMIP4a/4b data can be checked against the
+    official protocol without any option
+* Development
+  * Enable `ruff-format` (single quote style) in the pre-commit config and apply it,
+    plus format string cleanups
+
+**Commit history**: [4.1.1...4.2](https://github.com/ISI-MIP/isimip-qc/compare/4.1.1...4.2)
+
+## [isimip-qc 4.1.1](https://github.com/ISI-MIP/isimip-qc/releases/tag/4.1.1)
+
+### Fixes
+
+* Support ISIMIP4b experiment matching: accept `specifier_alias` values of the
+  `climate_scenario` definitions (like `scen7-h` or `esm-picontrol`), and anchor the
+  experiment check to the `pre-industrial`/`historical`/`future` subfolder, with the
+  covered period required to stay within the simulation period defined for it
+* Daily historical files: expect the last file to start in 2021 (instead of 2011) where
+  the historical period extends beyond the last full decade (ISIMIP4a/4b, and ISIMIP3a
+  with 20crv3-era5), removing spurious end-of-time-span warnings on full decades
+* Fix formatting of the allowed time units listing in error messages
+
 ## [isimip-qc 4.1](https://github.com/ISI-MIP/isimip-qc/releases/tag/4.1)
 
 ### Main improvements
