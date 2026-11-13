@@ -85,8 +85,8 @@ def check_time_resolution(file):
             except (AttributeError, OverflowError, TypeError, ValueError) as e:
                 # num2date raises ValueError on malformed units, OverflowError on absurd offsets
                 # and AttributeError/TypeError from cftime internals on NaN/masked values
-                file.warning('Can\'t check the period covered by the time axis because of malformed'
-                             ' time units (%s) or time values. (Error: %s)', time_units, e)
+                file.error('Can\'t check the period covered by the time axis because of malformed'
+                           ' time units (%s) or time values. (Error: %s)', time_units, e)
                 return
         else:
             # year and time step checks are not defined for sub-daily time steps
