@@ -139,8 +139,11 @@ def check_dimensions(file):
 
 
 def check_resolution(file):
-    # ISIMIP4 introduces the resolution specifier in output data file names. The valid
-    # options are the enum compiled into the protocol schema for this schema_path
+    # the resolution specifier was introduced in ISIMIP4 output data file names only;
+    # valid options are the enum compiled into the protocol schema for this schema_path
+    if settings.SIMULATION_ROUND not in ('ISIMIP4a', 'ISIMIP4b'):
+        return
+
     resolution = file.specifiers.get('resolution')
     if resolution is None:
         return
