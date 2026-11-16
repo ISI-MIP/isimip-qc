@@ -136,3 +136,33 @@ def check_dimensions(file):
         size = dimension_definition.get('size')
         if size and dimension.size != size:
             file.error('Size of "%s" dimension is %s. Must be %s.', dimension_name, dimension.size, size)
+
+
+def check_resolution(file):
+    # ISIMIP4 introduces the resolution specifier in output data file names. The valid
+    # options are the enum compiled into the protocol schema for this schema_path
+    resolution = file.specifiers.get('resolution')
+    if resolution is None:
+        return
+
+    valid = (
+        settings.SCHEMA.get('properties', {})
+        .get('specifiers', {})
+        .get('properties', {})
+        .get('resolution', {})
+        .get('enum')
+    )
+    if valid is None:
+        file.warning(
+            'The protocol schema defines no valid resolutions for this schema_path. Skipping check for resolution.'
+        )
+        return
+
+    if resolution not in valid:
+        file.error(
+            'Resolution specifier "%s" is not one of the valid resolutions in the protocol schema: %s.',
+            resolution,
+            ', '.join(sorted(valid)),
+        )
+    else:
+        file.info('Valid resolution found (%s).', resolution)
